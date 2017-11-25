@@ -401,7 +401,7 @@ Once we have the least squares estimates $\hat{\boldsymbol{\beta}}$, we can defi
 \begin{align*}
 \hat Y_i:=\hat\beta_0+\hat\beta_1X_{i1}+\ldots+\hat\beta_pX_{ip},\quad i=1,\ldots,n.
 \end{align*}
-They are the vertical projections of $Y_1,\ldots,Y_n$ into the fitted line (see Figure \@ref(fig:leastsquares2)). In a matrix form, inputting \@ref(eq:rss)
+They are the vertical projections of $Y_1,\ldots,Y_n$ into the fitted plane (see Figure \@ref(fig:leastsquares2)). In a matrix form, inputting \@ref(eq:rss)
 \[
 \hat{\mathbf{Y}}=\mathbf{X}\hat{\boldsymbol{\beta}}=\mathbf{X}(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}=\mathbf{H}\mathbf{Y},
 \]
