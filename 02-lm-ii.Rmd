@@ -14,11 +14,11 @@ The description of the related variables can be found in `?Boston` and @Harrison
 - *Air pollution* variable: `nox`, the annual concentration of nitrogen oxide (in parts per ten million).
 
 We begin by importing the data:
-```{r, echo = TRUE, collapse = TRUE, cache = TRUE}
+```{r, echo = FALSE, collapse = TRUE, cache = TRUE}
 library(readxl)
 Boston <- read_excel(path = "datasets/Boston.xlsx", sheet = 1, col_names = TRUE)
 ```
-```{r, echo = FALSE, collapse = TRUE, cache = TRUE, eval = FALSE}
+```{r, echo = TRUE, collapse = TRUE, cache = TRUE, eval = FALSE}
 # Read data
 library(readxl)
 Boston <- read_excel(path = "Boston.xlsx", sheet = 1, col_names = TRUE)
@@ -31,7 +31,7 @@ summary(Boston)
 The two goals of this case study are:
 
 - Q1. *Quantify the influence of the predictor variables in the housing prices.*
-- Q2. *Obtain the "best possible" model for decomposing the housing variables and interpret it.*
+- Q2. *Obtain the "best possible" model for decomposing the housing prices and interpret it.*
 
 We begin by making an exploratory analysis of the data with a matrix scatterplot. Since the number of variables is high, we opt to plot only five variables: `crim`, `dis`, `medv`, `nox`, and `rm`. Each of them represents the five topics in which variables were classified.
 
@@ -229,9 +229,9 @@ summary(iris)
 mod1 <- lm(Sepal.Length ~ ., data = iris)
 summary(mod1)
 # Speciesversicolor (D1) coefficient: -0.72356. The average increment of
-# Sepal.Length when the species is versicolor instead of setosa (reference).
+# Sepal.Length when the species is versicolor instead of setosa (reference)
 # Speciesvirginica (D2) coefficient: -1.02350. The average increment of
-# Sepal.Length when the species is virginica instead of setosa (reference).
+# Sepal.Length when the species is virginica instead of setosa (reference)
 # Both dummy variables are significant
 
 # How to set a different level as reference (versicolor)
@@ -241,15 +241,15 @@ iris$Species <- relevel(iris$Species, ref = "versicolor")
 mod2 <- lm(Sepal.Length ~ ., data = iris)
 summary(mod2)
 # Speciessetosa (D1) coefficient: 0.72356. The average increment of
-# Sepal.Length when the species is setosa instead of versicolor (reference).
+# Sepal.Length when the species is setosa instead of versicolor (reference)
 # Speciesvirginica (D2) coefficient: -0.29994.s The average increment of
-# Sepal.Length when the species is virginica instead of versicolor (reference).
+# Sepal.Length when the species is virginica instead of versicolor (reference)
 # Both dummy variables are significant
 
 # Coefficients of the model
 confint(mod2)
 # The coefficients of Speciesversicolor and Speciesvirginica are significantly
-# negative. Therefore, there are significant
+# negative
 ```
 
 ```{block, type = 'rmdcaution'}
@@ -284,14 +284,14 @@ mod <- lm(medv ~ chas + crim, data = Boston)
 summary(mod)
 # The coefficient associated to chas is 5.57772. That means that if the suburb
 # is close to the river, the mean of medv increases in 5.57772 units for 
-# the same house and neighborhood conditions.
+# the same house and neighborhood conditions
 # chas is significant (the presence of the river adds a valuable information
 # for explaining medv)
 
 # Summary of the best model in terms of BIC
 summary(modBIC)
 # The coefficient associated to chas is 2.71871. If the suburb is close to 
-# the river, the mean of medv increases in 2.71871 units.
+# the river, the mean of medv increases in 2.71871 units
 # chas is significant as well in the presence of more predictors
 ```
 
