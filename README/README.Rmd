@@ -49,9 +49,9 @@ The **course evaluation** guidelines can be found [here](https://bookdown.org/eg
 Contributions
 -------------
 
-Contributions, reporting of typos, and feedback on the notes are very welcome. Either send an email to <edgarcia@est-econ.uc3m.es> or (preferably) fork the repository, make your changes and open a pull request. Give me a reason for writing your name in a list of contributors!
+Contributions, reporting of typos, and feedback on the notes are very welcome. Either send an email to <edgarcia@est-econ.uc3m.es> or (preferably) fork the repository, make your changes and open a pull request. Give me a reason for writing your name in the list of contributors!
 
-List of contributors:
+**List of contributors**:
 
 - [jangelfdez](https://github.com/jangelfdez) (José Ángel Fernández)
 
