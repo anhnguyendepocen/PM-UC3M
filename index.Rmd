@@ -58,41 +58,64 @@ library(rgl)
 # library(locfit)
 ```
 
-<!--
+
 ## What is *predictive modeling*? {#intro-what-is}
 
-The objective of predictive modeling is to make an accurate prediction.
+> Predictive modeling is the process of developing a mathematical tool or model that generates an accurate prediction about a random quantity of interest.
 
-> Predictive modeling is the process of developing a mathematical tool or model that generates an accurate prediction.
+In predictive modeling we are interested in predicting a random variable, typically denoted by $Y$, from a set of related variables $X_1,\ldots,X_p$. The focus is on learning what is the probabilistic model that relates $Y$ with $X_1,\ldots,X_p$, and use that acquired knowledge for predicting $Y$ given an observation of $X_1,\ldots,X_p$. Some concrete examples of this are:
 
-The process by which a model is created or chosen to try to best predict the probability of an outcome.
+- Predicting the wine quality ($Y$) from a set of environmental variables ($X_1,\ldots,X_p$).
+- Predicting the number of sales ($Y$) from a set of marketing actions ($X_1,\ldots,X_p$).
+- Modelling the average house value in a given suburb ($Y$) from a set of community-related features ($X_1,\ldots,X_p$).
+- Predicting the probability of failure ($Y$) of a rocket launcher from the ambient temperature ($X_1$).
 
-Prediction versus interpretability
+The process of predictive modelling can be statistically abstracted in the following way. We believe that $Y$ and $X_1,\ldots,X_p$ are related by a *regression model* of the form
+\[
+Y=m(X_1,\ldots,X_p)+\varepsilon,
+\]
+where $m$ is the *regression function* and $\varepsilon$ is a random error (which accounts for the uncertainty of knowing $Y$ if $X_1,\ldots,X_p$ are known) with zero mean. The function $m:\mathbb{R}^p\rightarrow\mathbb{R}$ is unknown in practice and is the target of predictive modelling: **$m$ encodes the relation**^[The relation is encoded in *average* by means of the *conditional expectation*.] **between $Y$ and $X_1,\ldots,X_p$**. $m$ captures the *trend* of the relation between $Y$ and $X_1,\ldots,X_p$, and $\varepsilon$ the *stochasticity* of that relation. 
 
-black boxes.
+Therefore, knowing $m$ allows to predict $Y$. We are going to devote this course to see some statistical models to came up with an estimate of $m$, denoted by $\hat m$, and use $\hat m$ to predict $Y$. 
 
-statistical models with neat interpretations of the parameters.
+Let's see a concrete example of this with an artificial dataset. Suppose $Y$ represents average fuel consumption (l/100km) of a car and $X$ is the average speed (km/h). It is well known from physics that the energy and speed have a quadratic relationship, and therefore we may assume that $Y$ and $X$ are *truly* quadratically-related for the sake of exposition:
+\[
+Y=a+bX+cX^2+\varepsilon.
+\]
+Then $m:\mathbb{R}\rightarrow\mathbb{R}$ ($p=1$) with $m(x)=a+bx+cx^2$. Suppose the following data are measurements from a given car model, measured in different drivers and conditions (we do not have data for accounting for all those effects, which go to the $\varepsilon$ term):
+```{r, echo = TRUE}
+x <- c(64, 20, 14, 64, 44, 39, 25, 53, 48, 9, 
+       100, 112, 78, 105, 116, 94, 71, 71, 101, 109)
+y <- c(4, 6, 6.4, 4.1, 4.9, 4.4, 6.6, 4.4, 3.8, 7, 
+       7.4, 8.4, 5.2, 7.6, 9.8, 6.4, 5.1, 4.8, 8.2, 8.7)
+plot(x, y, xlab = "Speed", ylab = "Fuel consumption")
+```
+From this data, we can estimate $m$ by means of a polynomial model^[Note we use the information that $m$ *has to be* of a particular form (in this case quadratic) which is an unrealistic situation for other data applications.]:
+```{r, echo = TRUE}
+# Estimates for a, b, and c
+lm(y ~ x + I(x^2))
+```
+Then the estimate of $m$ is $\hat m(x)=\hat a+\hat b x+\hat c x^2=8.512-0.153x+0.001x^2$ and its fit to the data is pretty good. As a consequence, we can use this precise mathematical function to predict the $Y$ from a particular observation $X$. For example, the average fuel consumption of at a speed 90 km/h is `8.512421 - 0.153291 * 90 + 0.001408 * 90^2=6.1210`.
+```{r, echo = TRUE, fig.asp = 1}
+plot(x, y, xlab = "Speed", ylab = "Fuel consumption")
+curve(8.512421 - 0.153291 * x + 0.001408 * x^2, add = TRUE, col = 2)
+```
 
-correctness and usefulness
+There are a number of generic issues and decisions to take when building and estimating regression models that are worth to highlight:
 
+- The **prediction accuracy versus interpretability** trade-off. *Prediction accuracy* is key in any predictive model. However, some of them achieve this predictive accuracy in exchange of a clear *interpretability* of the model (the so-called *black boxes*). Interpretability is key in order to gain insights on the prediction process, to know which variables are most influential in $Y$, to be able to interpret the parameters of the model, and to translate the prediction process to non-experts. The models covered in these notes are clearly interpretable and hence make a sacrifice in terms of prediction accuracy at an exchange of a neat interpretability.
 
-## The dangers of over-fitting {#intro-over-fitting}
+- **Model correctness versus model usefulness**. Correctness and usefulness are two very different concepts in modeling. The first refers to the model being *statistically* correct, this is, if the **assumptions** on which the model between $Y$ and $X_1,\ldots,X_p$ is built are satisfied. The second refers to the model being **useful for explaining or predicting** $Y$ from $X_1,\ldots,X_p$. Both dimensions are related (if the model is correct/useful, then *likely* it is useful/correct) but neither is implied by the other. For example, a regression model might be correct but useless if the variance of $\varepsilon$ is large (too much noise). And yet if the model is nor completely correct, it may give useful insights and predictions (but inference will be problematic!).
 
-App. Polynomial regression.
+- **Flexibility versus simplicity**. *The best model* is the one which is very simple (low number of parameters), highly interpretable, and delivers great predictions. This is often unachievable in practice. What it can be achieved is *a good model*: the one that balances the simplicity with the prediction accuracy, which is often increased the more flexible the model is. However, **flexibility comes at a price**: more flexible (hence complexer) models use more parameters that need to be estimated from a finite amount of information -- the sample. This is problematic, as overly flexible models are more dependent on the sample of $Y$ and $X_1,\ldots,X_p$, and therefore do not estimate the true relation between $Y$ and $X_1,\ldots,X_p$. This phenomenon is called **over-fitting** and it can be avoided by splitting the dataset in two parts: the *training dataset* (used for estimating the model) and the *testing dataset* (used for evaluating its predictive performance). On the other hand, excessive simplicity (**under-fitting**) is also problematic, since the true relation between $Y$ and $X_1,\ldots,X_p$ may not be that simple. Therefore, a trade-off in the degree of flexibility has to be attained for having a good model. This is often referred as the **bias-variance trade-off** (low flexibility increases the bias of the fitted model, high flexibility increases the variance). An illustration of this point is given in Figure \@ref(fig:overfitting).
 
-```{r, overfitting, echo = FALSE, fig.cap = 'Over-fitting illustration.', screenshot.alt = "images/screenshots/over-fitting.png", dev = 'png', cache = TRUE, fig.pos = 'h!', out.width = '90%'}
+```{r, overfitting, echo = FALSE, fig.cap = 'Illustration of over-fitting in polynomial regression. The left plot shows the training dataset and the right plot the testing dataset. Better fitting of the training data with a higher polynomial order does not imply better performance in new observations (prediction), but just an over-fitting of the available data with an overly-parametrized model (too flexible for the ammount of information available). Reduction in the predictive error is only achieved with fits (in red) of polynomial degrees close to the true regression (in black).', screenshot.alt = "images/screenshots/over-fitting.png", dev = 'png', cache = TRUE, fig.pos = 'h!', out.width = '90%'}
 knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/over-fitting/', height = '550px')
 ```
 
-## Data splitting {#intro-data-splitting}
-
-General strategy.
-
--->
-
 ## General notation and background {#intro-notation}
 
-We use capital letters to denote *random variables*, such as $X$, and lowercase, such as $x$, to denote deterministic values. For example $\mathbb{P}[X=x]$ means ``the probability that the random variable $X$ takes the particular value $x$''. In predictive modelling we are concerned about the prediction or explanation of a *response* $Y$ from a set of *predictors* $X_1,\ldots,X_p$. Both $Y$ and $X_1,\ldots,X_p$ are random variables, but we use them in a different way: our interest lays in prediction or explaining $Y$ *from* $X_1,\ldots,X_p$. Other name for $Y$ is *dependent variable* and $X_1,\ldots,X_p$ are sometimes referred as *independent variables* or *explanatory variables*. We will not use these terminologies.
+We use capital letters to denote *random variables*, such as $X$, and lowercase, such as $x$, to denote deterministic values. For example $\mathbb{P}[X=x]$ means ``the probability that the random variable $X$ takes the particular value $x$''. In predictive modelling we are concerned about the prediction or explanation of a *response* $Y$ from a set of *predictors* $X_1,\ldots,X_p$. Both $Y$ and $X_1,\ldots,X_p$ are random variables, but we use them in a different way: our interest lays in prediction or explaining $Y$ *from* $X_1,\ldots,X_p$. Other name for $Y$ is *dependent variable* and $X_1,\ldots,X_p$ are sometimes referred as *independent variables*, *covariates*, or *explanatory variables*. We will not use these terminologies.
 
 The *cumulative distribution function* (cdf) of a random variable $X$ is $F(x):=\mathbb{P}[X\leq x]$ and is a function that completely characterizes the randomness of $X$. Continuous random variables are also characterized by the *probability density function* (pdf) $f(x)=F'(x)$ (respectively, $F(x)=\int_{-\infty}^xf(t)\mathrm{d}t$), which represents the *infinitesimal relative probability* of $X$ per unit of length. On the other hand, discrete random variables are also characterized by the *probability mass function* $\mathbb{P}[X= x]$. We write $X\sim F$ (or $X\sim f$ if $X$ is continuous) to denote that $X$ has a cdf $F$ (or a pdf $f$). If two random variables $X$ and $Y$ have the same distribution, we write $X\stackrel{d}{=}Y$.
 
