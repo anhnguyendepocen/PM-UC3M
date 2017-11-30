@@ -9,6 +9,9 @@ Depends:
     caret,
     car,
     rgl,
+    ISLR,
+    nortest,
+    pls,
     ks,
     KernSmooth
 Imports: bookdown

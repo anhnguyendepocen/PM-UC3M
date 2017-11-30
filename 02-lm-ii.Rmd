@@ -194,7 +194,10 @@ An important situation not covered so far is how to deal with *qualitative*, and
 
 The simplest case is the situation with **two levels**. A binary variable $C$ with two levels (for example, *a* and *b*) can be represented as
 \[
-D=\left\{\begin{array}{ll}1,&\text{if }C=b,\\0,& \text{if }C=a.\end{array}\right.
+D=\left\{\begin{array}{ll}
+1,&\text{if }C=b,\\
+0,&\text{if }C=a.
+\end{array}\right.
 \]
 $D$ now is a *dummy variable*: it codifies with zeros and ones the two possible levels of the categorical variable. An example of $C$ could be *gender*, which has levels *male* and *female*. The dummy variable associated is $D=0$ if the gender is male and $D=1$ if the gender is female.
 
@@ -248,8 +251,16 @@ summary(mod2)
 
 # Coefficients of the model
 confint(mod2)
-# The coefficients of Speciesversicolor and Speciesvirginica are significantly
-# negative
+# The coefficients of Speciesversicolor and Speciesvirginica are significantly negative
+
+# Show the dummy variables employed for encoding a factor
+contrasts(iris$Species)
+iris$Species <- relevel(iris$Species, ref = "setosa")
+contrasts(iris$Species)
+```
+
+```{block, type = 'rmdinsight'}
+It may happen that one dummy variable, say $D_1$ is not significant, while other dummy variables, say $D_2$, are significant. For example, this happens in the example above at level $\alpha=0.01$. 
 ```
 
 ```{block, type = 'rmdcaution'}
@@ -296,6 +307,8 @@ summary(modBIC)
 ```
 
 ## Nonlinear relationships {#lm-ii-nonlin}
+
+#### Transformations in the simple linear model {-}
 
 The linear model is termed *linear* not because the regression curve is a plane, but because *the effects of the **parameters** are linear*. Indeed, the predictor $X$ may exhibit a nonlinear effect on the response $Y$ and still be a linear model! For example, the following models can be transformed into simple linear models:
 
@@ -361,12 +374,12 @@ If you apply a nonlinear transformation, namely $f$, and fit the linear model $Y
 As a rule of thumb, use Figure \@ref(fig:nonlineartransf) with the transformations to compare it with the data pattern, then choose the most similar curve, and finally apply the corresponding function with **positive sign**.
 ```
 
-```{block2, type = 'rmdinsight'}
-As you might have realized, applying nonlinear transformations to the predictors is a **simple trick that extends enormously the functionality of the linear model**. This is particularly useful in real applications, where linearity is hardly verified.
-```
+<!-- ```{block2, type = 'rmdinsight'} -->
+<!-- As you might have realized, applying nonlinear transformations to the predictors is a **simple trick that extends enormously the functionality of the linear model**. This is particularly useful in real applications, where linearity is hardly verified. -->
+<!-- ``` -->
 
 Let's see how we can compute transformations of our predictors and perform a linear regression with them. The data for Figure \@ref(fig:quadratic) is:
-```{r, cache = TRUE}
+```{r, cache = TRUE, collapse = TRUE}
 # Data
 x <- c(-2, -1.9, -1.7, -1.6, -1.4, -1.3, -1.1, -1, -0.9, -0.7, -0.6,
        -0.4, -0.3, -0.1, 0, 0.1, 0.3, 0.4, 0.6, 0.7, 0.9, 1, 1.1, 1.3,
@@ -391,7 +404,7 @@ mod1 <- lm(y ~ x, data = nonLinear)
 mod2 <- lm(y ~ x2, data = nonLinear)
 summary(mod1)
 summary(mod2) 
-# mod2 has a larger R^2. Also notice the intercept is not significative.
+# mod2 has a larger R^2. Also notice the intercept is not significative
 ```
 
 ```{block, type = 'rmdtip'}
@@ -416,6 +429,447 @@ Some hints:
 - For `y9 ~ x9`, try with also with `exp(-abs(x9))`, `log(abs(x9))`, and `2^abs(x9)`.
 
 ```
+
+#### Polynomial transformations {-}
+
+A powerful nonlinear extension of the linear model are **polynomial models**. These are constructed from replacing each predictor $X_j$ by the set of monomials $(X_j,X_j^2,\ldots,X_j^k)$ that are formed from $X_j$. In the case with a single predictor $X$, we have the $k$-th order polynomial fit:
+\[
+Y=\beta_0+\beta_1X+\ldots+\beta_kX^k+\varepsilon.
+\]
+With this approach, a highly flexible model is produced, as it was shown in Figure \@ref(fig:overfitting). The creation of such models can be automated by the use of the function `poly`, which for the observations $(X_1,\ldots,X_n)$ of $X$ creates the matrices
+$$
+\begin{pmatrix}
+X_{1} & X_{1}^2 & \ldots & X_{1}^k \\
+\vdots & \vdots   & \ddots & \vdots \\
+X_{n} & X_{n}^2 & \ldots & X_{n}^k \\
+\end{pmatrix}\text{ or }
+\begin{pmatrix}
+p_1(X_{1}) & p_2(X_{1}) & \ldots & p_k(X_{1}) \\
+\vdots & \vdots   & \ddots & \vdots \\
+p_1(X_{n}) & p_1(X_{n}) & \ldots & p_k(X_{n}) \\
+\end{pmatrix},
+$$
+where $p_1,\ldots,p_k$ are *orthogonal*^[In theory this means that $\int p_j(x)p_l(x)\mathrm{d}x=0$ for $j\neq l$, which in practice translates to $\sum_{i=1}^{n} p_j(X_i)p_l(X_i)=0$, thus uncorrelation.] polynomials of orders $1,\ldots.k$, respectively.
+
+Let's see a couple of examples:
+```{r, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1}
+x1 <- 1:5
+poly(x = x1, degree = 2, raw = TRUE) # (X, X^2)
+poly(x = x1, degree = 2) # By default, it employs orthogonal polynomials
+```
+These matrices can now be used as inputs in the predictor side of `lm`. Let's see this in an example.
+```{r, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Data containing speed (mph) and stopping distance (ft) of cars from 1920
+data(cars)
+plot(cars, xlab = "Speed (mph)", ylab = "Stopping distance (ft)")
+
+# Fit a linear model of dist ~ speed
+mod1 <- lm(dist ~ speed, data = cars)
+abline(coef = mod1$coefficients, col = 2)
+
+# Quadratic
+mod2 <- lm(dist ~ poly(speed, degree = 2), data = cars)
+# The fit is not a line, we must look for an alternative approach
+d <- seq(0, 25, length.out = 200)
+lines(d, predict(mod2, new = data.frame(speed = d)), col = 3)
+
+# Cubic
+mod3 <- lm(dist ~ poly(speed, degree = 3), data = cars)
+lines(d, predict(mod3, new = data.frame(speed = d)), col = 4)
+
+# 10th order - overfitting
+mod10 <- lm(dist ~ poly(speed, degree = 10), data = cars)
+lines(d, predict(mod10, new = data.frame(speed = d)), col = 5)
+
+# BICs - the linear model is better!
+BIC(mod1, mod2, mod3, mod10)
+
+# poly computes by default orthogonal polynomials. These are not 
+# X^1, X^2, ..., X^p but combinations of them such that the polynomials are
+# orthogonal. 'Raw' polynomials are possible with raw = TRUE. They give the
+# same fit, but the coefficient estimates are different.
+mod2Raw <- lm(dist ~ poly(speed, degree = 2, raw = 2), data = cars)
+plot(cars, xlab = "Speed (mph)", ylab = "Stopping distance (ft)")
+lines(d, predict(mod2, new = data.frame(speed = d)), col = 1)
+lines(d, predict(mod2Raw, new = data.frame(speed = d)), col = 2)
+
+# However: different coefficient estimates, but same R^2. How is possible?
+summary(mod2)
+summary(mod2Raw)
+
+# Because the predictors in mod2Raw are highly related between them, and the ones in
+# mod2 are uncorrelated between them!
+scatterplotMatrix(mod2$model[, -1])
+scatterplotMatrix(mod2Raw$model[, -1])
+cor(mod2$model[, -1])
+cor(mod2Raw$model[, -1])
+```
+
+```{block2, type = 'rmdinsight'}
+The use of **orthogonal polynomials** is advised for a high order polynomial fits, since it avoids numerical unstabilities and excessive linear dependencies between the predictors. However, the coefficients of orthogonal polynomials are less interpretable than the ones from raw polynomials.
+```
+
+#### Interactions {-}
+
+When two or more predictors $X_1$ and $X_2$ are present, it may be of interest to explore the **interaction** between them $X_1X_2$. This is a new variable that affects positively (negatively) the response $Y$ when both $X_1$ and $X_2$ are positive or negative at the same time (at different times): 
+\[
+Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon
+\]
+The way of adding these interactions in `lm` is through `:` and `*`. The operator `:` only adds the term $X_1X_2$ and `*` adds $X_1$, $X_2$, and $X_1X_2$. Let's see an example in the `Boston` dataset.
+```{r, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Interaction between lstat and age
+summary(lm(medv ~ lstat + lstat:age, data = Boston))
+
+# Second order interaction
+summary(lm(medv ~ lstat * age, data = Boston))
+
+# Third order interactions
+summary(lm(medv ~ lstat * age * indus, data = Boston))
+```
+
+Interactions are also possible with categorical variables. For example, for one predictor $X_1$ and one dummy variable $D$ encoding a factor with two levels, we have four possibilities:
+
+```{r, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1}
+# No dummy variable
+summary(mod1 <- lm(medv ~ lstat, data = Boston)) # 1
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.25)
+abline(coef = mod1$coefficients, col = 2)
+
+# Interaction in the intercept
+summary(mod2 <- lm(medv ~ lstat + chas, data = Boston)) # 2
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.25)
+abline(a = mod2$coefficients[1], b = mod2$coefficients[2], col = 3)
+abline(a = mod2$coefficients[1] + mod2$coefficients[3], 
+       b = mod2$coefficients[2], col = 4)
+
+# Interaction in the slope
+summary(mod3 <- lm(medv ~ lstat + lstat:chas, data = Boston)) # 2
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.25)
+abline(a = mod3$coefficients[1], b = mod3$coefficients[2], col = 3)
+abline(a = mod3$coefficients[1], 
+       b = mod3$coefficients[2] + mod3$coefficients[3], col = 4)
+
+# Interaction in the intercept and slope
+summary(mod4 <- lm(medv ~ lstat * chas, data = Boston)) # 3
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.25)
+abline(a = mod4$coefficients[1], b = mod4$coefficients[2], col = 3)
+abline(a = mod4$coefficients[1] + mod4$coefficients[3], 
+       b = mod4$coefficients[2] + mod4$coefficients[4], col = 4)
+```
+
+### Case study application {#lm-ii-nonlin-case}
+
+```{block2, type = 'rmdexercise'}
+The model employed in @Harrison1978 is different from the `modBIC` model. In the paper, several nonlinear transformations of the predictors and the response are done to improve the linear fit. Also, different units are used for `medv`, `black`, `lstat`, and `nox`. The authors considered these variables:
+
+- *Response*: `log(1000 * medv)`
+- *Linear predictors*: `age`, `black / 1000` (this variable corresponds to their $(B-0.63)^2$), `tax`, `ptratio`, `crim`, `zn`, `indus`, and `chas`.
+- *Nonlinear predictors*: `rm^2`, `log(dis)`, `log(rad)`, `log(lstat / 100)`, and `(10 * nox)^2`.
+
+Do the following:
+
+1. Check if the model with such predictors corresponds to the one in the first column, Table VII, page 100 of @Harrison1978
+(open-access paper available [here](https://deepblue.lib.umich.edu/bitstream/handle/2027.42/22636/0000186.pdf)). To do so, save this model as `modelHarrison` and summarize it.
+
+2. Make a `stepAIC` selection of the variables in `modelHarrison` (use BIC) and save it as `modelHarrisonSel`. Summarize the fit.
+
+3. Which model has a larger $R^2$? And adjusted $R^2$? Which is simpler and has more significant coefficients?
+
+```
+<!--
+lm(I(log(medv*1000)) ~ I(rm^2) + age + log(dis) + log(rad) + tax + ptratio + I(black/1000) + I(log(lstat/100)) + crim + zn + indus + chas + I((10*nox)^2), data = Boston)
+-->
+
+## Model diagnostics {#lm-ii-diagnostics}
+
+As we saw in Section \@ref(lm-i-assumps), checking the assumptions of the multiple linear model through the visualization of the data becomes tricky even when $p=2$. To solve this issue, a series of *diagnostic tools* have been designed in order to evaluate graphically and systematically the validity of the assumptions. 
+
+We will illustrate them in the `wine` dataset, which you can download as an `.RData`  ([here](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/wine.RData)).
+
+```{r, cache = TRUE, collapse = TRUE, include = FALSE}
+load("datasets/wine.RData")
+mod <- lm(Price ~ Age + AGST + HarvestRain + WinterRain, data = wine)
+summary(mod)
+```
+```{r, cache = TRUE, collapse = TRUE, eval = FALSE}
+load("wine.RData")
+mod <- lm(Price ~ Age + AGST + HarvestRain + WinterRain, data = wine)
+summary(mod)
+```
+
+```{block, type = 'rmdcaution'}
+When one assumption fails, it is likely that this failure will affect to other assumptions. For example, if linearity fails, then most likely homoscedasticity and normality will fail also too. The key point is to identify the **root cause** of the assumptions failure in order to try to find a patch.
+```
+
+### Linearity {#lm-ii-diagnostics-1}
+
+Linearity between the response $Y$ and the predictors $X_1,\ldots,X_p$ is the building block of the linear model. If this assumption fails, *i.e.*, if there is a nonlinear trend linking $Y$ and at least one of the predictors $X_1,\ldots,X_p$ in a significant way, then all the conclusions we might extract from the analysis are suspected to be flawed. Therefore it is a **key assumption**.
+
+#### How to check it {-}
+
+The so-called **residuals vs. fitted values plot** is the scatterplot of $(\hat\varepsilon_i,\hat Y_i)$, $i=1,\ldots,n$, and is a very useful for detecting linearity departures using a single graphical device. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i$ with respect to $\hat Y_i$. For example:
+
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+plot(mod, 1)
+```
+
+**Under linearity, we expect the red line** (a flexible fit of the mean of the residuals) **to capture no trend**. If nonlinearities are observed, it is worth to inspect the most suspicious pairs $(Y,X_j)$ by making the scatterplot of $(\hat \varepsilon_i,X_{ij})$, $i=1,\ldots,n$. For example:
+
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+plot(mod$model[, 1], mod$residuals) # First predictor
+```
+
+Another possibility is to plot the *regression terms* of the model. These are the $p$ scatterplots $(Y_i,X_{ij})$, $i=1,\ldots,n$, that are accompanied by the regression lines $y=\hat\beta_0+\hat\beta_jx$ (important: $\hat\beta_j$, $j=1,\ldots,p$, come from the multiple linear fit that gives $\hat{\boldsymbol\beta}$). They help on detecting which predictor is having  nonlinearity effects on $Y$.
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+par(mfrow = c(2, 2)) # We have 4 predictors
+termplot(mod, partial.resid = TRUE)
+```
+
+```{r, diagnostics1, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Residuals vs. fitted values plots for datasets respecting (left column) and violating (right column) the linearity assumption.', cache = TRUE}
+knitr::include_graphics("images/R/diagnostics1.png")
+```
+
+#### What to do if fails {-}
+
+Using an adequate nonlinear transformation for the problematic predictors or adding interaction terms, as we saw in Section \@ref(lm-ii-nonlin). Alternatively, using a nonlinear transformation $f$ *for the response* $Y$ (of course, at the price of predicting $f(Y)$ rather than $Y$), as we will see in the case study of Section \@ref(lm-ii-diagnostics-case). Let's see the transformation of predictors in the example that motivated Section \@ref(lm-ii-nonlin).
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+plot(lm(y ~ x, data = nonLinear), 1) # Nonlinear
+plot(lm(y ~ I(x^2), data = nonLinear), 1) # Linear
+```
+
+### Normality {#lm-ii-diagnostics-2}
+
+The normality in the errors $\varepsilon_i$, $i=1,\ldots,n$, allows to make *exact* inference in the linear model, in the sense that the distribution of $\hat{\boldsymbol{\beta}}$ given in \@ref(eq:normp) is exact for $n$, is not asymptotic with $n\to\infty$ or approximate. If normality does not hold, then the inference we did (confidence intervals for $\beta_j$, hypothesis testing, confidence intervals for prediction) is to be *somehow* suspected. Why just *somehow*? Roughly speaking, the reason is that the central limit theorem will make $\hat{\boldsymbol{\beta}}$ *asymptotically* normal, even if the errors are not. However, the speed of this asymptotic convergence greatly depends on how non-normal is the distribution of the errors.
+
+As a rule of thumb: **non-severe^[Distributions that are not heavy tailed, not heavy multimodal, and not heavy skewed.] departures from normality yield valid (asymptotic) inference for relatively large sample sizes $n$**. Therefore, the failure of normality is less problematic than other assumptions.
+
+#### How to check it {-}
+
+The **QQ-plot** (Theoretical Quantile vs. Empirical Quantile) allows to check if the *standardized* residuals follow a $\mathcal{N}(0,1)$. What it does is to compare the theoretical quantiles of a $\mathcal{N}(0,1)$ with the quantiles of the sample of standardized residuals.
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+plot(mod, 2)
+```
+**Under normality, we expect the points to align with the diagonal line**, which represents the ideal position of the points if those were sampled from a $\mathcal{N}(0,1)$. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non-normal.
+
+There are formal tests to check the null hypothesis of normality in our residuals:
+```{r}
+# Shapiro-Wilks test of normality
+shapiro.test(mod$residuals) # Allows up to 5000 observations
+# We do not reject normality
+
+# Lilliefors test - an adaptation of Kolmogorov-Smirnov test
+library(nortest)
+lillie.test(mod$residuals)
+# We do not reject normality
+```
+
+```{r, diagnostics2, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'QQ-plots for datasets respecting (left column) and violating (right column) the normality assumption.', cache = TRUE}
+knitr::include_graphics("images/R/diagnostics2.png")
+```
+
+#### What to do if fails {-}
+
+Patching non-normality is not easy and requires from the consideration of other models, like the ones to be seen in Chapter \@ref(glm). It is possible to patch it if it is a consequence of the failure of linearity or homoscedasticity, which translates the problem into fixing those assumptions.
+
+### Homoscedasticity {#lm-ii-diagnostics-3}
+
+The constant-variance assumption of the errors is also key for obtaining the inferential results we saw. For example, if the assumption does not hold, then the confidence intervals for prediction will be wider or shorter than the *adequate* (meaning that the confidence is not respected).
+
+#### How to check it {-}
+
+Heteroskedasticity can be detected by looking into irregular *vertical* dispersion patterns in the residuals vs. fitted values plot. However, it is simpler to use the **scale-location plot**, where the standardized residuals are transformed by a square root (of its absolute value) to look only for deviations in the positive axis.
+
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+plot(mod, 3)
+```
+
+**Under homoscedasticity, we expect the red line to show no trend.** If there are consistent nonlinear patterns, then there is evidence of heteroskedasticity. 
+
+```{r, diagnostics3, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Scale-location plots for datasets respecting (left column) and violating (right column) the homoscedasticity assumption.', cache = TRUE}
+knitr::include_graphics("images/R/diagnostics3.png")
+```
+
+#### What to do if fails {-}
+
+Using a nonlinear transformation *for the response* $Y$ may help controlling the variance. Typical choices are $\log Y$ and $\sqrt{Y}$, which reduce the scale of the larger responses and leads to a reduction of heteroskedasticity. Let's see a quick example of this. 
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1/2}
+# Artificial data with heteroskedasticity
+set.seed(12345)
+x <- rnorm(500)
+e <- rnorm(500, sd = sqrt(0.1 + 2 * (x + 3)^2))
+y <- 1 + x + e
+
+# Original
+par(mfrow = c(1, 2))
+plot(x, y)
+plot(lm(y ~ x), 3) # Very heteroskedastic
+
+# Transformed
+par(mfrow = c(1, 2))
+plot(x, log(abs(y)))
+plot(lm(I(log(abs(y))) ~ x), 3) # Much less hereroskedastic
+```
+
+### Independence {#lm-ii-diagnostics-4}
+
+Independence is also a key assumption: it guarantees that the amount of information that we have on the relationship between $Y$ and $X_1,\ldots,X_p$ with $n$ observations is *maximal*. **If there is dependence, then information is repeated**, and as a consequence the variability of the estimates will be larger. For example, our $95\%$ confidence intervals will be smaller than the *adequate*, meaning that they will not contain with a $95\%$ confidence the unknown parameter, but with a lower confidence (say $80\%$). 
+
+An extreme case is the following: suppose we have two samples of sizes $n$ and $2n$, where the $2n$ sample contains the elements of the $n$ sample twice. The information in both samples is the same, and so are the estimates for the coefficients $\boldsymbol{\beta}$. Yet in the $2n$ sample the length of the confidence intervals is $C\sqrt{2n}^{-1}$, whereas in the $n$ sample they have length $C\sqrt{n}^{-1}$. A reduction by a factor of $\sqrt{2}$ in the confidence interval has happened, but we have the same information! This will give us a wrong sense of confidence in our model, and the root of the evil was the dependence between observations.
+
+#### How to check it {-}
+
+The set of possible dependence structures is immense, and there is no simple  way of checking all of them. Usually what it is examined is the presence of *autocorrelation*, which appears when there is some kind of time dependence in the measurement of observations. The **serial plot of the residuals** allows to detect time trends in them.
+
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+plot(mod$residuals, type = "o")
+```
+
+**Under uncorrelation, we expect the series to show no *tracking* of the residuals**. This is, that the closer observations do not take similar values, but rather change without any kind of distinguishable pattern.
+
+There are also formal tests for testing for the absence of autocorrelation (null hypothesis):
+```{r, collapse = TRUE, cache = TRUE}
+# Durbin-Watson test
+durbinWatsonTest(mod)
+# Does not reject at alpha = 0.05
+```
+```{r, diagnostics4, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Serial plots of the residuals for datasets respecting (left column) and violating (right column) the independence assumption.', cache = TRUE}
+knitr::include_graphics("images/R/diagnostics4.png")
+```
+
+#### What to do if fails {-}
+
+Little can be done if there is dependence in the data, once this has been collected. We must rely on the family of statistical models meant to deal with serial dependence: *time series*. 
+
+However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovarions* of the series of $Y$. 
+
+
+```{block, type = 'rmdexercise'}
+Load the dataset `assumptions3D.RData`([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions3D.RData)) and compute the regressions `y.3 ~ x1.3 + x2.3`, `y.4 ~ x1.4 + x2.4`, `y.5 ~ x1.5 + x2.5`, and `y.8 ~ x1.8 + x2.8`. Use the presented diagnostic tools to test the assumptions of the linear model and look out for possible problems.
+```
+
+### Multicollinearity {#lm-ii-diagnostics-6}
+
+A common problem that arises in multiple linear regression is **multicollinearity**. This is the situation when two or more predictors are highly *linearly* related between them. Multicollinearitiy has important effects on the fit of the model:
+
+- It **reduces the precision of the estimates**. As a consequence, signs of fitted coefficients may be reversed and valuable predictors may appear as non significant.
+- It is **difficult to determine how each of the highly related predictors affects the response**, since one masks the other. Also, this may result in numerical instabilities because $\mathbf{X}'\mathbf{X}$ will be close to being singular.
+
+```{block, type = 'rmdinsight'}
+Intuitively, multicollinearity can be visualized as a card (fitting plane) that is hold on its opposite corners and that spins on its diagonal (where the data is concentrated). Then very different planes will fit almost equally good the data, which results in a large variability of the selected plane. 
+```
+
+An approach is to detect multicollinearity is to compute the correlation matrix between the predictors by `cor`
+```{r, collapse = TRUE, cache = TRUE}
+cor(wine)
+```
+Here we can see what we already knew from Section \@ref(lm-i-lab-wine), that `Age` and `Year` are perfectly linearly related and that `Age` and `FrancePop` are highly linearly related. Then one approach will be to directly remove one of the highly-correlated predictors.
+
+However, **is not enough to inspect pair by pair correlations in order to get rid of multicollinearity**. It is possible to build counterexamples that show non-suspicious pairwise correlations but problematic more complex linear relations that remain hidden. Here is one:
+```{r, collapse = TRUE, cache = TRUE}
+# Create predictors with multicollinearity: x4 depends on the rest
+set.seed(45678)
+x1 <- rnorm(100)
+x2 <- 0.5 * x1 + rnorm(100)
+x3 <- 0.5 * x2 + rnorm(100)
+x4 <- -x1 + x2 + rnorm(100, sd = 0.25)
+
+# Response
+y <- 1 + 0.5 * x1 + 2 * x2 - 3 * x3 - x4 + rnorm(100)
+data <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, y = y)
+
+# Correlations - none seems suspicious
+cor(data)
+```
+
+A better approach to detect multicollinearity is to compute the **Variance Inflation Factor** (VIF) of each coefficient $\hat\beta_j$. This is a *measure of how linearly dependent is $X_j$ with the rest of predictors* and is defined as
+\[
+\text{VIF}(\hat\beta_j)=\frac{1}{1-R^2_{X_j|X_{-j}}}
+\]
+where $R^2_{X_j|X_{-j}}$ represents the $R^2$ from the regression of $X_j$ into the remaining predictors. The next simple rule of thumb gives direct insight into which predictors are multicollinear:
+
+> - VIF close to 1: absence of multicollinearity.
+> - **VIF larger than 5 or 10: problematic amount of multicollinearity**. Advised to remove the predictor with largest VIF.
+
+VIF is computed with the `vif` function and takes as argument a linear model. We continue with the previous example.
+```{r, collapse = TRUE, cache = TRUE}
+# Abnormal variance inflation factors: largest for x4, we remove it
+modMultiCo <- lm(y ~ x1 + x2 + x3 + x4)
+vif(modMultiCo)
+
+# Without x4
+modClean <- lm(y ~ x1 + x2 + x3)
+
+# Comparison
+compareCoefs(modMultiCo, modClean)
+confint(modMultiCo)
+confint(modClean)
+
+# Sumamries
+summary(modMultiCo)
+summary(modClean)
+
+# Variance inflation factors are normal
+vif(modClean)
+```
+
+```{block2, type = 'rmdinsight'}
+Note that multicollinearity is another instance of the **model correctness vs. usefulness**. A model with multicollinearity might be perfectly valid in the sense of respecting the assumptions of the model. As we saw in Section \@ref(lm-i-assumps), it does not matter whether the predictors are related or not. At least for the verification of the assumptions. But the model will be useless if the multicollinearity is high, since it can inflate the variability of the estimation without any kind of bound.
+```
+
+### Outliers and high-leverage points {#lm-ii-diagnostics-5}
+
+Outliers and high-leverage points are particular observations that have a large impact in the final linear model, either on the estimates or on the properties of the model.
+
+- **Outliers** are the observations with a *response $Y_i$ far away from the regression plane*. They typically do not affect the estimate of the plane, unless one of the predictors is also extreme (see next point). But they affect $\hat\sigma$ and as a consequence the $R^2$ of the model (drowing it down) and the confidence intervals (expanding them).
+- **High-leverage points** are observations with an *extreme predictor $X_{ij}$ located far away from the rest*. Thesw observations are highly influentian and may drive the fitting of the linear model. the reason is the squared distance in the RSS: an individual extremal point contributes a large portion of the RSS.
+
+Both outliers and high-leverage points can be identified with the **residuals vs leverage plot**:
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+plot(mod, 5)
+```
+The rule of thumb for declaring outliers and high-leverage points are:
+> - If the standardised residual of an observation is larger than $3$ in absolute value, then it it may be an outlier.
+> - If the leverage statistic is greatly exceeding $(p+1)/n$, then it may be suspected of having a high leverage.
+
+Let's see an artificial example.
+```{r, collapse = TRUE, cache = TRUE, fig.asp = 1/2}
+# Create data 
+set.seed(12345)
+x <- rnorm(100)
+e <- rnorm(100, sd = 0.5)
+y <- 1 + 2 * x + e
+
+# Leverage expected value
+2 / 101 # (p + 1) / n
+
+# Base model
+m0 <- lm(y ~ x)
+par(mfrow = c(1, 2))
+plot(x, y)
+abline(coef = m0$coefficients, col = 2)
+plot(m0, 5)
+summary(m0)
+
+# Make an outlier
+x[101] <- 0; y[101] <- 30
+m1 <- lm(y ~ x)
+par(mfrow = c(1, 2))
+plot(x, y)
+abline(coef = m1$coefficients, col = 2)
+plot(m1, 5)
+summary(m1)
+
+# Make a high-leverage point
+x[101] <- 10; y[101] <- 5
+m2 <- lm(y ~ x)
+par(mfrow = c(1, 2))
+plot(x, y)
+abline(coef = m2$coefficients, col = 2)
+plot(m2, 5)
+summary(m2)
+```
+
+### Case study application {#lm-ii-diagnostics-case}
 
 ```{block2, type = 'rmdexercise'}
 
@@ -454,148 +908,51 @@ The dataset `cpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-
 The dataset `gpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/gpus.txt)) contains the transistor counts for the GPUs appeared in the period 1997--2016. Repeat the previous analysis for this dataset.
 ```
 
-<!-- Polynomials and interactions 
-This is partially alleviated by the extension of this technique to deal with *polynomials* rather than *monomials*.
--->
-
-### Case study application {#lm-ii-nonlin-case}
-
-```{block2, type = 'rmdexercise'}
-The model employed in @Harrison1978 is different from the `modBIC` model. In the paper, several nonlinear transformations of the predictors and the response are done to improve the linear fit. Also, different units are used for `medv`, `black`, `lstat`, and `nox`. The authors considered these variables:
-
-- *Response*: `log(1000 * medv)`
-- *Linear predictors*: `age`, `black / 1000` (this variable corresponds to their $(B-0.63)^2$), `tax`, `ptratio`, `crim`, `zn`, `indus` and `chas`.
-- *Nonlinear predictors*: `rm^2`, `log(dis)`, `log(rad)`, `log(lstat / 100)`, and `(10 * nox)^2`.
-
-Do the following:
-
-1. Check if the model with such predictors corresponds to the one in the first column, Table VII, page 100 of @Harrison1978
-(open-access paper available [here](https://deepblue.lib.umich.edu/bitstream/handle/2027.42/22636/0000186.pdf)). To do so, Save this model as `modelHarrison` and summarize it. **Hint**: the formula should be something like `I(log(1000 * medv)) ~ age + I(black / 1000) + ... + I(log(lstat / 100)) + I((10 * nox)^2)`.
-
-2. Make a `stepAIC` selection of the variables in `modelHarrison` (use BIC) and save it as `modelHarrisonSel`. Summarize it.
-
-3. Which model has a larger $R^2$? And adjusted $R^2$? Which is simpler and has more significant coefficients?
-
-```
-<!--
-lm(I(log(medv*1000)) ~ I(rm^2) + age + log(dis) + log(rad) + tax + ptratio + I(black/1000) + I(log(lstat/100)) + crim + zn + indus + chas + I((10*nox)^2), data = Boston)
--->
-
-<!-- ## Model diagnostics and multicollinearity {#lm-ii-diagnostics} -->
-
-<!-- As we saw in Section \@ref(lm-i-assumps), checking the assumptions of the multiple linear model through the data scatterplots becomes tricky even when $p=2$. To solve this issue, a series of *diagnostic plots* have been designed in order to evaluate graphically and in a simple way the validity of the assumptions. For illustration, we retake the `wine` dataset ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/wine.csv)). -->
-
-<!-- ```{r, collapse = TRUE, cache = TRUE} -->
-<!-- mod <- lm(Price ~ Age + AGST + HarvestRain + WinterRain, data = wine) -->
-<!-- ``` -->
-
-<!-- We will focus only in three plots: -->
-
-<!-- 1. **Residuals vs. fitted values plot**. This plot serves mainly to check the **linearity**, although lack of homoscedasticity or independence can also be detected. Here is an example: -->
-
-<!--     ```{r, collapse = TRUE, cache = TRUE} -->
-<!--     plot(mod, 1) -->
-<!--     ``` -->
-
-<!--     **Under linearity, we expect the red line** (a nonlinear fit of the mean of the residuals) **to be almost flat**. This which means that the trend of $Y_1,\ldots,Y_n$ is linear with respect to the predictors. Heteroskedasticity can be detected also in the form of irregular vertical dispersion around the red line. The dependence between residuals can be detected (harder) in the form of non randomly spread residuals. -->
-
-<!-- 2. **QQ-plot**. Checks the **normality**: -->
-
-<!--     ```{r, collapse = TRUE, cache = TRUE} -->
-<!--     plot(mod, 2) -->
-<!--     ``` -->
-
-<!--     **Under normality, we expect the points** (sample quantiles of the standardized residuals vs. theoretical quantiles of a $\mathcal{N}(0,1)$) **to align with the diagonal line**, which represents the ideal position of the points if those were sampled from a $\mathcal{N}(0,1)$. It is usual to have larger departures from the diagonal in the extremes than in the center, even under normality, although these departures are more clear if the data is non-normal. -->
-
-<!-- 3. **Scale-location plot**. Serves for checking the **homoscedasticity**. It is similar to the first diagnostic plot, but now with the residuals standardized and transformed by a square root (of the absolute value). This change transforms the task of spotting heteroskedasticity by looking into irregular vertical dispersion patterns into spotting for nonlinearities, which is somehow simpler. -->
-
-<!--     ```{r, collapse = TRUE, cache = TRUE} -->
-<!--     plot(mod, 3) -->
-<!--     ``` -->
-
-<!--     **Under homoscedasticity, we expect the red line to be almost flat.** If there are consistent nonlinear patterns, then there is evidence of heteroskedasticity. -->
-
-<!-- ```{block, type = 'rmdtip'} -->
-<!-- If you type `plot(mod)`, several diagnostic plots will be shown sequentially. In order to advance them, hit `'Enter'` in the `R` console. -->
-<!-- ``` -->
-
-<!-- The next figures present datasets where the assumptions are satisfied and violated. -->
-
-<!-- ```{r, diagnostics1, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = 'Residuals vs. fitted values plots for datasets respecting (left column) and violating (right column) the linearity assumption.', cache = TRUE} -->
-<!-- knitr::include_graphics("images/R/diagnostics1.png") -->
-<!-- ``` -->
-
-<!-- ```{r, diagnostics2, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = 'QQ-plots for datasets respecting (left column) and violating (right column) the normality assumption.', cache = TRUE} -->
-<!-- knitr::include_graphics("images/R/diagnostics2.png") -->
-<!-- ``` -->
-
-<!-- ```{r, diagnostics3, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = 'Scale-location plots for datasets respecting (left column) and violating (right column) the homoscedasticity assumption.', cache = TRUE} -->
-<!-- knitr::include_graphics("images/R/diagnostics3.png") -->
-<!-- ``` -->
-
-<!-- ```{block, type = 'rmdexercise'} -->
-<!-- Load the dataset `assumptions3D.RData`([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions3D.RData)) and compute the regressions `y.3 ~ x1.3 + x2.3`, `y.4 ~ x1.4 + x2.4`, `y.5 ~ x1.5 + x2.5` and `y.8 ~ x1.8 + x2.8`. Use the three diagnostic plots to test the assumptions of the linear model. -->
-<!-- ``` -->
-
-<!-- A common problem that arises in multiple linear regression is **multicollinearity**. This is the situation when two or more predictors are highly linearly related between them. Multicollinearitiy has important effects on the fit of the model: -->
-
-<!-- - It **reduces the precision of the estimates**. As a consequence, sings of fitted coefficients may be reversed and valuable predictors may appear as non significant. -->
-<!-- - It is **difficult to determine how each of the highly related predictors affects the response**, since one masks the other. This may result in numerical instabilities. -->
-
-<!-- Intuitively, multicollinearity can be thought as a plane that pins around a straight line (think about holding a card on its opposite corners and make it spinning on its axis of rotation). Animation: Insight into straight line in 3D -->
-
-<!-- An approach is to detect multicollinearity is to compute the correlation matrix between the predictors by `cor` -->
-<!-- ```{r, collapse = TRUE, cache = TRUE} -->
-<!-- cor(wine) -->
-<!-- ``` -->
-<!-- Here we can see what we already knew from Section \@ref(lm-i-lab-wine), that `Age` and `Year` are perfectly linearly related and that `Age` and `FrancePop` are highly linearly related. -->
-
-<!-- However, is not enough to inspect remove pair by pair correlations in order to get rid of multicollinearity. Here is a counterexample: -->
-<!-- ```{r, collapse = TRUE, cache = TRUE} -->
-<!-- # Create predictors with multicollinearity: x4 depends on the rest -->
-<!-- set.seed(45678) -->
-<!-- x1 <- rnorm(100) -->
-<!-- x2 <- 0.5 * x1 + rnorm(100) -->
-<!-- x3 <- 0.5 * x2 + rnorm(100) -->
-<!-- x4 <- -x1 + x2 + rnorm(100, sd = 0.25) -->
-
-<!-- # Response -->
-<!-- y <- 1 + 0.5 * x1 + 2 * x2 - 3 * x3 - x4 + rnorm(100) -->
-<!-- data <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, y = y) -->
-
-<!-- # Correlations - none seems suspicious -->
-<!-- cor(data) -->
-<!-- ``` -->
-
-<!-- A better approach is to compute the **Variance Inflation Factor** (VIF) of each coefficient $\hat\beta_j$. This is a *measure of how linearly dependent is $X_j$ with the rest of predictors*: -->
-<!-- \[ -->
-<!-- \text{VIF}(\hat\beta_j)=\frac{1}{1-R^2_{X_j|X_{-j}}} -->
-<!-- \] -->
-<!-- where $R^2_{X_j|X_{-j}}$ is the $R^2$ from a regression of $X_j$ into the remaining predictors. The next rule of thumb gives direct insight into which predictors are multicollinear: -->
-
-<!-- - VIF close to 1: absence of multicollinearity. -->
-<!-- - **VIF larger than 5 or 10: problematic amount of multicollinearity**. Advised to remove the predictor with largest VIF. -->
-
-<!-- VIF is called by `vif` and takes as argument a linear model. We continue with the previous example. -->
-<!-- ```{r, collapse = TRUE, cache = TRUE} -->
-<!-- # Abnormal variance inflation factors: largest for x4, we remove it -->
-<!-- modMultiCo <- lm(y ~ x1 + x2 + x3 + x4) -->
-<!-- vif(modMultiCo) -->
-
-<!-- # Without x4 -->
-<!-- modClean <- lm(y ~ x1 + x2 + x3) -->
-
-<!-- # Comparison -->
-<!-- summary(modMultiCo) -->
-<!-- summary(modClean) -->
-
-<!-- # Variance inflation factors normal -->
-<!-- vif(modClean) -->
-<!-- ``` -->
-
-<!-- ## Dimension reduction {#lm-ii-dimred} -->
+<!-- ## Dimension reduction techniques {#lm-ii-dimred} -->
 
 <!-- ### Principal Components Regression {#lm-ii-dimred-pcr} -->
 
+<!-- #### Case study -->
+
 <!-- ### Partial Least Squares {#lm-ii-dimred-pls} -->
 
+<!-- #### Case study application {-} -->
+
+<!-- ```{r, collapse = TRUE, cache = TRUE} -->
+<!-- library(ISLR) -->
+<!-- Hitters <- na.omit(Hitters) -->
+<!-- x <- model.matrix(Salary ~ ., data = Hitters)[,-1] -->
+<!-- y <- Hitters$Salary -->
+<!-- set.seed(1) -->
+<!-- train <- sample(1:nrow(x), nrow(x)/2)  -->
+<!-- test <- (-train) -->
+<!-- y.test <- y[test] -->
+<!-- library(pls) -->
+<!-- set.seed(2) -->
+<!-- pcr.fit <- pcr(Salary ~ ., data = Hitters, scale = TRUE,  -->
+<!--                validation = "CV") -->
+<!-- summary(pcr.fit) -->
+<!-- validationplot(pcr.fit, val.type = "MSEP") -->
+
+<!-- set.seed(1) -->
+<!-- pcr.fit = pcr(Salary~., data = Hitters, subset = train, scale = TRUE, validation = "CV") -->
+<!-- validationplot(pcr.fit, val.type = "MSEP") -->
+
+<!-- pcr.pred = predict(pcr.fit, x[test, ], ncomp = 7) -->
+<!-- mean((pcr.pred - y.test) ^ 2) -->
+
+<!-- pcr.fit <- pcr(y ~ x, scale = TRUE, ncomp = 7) -->
+<!-- summary(pcr.fit) -->
+
+<!-- set.seed(1) -->
+<!-- pls.fit  <-  plsr(Salary ~ ., data = Hitters, subset = train, scale = TRUE, validation = "CV") -->
+<!-- summary(pls.fit) -->
+<!-- validationplot(pls.fit, val.type = "MSEP") -->
+
+
+<!-- pls.pred = predict(pls.fit, x[test, ], ncomp = 2) -->
+<!-- mean((pls.pred - y.test) ^ 2) -->
+
+<!-- pls.fit <- plsr(Salary ~ ., data = Hitters, scale = TRUE, ncomp = 2) -->
+<!-- summary(pls.fit) -->
+<!-- ``` -->

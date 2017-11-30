@@ -798,6 +798,52 @@ More formally, the $p$-value of an hypothesis test about $H0$ is defined as:
 
 Therefore, **if the $p$-value is small** (smaller than the chosen level $\alpha$), **it is unlikely that the evidence against $H_0$ is due to randomness. As a consequence, $H_0$ is rejected**. If the $p$-value is large (larger than $\alpha$), then it is more possible that the evidences against $H_0$ are merely due to the randomness of the data. In this case, we do not reject $H_0$.
 
+# Least squares and maximum likelihood {#app-mle}
+
+Least squares had a prominent role in linear models. Why is so? After all, it is a purely *geometrical argument* for fitting a plane to a cloud of points. It is not motivated as a *statistical procedure* for estimating the unknown parameters $\boldsymbol{\beta}$... at least apparently.
+
+However, **least squares estimation is equivalent to maximum likelihood estimation** under the assumptions of the model seen in Section \@ref(lm-i-assumps) (Normality is specially important here due to the squares present in the exponential of the Normal pdf). So maximum likelihood estimation, the most well-known statistical estimation method, is behind least squares if the assumptions of the model hold. 
+
+First, recall that given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n, Y_n)$, due to the asumptions introduced in Section \@ref(lm-i-assumps), we have that:
+\begin{align*}
+Y_i|(X_{i1}=x_{i1},\ldots,X_{ip}=x_{ip})\sim \mathcal{N}(\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip},\sigma^2),\quad i=1,\ldots,n
+\end{align*}
+with $Y_1,\ldots,Y_n$ being independent conditionally on the sample of predictors. Equivalently stated in a compact matrix way:
+\begin{align*}
+\mathbf{Y}|\mathbf{X}\sim\mathcal{N}_n(\mathbf{X}\boldsymbol{\beta},\sigma^2\mathbf{I}).
+\end{align*}
+From these two equations we can obtain the log-likelihood function of $Y_1,\ldots,Y_n$ conditionally^[We assume that the randomness is on the response only.] on $\mathbf{X}_1,\ldots,\mathbf{X}_n$ as
+\begin{align}
+\ell(\boldsymbol{\beta})=\log\phi(\mathbf{Y};\mathbf{X}\boldsymbol{\beta},\sigma^2\mathbf{I})=\sum_{i=1}^n\log\phi(Y_i;(\mathbf{X}\boldsymbol{\beta})_i,\sigma).(\#eq:ell)
+\end{align}
+
+Now we are ready to show the next result.
+
+```{theorem, label = "lik"}
+Under assumptions i--iv in Section \@ref(lm-i-assumps), the maximum likelihood estimate of $\boldsymbol{\beta}$ is the least squares estimate \@ref(eq:k3):
+$$
+\hat{\boldsymbol{\beta}}_\mathrm{ML}=\arg\max_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\ell(\boldsymbol{\beta})=(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}\mathbf{Y}.
+$$
+```
+```{proof}
+Expanding the first equality at \@ref(eq:ell) gives (recall that $|\sigma^2\mathbf{I}|^{1/2}=\sigma^{n}$)
+$$
+\ell(\boldsymbol{\beta})=-\log((2\pi)^{n/2}\sigma^n)-\frac{1}{2\sigma^2}(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})'(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta}).
+$$
+In order to differentiate with respect to $\boldsymbol{\beta}$, we use that, for two vector-valued functions $f$ and $g$:
+$$
+\frac{\partial \mathbf{A}\mathbf{x}}{\partial \mathbf{x}}=\mathbf{A}\text{ and } \frac{\partial f(\mathbf{x})'g(\mathbf{x})}{\partial \mathbf{x}}=f(\mathbf{x})'\frac{\partial g(\mathbf{x})}{\partial \mathbf{x}}+g(\mathbf{x})'\frac{\partial f(\mathbf{x})}{\partial \mathbf{x}}.
+$$
+Then, differentiating with respect to $\boldsymbol{\beta}$ and equating to zero gives 
+$$
+\frac{1}{\sigma^2}(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})'\mathbf{X}=\frac{1}{\sigma^2}(\mathbf{Y}'\mathbf{X}-\boldsymbol{\beta}'\mathbf{X}'\mathbf{X})=0.
+$$
+This means that optimizing $\ell$ does not require knowledge on $\sigma^2$! Nicely, solving the above equation yields
+$$
+\hat{\boldsymbol{\beta}}=(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}\mathbf{Y}.
+$$
+```
+
 # Course evaluation {#app-evaluation}
 
 Evaluation is done by means of **two group projects**, to be done in groups of 3 (preferable) or 2 students, plus a presentation of one randomly-selected report. The final grade (in the scale 0-10) is:

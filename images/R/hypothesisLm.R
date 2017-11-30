@@ -219,13 +219,13 @@ abline(lm(y7 ~ x7)$coefficients, col = 2, lwd = 2)
 
 # OK
 x8 <- rnbinom(n, 10, 0.5)
-y8 <- -0.1 * x8 + rnorm(100)
+y8 <- -0.1 * x8 + rnorm(n)
 plot(x8, y8, pch = 16, xlab = "x", ylab = "y", main = "8")
 abline(lm(y8 ~ x8)$coefficients, col = 2, lwd = 2)
 
 # Non linear
-x91 <- runif(n, 0, 5)
-x92 <- runif(n, 5, 10)
+x91 <- runif(n/2, 0, 5)
+x92 <- runif(n/2, 5, 10)
 y91 <- -2 - 0.5 * x91
 y92 <- -4.5 + 0.5 * (x92 - 5)
 x9 <- c(x91, x92)
@@ -262,7 +262,7 @@ plot(lm(y4 ~ x4, data = moreAssumptions), 2)
 plot(lm(y1 ~ x1, data = assumptions), 2)
 # Bad
 plot(lm(y2 ~ x2, data = moreAssumptions), 2)
-x <- rnorm(100); y <- 1 + 2 * x + epsNoNorm; plot(lm(y ~ x), 2)
+x <- rnorm(n); y <- 1 + 2 * x + epsNoNorm; plot(lm(y ~ x), 2)
 plot(lm(y4 ~ x4, data = assumptions), 2)
 dev.off()
 
@@ -275,7 +275,25 @@ plot(lm(y2 ~ x2, data = assumptions), 3)
 plot(lm(y4 ~ x4, data = moreAssumptions), 3)
 # Bad
 plot(lm(y3 ~ x3, data = assumptions), 3)
-x <- rnorm(100); y <- 1 + 2 * x + sin(x) * epsNoNorm; plot(lm(y ~ x), 3)
+x <- rnorm(n); y <- 1 + 2 * x + sin(x) * epsNoNorm; plot(lm(y ~ x), 3)
 plot(lm(y8 ~ x8, data = assumptions), 3)
+dev.off()
+
+# Valid linear model
+png("diagnostics4.png", width = 10, height = 15, res = 200, units = "in")
+par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+# Good
+plot(lm(y7 ~ x7, data = assumptions)$residuals, type = "o", 
+     ylab = "Residuals")
+plot(lm(y1 ~ x1, data = assumptions)$residuals, type = "o",
+     ylab = "Residuals")
+plot(lm(y8 ~ x8, data = moreAssumptions)$residuals, type = "o", 
+     ylab = "Residuals")
+# Bad
+plot(lm(y5 ~ x5, data = assumptions)$residuals, type = "o",
+     ylab = "Residuals")
+x <- rnorm(n); y <- 1 + 2 * x + sin(x) * epsNoIndep
+plot(lm(y ~ x)$residuals, type = "o", ylab = "Residuals")
+plot(lm(y7 ~ x7, data = moreAssumptions)$residuals, type = "o", ylab = "Residuals")
 dev.off()
 
