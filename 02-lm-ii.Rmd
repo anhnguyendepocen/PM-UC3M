@@ -46,12 +46,12 @@ The diagonal panels are showing an estimate of the unknown density of each varia
 
 ## Model selection {#lm-ii-modsel}
 
-In Chapter \@ref(lm-i) we briefly saw that **the inclusion of more predictors is not for free**: there is a price to pay in terms of more variability on the coefficients estimates, harder interpretation, and possible inclusion of highly-dependent predictors. Indeed, there is a **maximum number of predictors $p$** that can be considered in a linear model for a sample size $n$: **$p\leq n-2$**. Or equivalently, there is a **minimum sample size $n$** required for fitting a model with $p$ predictors: **$n\geq k + 2$**.
+In Chapter \@ref(lm-i) we briefly saw that **the inclusion of more predictors is not for free**: there is a price to pay in terms of more variability on the coefficients estimates, harder interpretation, and possible inclusion of highly-dependent predictors. Indeed, there is a **maximum number of predictors $p$** that can be considered in a linear model for a sample size $n$: **$p\leq n-2$**. Or equivalently, there is a **minimum sample size $n$** required for fitting a model with $p$ predictors: **$n\geq p + 2$**.
 
 The interpretation of this fact is simple if we think on the geometry for $p=1$ and $p=2$:
 
-- If $p=1$, we need at least $n=2$ points to fit uniquely a line. However, this line gives no information on the vertical variation around it and hence $\hat\sigma^2$ can not be estimated (applying its formula, we would have $\hat\sigma^2=\infty$). Therefore we need at least $n=3$ points, or in other words $n\geq k + 2=3$.
-- If $p=2$, we need at least $n=3$ points to fit uniquely a plane. But this plane gives no information on the variation of the data around it and hence $\hat\sigma^2$ can not be estimated. Therefore we need $n\geq k + 2=4$.
+- If $p=1$, we need at least $n=2$ points to fit uniquely a line. However, this line gives no information on the vertical variation around it and hence $\hat\sigma^2$ can not be estimated (applying its formula, we would have $\hat\sigma^2=\infty$). Therefore we need at least $n=3$ points, or in other words $n\geq p + 2=3$.
+- If $p=2$, we need at least $n=3$ points to fit uniquely a plane. But this plane gives no information on the variation of the data around it and hence $\hat\sigma^2$ can not be estimated. Therefore we need $n\geq p + 2=4$.
 
 Another interpretation is the following:
 
