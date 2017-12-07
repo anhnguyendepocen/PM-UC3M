@@ -84,7 +84,7 @@ Before introducing the method, we need to understand what is an **information cr
 \begin{align}
 \text{BIC}(\text{model}) = \underbrace{-2\log\ell(\text{model})}_{\text{Model fitness}} + \underbrace{\text{npar(model)}\times\log n}_{\text{Complexity}}, (\#eq:bic)
 \end{align}
-where $\ell(\text{model})$ is the *likelihood of the model* (how well the model fits the data) and $\text{npar(model)}$ is the number of parameters of the model, $p+2$ in the case of a multiple linear regression model with $p$ predictors. The AIC replaces $\log n$ by $2$ in \@ref(eq:bic), so it **penalizes less complexer models**. This is one of the reasons why BIC is preferred by some practitioners for model comparison. Also, because is *consistent* in selecting the true model: if enough data is provided, the BIC is guaranteed to select the data-generating model among a list of candidate models.
+where $\ell(\text{model})$ is the *likelihood of the model* (how well the model fits the data) and $\text{npar(model)}$ is the number of parameters of the model, $p+2$ in the case of a multiple linear regression model with $p$ predictors. The AIC replaces $\log n$ by $2$ in \@ref(eq:bic) so, compared with BIC, it **penalizes less the more complex models** (recall that $\log n>2$ if $n\geq8$). This is one of the reasons why BIC is preferred by some practitioners for model comparison. Also, because is *consistent* in selecting the true model: if enough data is provided, the BIC is guaranteed to select the data-generating model among a list of candidate models.
 
 The BIC and AIC can be computed in `R` through the functions `BIC` and `AIC`. They take a model as the input.
 ```{r, collapse = TRUE, cache = TRUE}
