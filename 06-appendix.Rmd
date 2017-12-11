@@ -28,13 +28,13 @@ This section provides a collection of self-explainable snippets of the programmi
 
 In the following, `#` denotes comments to the code and `##` outputs of the code.
 
-```{r, echo = FALSE, eval = TRUE}
+```{r, r-1, echo = FALSE, eval = TRUE}
 rm(list = ls())
 ```
 
 #### Simple computations {-}
 
-```{r, echo = TRUE, error = TRUE, collapse = TRUE, cache = TRUE}
+```{r, r-2, echo = TRUE, error = TRUE, collapse = TRUE, cache = TRUE}
 # The console can act as a simple calculator
 1.0 + 1.1
 2 * 2
@@ -56,13 +56,13 @@ tan(pi/3)
 sqrt(-1)
 ```
 
-```{r, echo = TRUE, error = TRUE, collapse = TRUE}
+```{r, r-3, echo = TRUE, error = TRUE, collapse = TRUE}
 # Remember to close the parenthesis
 1 +
 (1 + 3
 ```
 
-```{exercise}
+```{block, exsimp, type = 'rmdexercise'}
 Compute:
 
 - $\frac{e^{2}+\sin(2)}{\cos^{-1}\left(\tfrac{1}{2}\right)+2}$. *Answer*: `2.723274`.
@@ -73,7 +73,7 @@ Compute:
 
 #### Variables and assignment {-}
 
-```{r, echo = TRUE, error = TRUE, collapse = TRUE, cache = TRUE}
+```{r, r-4, echo = TRUE, error = TRUE, collapse = TRUE, cache = TRUE}
 # Any operation that you perform in R can be stored in a variable (or object)
 # with the assignment operator "<-"
 x <- 1
@@ -104,7 +104,7 @@ rm(X)
 X
 ```
 
-```{exercise}
+```{block, exvars, type = 'rmdexercise'}
 Do the following:
 
 - Store $-123$ in the variable `y`.
@@ -116,7 +116,7 @@ Do the following:
 
 #### Vectors {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-5, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # These are vectors - arrays of numbers
 # We combine numbers with the function "c"
 c(1, 3)
@@ -166,7 +166,7 @@ myData2[c(-1, 2)]
 myData2 <- myData2[-1]
 ```
 
-```{exercise}
+```{block, exvec, type = 'rmdexercise'}
 Do the following:
 
 - Create the vector $x=(1, 7, 3, 4)$.
@@ -180,7 +180,7 @@ Do the following:
 
 #### Some functions {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-6, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # Functions take arguments between parenthesis and transform them into an output
 sum(myData)
 prod(myData)
@@ -212,7 +212,7 @@ args(mean)
 ?mean
 ```
 
-```{exercise}
+```{block, exfuncs-1, type = 'rmdexercise'}
 Do the following:
 
 - Compute the mean, median and variance of $y$. *Answers*: `49.5`, `49.5`, `843.6869`.
@@ -225,7 +225,7 @@ Do the following:
 
 #### Matrices, data frames, and lists {-}
 
-```{r, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-7, collapse = TRUE, error = TRUE, cache = TRUE}
 # A matrix is an array of vectors
 A <- matrix(1:4, nrow = 2, ncol = 2)
 A
@@ -302,7 +302,7 @@ str(myDf)
 names(myList)
 ```
 
-```{exercise}
+```{block, exmats, type = 'rmdexercise'}
 Do the following:
 
 - Create a matrix called `M` with rows given by `y[3:5]`, `y[3:5]^2` and `log(y[3:5])`.
@@ -320,7 +320,7 @@ Do the following:
 
 #### More on data frames {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-8, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # The iris dataset is already imported in R
 # (beware: locfit has also an iris dataset, with different names and shorter)
 # data(iris)
@@ -354,7 +354,7 @@ levels(iris$Species)
 # when imported into R
 ```
 
-```{exercise}
+```{block, exdf, type = 'rmdexercise'}
 Do the following:
 
 - Load the `faithful` dataset into `R`.
@@ -366,7 +366,7 @@ Do the following:
 
 #### Vector-related functions {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-9, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # The function "seq" creates sequences of numbers equally separated
 seq(0, 1, by = 0.1)
 seq(0, 1, length.out = 5)
@@ -389,7 +389,7 @@ table(iris$Sepal.Length)
 table(iris$Species)
 ```
 
-```{exercise}
+```{block, exvecfun, type = 'rmdexercise'}
 Do the following:
 
 - Create the vector $x=(0.3, 0.6, 0.9, 1.2)$.
@@ -401,7 +401,7 @@ Do the following:
 
 #### Logical conditions and subsetting {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-10, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # Relational operators: x < y, x > y, x <= y, x >= y, x == y, x!= y
 # They return TRUE or FALSE
 
@@ -491,7 +491,7 @@ y[index2]
 summary(iris[iris$Sepal.Width > 3 & iris$Sepal.Width < 3.5, ])
 ```
 
-```{exercise}
+```{block, exlogical, type = 'rmdexercise'}
 Do the following for the `iris` dataset:
 
 - Compute the subset corresponding to `Petal.Length` either smaller than `1.5` or larger than `2`. Save this dataset as `irisPetal`.
@@ -503,7 +503,7 @@ Do the following for the `iris` dataset:
 
 #### Plotting functions {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-11, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # "plot" is the main function for plotting in R
 # It has a different behaviour depending on the kind of object that it receives
 
@@ -549,7 +549,7 @@ points(x, y + 10, col = "blue") # Add points
 abline(a = 5, b = 1, col = "orange", lwd = 2) # Add a straight line y = a + b * x
 ```
 
-```{exercise}
+```{block, explots, type = 'rmdexercise'}
 Do the following:
 
 - Plot the `faithful` dataset.
@@ -560,7 +560,7 @@ Do the following:
 
 #### Distributions {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-12, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # R allows to sample [r], compute density/probability mass functions [d],
 # compute distribution function [p], and compute quantiles [q] for several
 # continuous and discrete distributions. The format employed is [rdpq]name,
@@ -629,7 +629,7 @@ y <- pbinom(q = x, size = 10, prob = 0.5)
 plot(x, y, type = "h")
 ```
 
-```{exercise}
+```{block, exdistribs, type = 'rmdexercise'}
 Do the following:
 
 - Compute the $90\%$, $95\%$ and $99\%$ quantiles of a $F$ distribution with `df1 = 1` and `df2 = 5`. *Answer*: `c(4.060420, 6.607891, 16.258177)`.
@@ -642,7 +642,7 @@ Do the following:
 
 #### Functions {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-13, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # A function is a way of encapsulating a block of code so it can be reused easily
 # They are useful for simplifying repetitive tasks and organize the analysis
 
@@ -705,7 +705,7 @@ apply(A, 1, sqrt)
 apply(A, 2, function(x) x^2)
 ```
 
-```{exercise}
+```{block, exfuncs-2, type = 'rmdexercise'}
 Do the following:
 
 - Create a function that takes as argument $n$ and returns the value of $\sum_{i=1}^n i^2$.
@@ -715,7 +715,7 @@ Do the following:
 
 #### Control structures {-}
 
-```{r, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-14, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # The "for" statement allows to create loops that run along a given vector
 # Prints 5 times a message (i varies in 1:5)
 for (i in 1:5) {
@@ -768,7 +768,7 @@ for (i in 1:1000) {
 }
 ```
 
-```{exercise}
+```{block, excontr, type = 'rmdexercise'}
 Do the following:
 
 - Compute $\mathbf{C}_{n\times k}$ in $\mathbf{C}_{n\times k}=\mathbf{A}_{n\times m} \mathbf{B}_{m\times k}$ from $\mathbf{A}$ and $\mathbf{B}$. Use that $c_{i,j}=\sum_{l=1}^ma_{i,l}b_{l,j}$. Test the implementation with simple examples.
@@ -804,7 +804,7 @@ Least squares had a prominent role in linear models. Why is so? After all, it is
 
 However, **least squares estimation is equivalent to maximum likelihood estimation** under the assumptions of the model seen in Section \@ref(lm-i-assumps) (Normality is specially important here due to the squares present in the exponential of the Normal pdf). So maximum likelihood estimation, the most well-known statistical estimation method, is behind least squares if the assumptions of the model hold. 
 
-First, recall that given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n, Y_n)$, due to the asumptions introduced in Section \@ref(lm-i-assumps), we have that:
+First, recall that given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n, Y_n)$, due to the assumptions introduced in Section \@ref(lm-i-assumps), we have that:
 \begin{align*}
 Y_i|(X_{i1}=x_{i1},\ldots,X_{ip}=x_{ip})\sim \mathcal{N}(\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip},\sigma^2),\quad i=1,\ldots,n
 \end{align*}
@@ -819,13 +819,13 @@ From these two equations we can obtain the log-likelihood function of $Y_1,\ldot
 
 Now we are ready to show the next result.
 
-```{theorem, label = "lik"}
+```{theorem, thlik, label = "lik"}
 Under assumptions i--iv in Section \@ref(lm-i-assumps), the maximum likelihood estimate of $\boldsymbol{\beta}$ is the least squares estimate \@ref(eq:k3):
 $$
 \hat{\boldsymbol{\beta}}_\mathrm{ML}=\arg\max_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\ell(\boldsymbol{\beta})=(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}\mathbf{Y}.
 $$
 ```
-```{proof}
+```{proof, prooflik}
 Expanding the first equality at \@ref(eq:ell) gives (recall that $|\sigma^2\mathbf{I}|^{1/2}=\sigma^{n}$)
 $$
 \ell(\boldsymbol{\beta})=-\log((2\pi)^{n/2}\sigma^n)-\frac{1}{2\sigma^2}(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})'(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta}).
@@ -844,6 +844,141 @@ $$
 $$
 ```
 
+# Dealing with missing data {#app-nas}
+
+Missing data, codified as `NA` in `R`, can be problematic in predictive modeling. By default, most of the regression models in `R` work with the complete cases of the data, this is, **they exclude the cases in which there is at least one `NA`**. This might be problematic in certain cases. Let's see an example.
+
+```{r, nas-1, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+# The airquality dataset contains NA's
+data("airquality")
+head(airquality)
+summary(airquality)
+
+# Let's add more NA's for the sake of illustration
+set.seed(123456)
+airquality$Solar.R[runif(nrow(airquality)) < 0.7] <- NA
+airquality$Day[runif(nrow(airquality)) < 0.1] <- NA
+
+# See what are the fully-observed cases
+comp <- complete.cases(airquality)
+mean(comp) # Only 15% of cases are fully observed
+
+# Complete cases
+head(airquality[comp, ])
+
+# Linear model on all the variables
+summary(lm(Ozone ~ ., data = airquality)) # 129 not included
+
+# Caution! Even if the problematic variable is excluded, only the complete 
+# observations are employed
+summary(lm(Ozone ~ . - Solar.R, data = airquality))
+
+# Notice the difference with
+summary(lm(Ozone ~ ., data = subset(airquality, select = -Solar.R)))
+
+# Model selection can be problematic with missing data, since the number 
+# of complete cases changes with the addition or removing of predictors
+mod <- lm(Ozone ~ ., data = airquality)
+
+# stepAIC drops an error
+modAIC <- stepAIC(mod)
+
+# Also, this will be problematic (the number of complete cases changes 
+# with the predictors considered!)
+modBIC <- stepAIC(mod, k = log(nrow(airquality)))
+
+# Comparison of AICs or BICs is spurious: the scale of the likelihood changes 
+# with the sample size (the likelihood decreases with n), which increases 
+# AIC / BIC with n. Hence using BIC / AIC is not adequate for model selection
+# with missing data.
+AIC(lm(Ozone ~ ., data = airquality))
+AIC(lm(Ozone ~ ., data = subset(airquality, select = -Solar.R)))
+
+# Considers only complete cases including Solar.R
+AIC(lm(Ozone ~ . - Solar.R, data = airquality))
+```
+We have seen the problems that missing data may cause in regression models. There are many techniques designed to handle missing data, depending on the missing data mechanism (whether is it completely at random or there is some pattern in the missing process) and the approach to impute the data (parametric, nonparametric, Bayesian, etc). We do not give an exhaustive view of the topic here, but we outline three concrete approaches to handle missing data in practice:
+
+1. **Use complete cases**. This is the simplest solution and can be achieved by restricting the analysis to the set of fully-observed observations. The advantage of this solution is that it can be implemented very easily by using the `complete.cases` or `na.omit` f, and therefore the precision of the estimates will be much lower. In addition, it may lead to a biased representation of the original data (if the the missing process is associated with the values of the predictors).
+2. **Remove predictors with many missing data**. This is another simple solution in case most of the missing data is concentrated in one predictor.
+3. **Use imputation for the missing values**. The idea is to replace the missing observations on the response or the predictors with suitable values:
+    - When the response is missing, we can use a **predictive model to predict the missing response**, then create a new fully-observed dataset containing the predictions instead of the missing values, and finally re-estimate the predictive model in this expanded dataset. This approach is attractive if most of the missing data is in the response (see next point).
+    - When different predictors and the response are missing, we can use a direct imputation for them. The simplest approach is to **replace the missing data with the sample mean** of the observed cases (in the case of quantitative variables). This and **more sophisticated imputation methods**, based on predictive models, are available within the `mice` package [@R-mice]. This approach is interesting if the data contains many `NA`s scattered in different predictors (hence a complete cases analysis will be inefficient).
+
+Let's see these approaches in the previous example.
+```{r, nas-2, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+# The complete cases approach is the default in R
+summary(lm(Ozone ~ ., data = airquality))
+
+# However, since the complete cases that R is going to consider depends on 
+# which predictors are included, it is safer to exclude NA's explicitly
+# before the fitting of a model
+airqualityNoNA <- na.exclude(airquality)
+summary(airqualityNoNA)
+
+# The package VIM has a function to visualize where the missing data is 
+# present. It gives the percentage of NA's for each variable and most 
+# important combinations of NA's
+library(VIM)
+aggr(airquality)
+aggr(airqualityNoNA)
+
+# Stepwise regression without NA's - no problem
+modBIC1 <- stepAIC(lm(Ozone ~ ., data = airqualityNoNA), 
+                   k = log(nrow(airqualityNoNA)), trace = 0)
+summary(modBIC1)
+
+# But we only take into account 16% of the original data
+nrow(airqualityNoNA) / nrow(airquality)
+
+# Removing the predictor with many NA's, as we did before
+# We also exclude NA's from other predictors
+airqualityNoSolar.R <- na.exclude(subset(airquality, select = -Solar.R))
+modBIC2 <- stepAIC(lm(Ozone ~ ., data = airqualityNoSolar.R), 
+                   k = log(nrow(airqualityNoSolar.R)), trace = 0)
+summary(modBIC2)
+# In this example the approach works well because most of the NA's are 
+# associated to the variable Solar.R
+
+# Imput data using the sample mean
+library(mice)
+airqualityMean <- complete(mice(data = airquality, 
+                                m = 1, method = "mean"))
+head(airqualityMean)
+# Explanation of the sintaxis:
+# - complete() serves to retrieve the completed dataset from the mids object
+# - m = 1 specifies that we only want a reconstruction of the dataset 
+#   because the imputation method is deterministic (it can have randomness)
+# - method = "mean" says that we want the sample mean to be used to fill
+#   NA's in all the columns. This only works properly for quantitative variables.
+
+# Impute using linear regression for the response (first column) and mean 
+# for the predictors (remaining five columns)
+airqualityLm <- complete(mice(data = airquality, m = 1,
+                              method = c("norm.predict", rep("mean", 5))))
+head(airqualityLm)
+
+# Imputed data - some extrapolation problems may happen
+airqualityLm$Ozone[is.na(airquality$Ozone)]
+
+# Notice that the imputed data is the same (except for a small truncation that
+# is introduced by mice) as
+predict(lm(airquality$Ozone ~ ., data = airqualityMean), 
+        newdata = airqualityMean[is.na(airquality$Ozone), -1])
+
+# Removing the truncation with ridge = 0
+complete(mice(data = airquality, m = 1,
+              method = c("norm.predict", rep("mean", 5)), 
+              ridge = 0))[is.na(airquality$Ozone), 1]
+
+# The default mice's method (predictive mean matching) works better in this 
+# case (in the sense that it does not yield negative Ozone values)
+# Notice that there is randomness in the imputation!
+airqualityMice <- complete(mice(data = airquality, m = 1, seed = 123))
+head(airqualityMice)
+```
+See the available methods for `mice()` at `?mice`. There are specific methods for different kinds of variables (numeric, factor with two levels, and factors of more than two levels) and fairly advanced imputation methods.
+
 # Course evaluation {#app-evaluation}
 
 Evaluation is done by means of **two group projects**, to be done in groups of 3 (preferable) or 2 students, plus a presentation of one randomly-selected report. The final grade (in the scale 0-10) is:
@@ -852,7 +987,7 @@ Evaluation is done by means of **two group projects**, to be done in groups of 3
 
 The `individual_presentation_grade` is in the scale 0-10. The `reports_grade` (in the scale 0-12) is the weighted grade of the two reports about the following topics:
 
-1.  Linear models I, II, and III (weight: 60%; **deadline: 2017/12/21**).
+1.  Linear models I, II, and III (weight: 60%; **deadline: 2017/12/31**).
 2.  Generalized linear models **or** Nonparametric regression (weight: 40%; **deadline: 2018/01/25**).
 
 Deadlines are subjected to minor changes due to the course development.
