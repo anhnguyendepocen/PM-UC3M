@@ -53,7 +53,8 @@ Contributions, reporting of typos, and feedback on the notes are very welcome. E
 
 **List of contributors**:
 
-- [jangelfdez](https://github.com/jangelfdez) (José Ángel Fernández)
+- [José Ángel Fernández](https://github.com/jangelfdez)
+- [Gulnur Demir](https://www.linkedin.com/in/gulnurdemir/)
 
 License
 -------
