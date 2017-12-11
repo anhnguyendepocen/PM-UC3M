@@ -846,7 +846,7 @@ $$
 
 # Dealing with missing data {#app-nas}
 
-Missing data, codified as `NA` in `R`, can be problematic in predictive modeling. By default, most of the regression models in `R` work with the complete cases of the data, this is, **they exclude the cases in which there is at least one `NA`**. This might be problematic in certain cases. Let's see an example.
+Missing data, codified as `NA` in `R`, can be problematic in predictive modeling. By default, most of the regression models in `R` work with the complete cases of the data, this is, **they exclude the cases in which there is at least one **`NA`. This may be problematic in certain cases. Let's see an example.
 
 ```{r, nas-1, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # The airquality dataset contains NA's
@@ -905,7 +905,7 @@ We have seen the problems that missing data may cause in regression models. Ther
     - When the response is missing, we can use a **predictive model to predict the missing response**, then create a new fully-observed dataset containing the predictions instead of the missing values, and finally re-estimate the predictive model in this expanded dataset. This approach is attractive if most of the missing data is in the response (see next point).
     - When different predictors and the response are missing, we can use a direct imputation for them. The simplest approach is to **replace the missing data with the sample mean** of the observed cases (in the case of quantitative variables). This and **more sophisticated imputation methods**, based on predictive models, are available within the `mice` package [@R-mice]. This approach is interesting if the data contains many `NA`s scattered in different predictors (hence a complete cases analysis will be inefficient).
 
-Let's see these approaches in the previous example.
+Let's put in practise these three approaches in the previous example.
 ```{r, nas-2, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # The complete cases approach is the default in R
 summary(lm(Ozone ~ ., data = airquality))
