@@ -1,7 +1,9 @@
 
 # Linear models II: model selection, extensions, and diagnostics {#lm-ii}
 
-## Case study: Housing values in Boston {#lm-lab-ii-boston}
+Given the response $Y$ and the predictors $X_1,\ldots,X_p$, many linear models can be build for predicting and explaining $Y$. In this chapter we will see how to address the problem of selecting the *best subset of predictors* $X_1,\ldots,X_p$ for explaining $Y$. Among others, we will also see how to extend the linear model to account for nonlinear relations between $Y$ and $X_1,\ldots,X_p$, and how to check whether the assumptions of the model are realistic in practice.
+
+## Case study: Housing values in Boston {#lm-ii-lab-boston}
 
 This case study is motivated by @Harrison1978, who proposed an *hedonic model* for determining the willingness of house buyers to pay for clean air. An hedonic model is a model that decomposes the price of an item into separate components that determine its price. For example, an hedonic model for the price of a house may decompose its price into the house characteristics, the kind of neighborhood, and the location. The study of @Harrison1978 employed data from the Boston metropolitan area, containing 560 suburbs and 14 variables. The `Boston` dataset is available through the file `Boston.xlsx` file ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/Boston.xlsx)) and through the dataset `Boston` in the `MASS` package.
 
@@ -14,17 +16,17 @@ The description of the related variables can be found in `?Boston` and @Harrison
 - *Air pollution* variable: `nox`, the annual concentration of nitrogen oxide (in parts per ten million).
 
 We begin by importing the data:
-```{r, echo = FALSE, collapse = TRUE, cache = TRUE}
+```{r, case2-1, echo = FALSE, collapse = TRUE, cache = TRUE}
 library(readxl)
 Boston <- read_excel(path = "datasets/Boston.xlsx", sheet = 1, col_names = TRUE)
 ```
-```{r, echo = TRUE, collapse = TRUE, cache = TRUE, eval = FALSE}
+```{r, case2-2, echo = TRUE, collapse = TRUE, cache = TRUE, eval = FALSE}
 # Read data
 library(readxl)
 Boston <- read_excel(path = "Boston.xlsx", sheet = 1, col_names = TRUE)
 ```
 A summary of the data is shown below:
-```{r, echo = TRUE, collapse = TRUE, cache = TRUE}
+```{r, case2-3, echo = TRUE, collapse = TRUE, cache = TRUE}
 summary(Boston)
 ```
 
@@ -87,7 +89,7 @@ Before introducing the method, we need to understand what is an **information cr
 where $\ell(\text{model})$ is the *likelihood of the model* (how well the model fits the data) and $\text{npar(model)}$ is the number of parameters of the model, $p+2$ in the case of a multiple linear regression model with $p$ predictors. The AIC replaces $\log n$ by $2$ in \@ref(eq:bic) so, compared with BIC, it **penalizes less the more complex models** (recall that $\log n>2$ if $n\geq8$). This is one of the reasons why BIC is preferred by some practitioners for model comparison. Also, because is *consistent* in selecting the true model: if enough data is provided, the BIC is guaranteed to select the data-generating model among a list of candidate models.
 
 The BIC and AIC can be computed in `R` through the functions `BIC` and `AIC`. They take a model as the input.
-```{r, collapse = TRUE, cache = TRUE}
+```{r, case2-4, collapse = TRUE, cache = TRUE}
 # Two models with different predictors
 mod1 <- lm(medv ~ age + crim, data = Boston)
 mod2 <- lm(medv ~ age + crim + lstat, data = Boston)
@@ -106,15 +108,15 @@ summary(mod2)
 ```
 
 Let's go back to the selection of predictors. If we have $p$ predictors, a naive procedure would be to check *all the possible* models that can be constructed with them and then select the best one in terms of BIC/AIC. This is the so-called *best subset selection*. The problem is that there are $2^{p+1}$ possible models! Fortunately, the `stepAIC` procedure helps us navigating this ocean of models by iteratively adding useful predictors and removing the non-important ones. The function takes as input a *model employing all the available predictors*. Let's see how it works with the already studied `wine` dataset.
-```{r, echo = FALSE, collapse = TRUE, cache = TRUE}
+```{r, case2-5, echo = FALSE, collapse = TRUE, cache = TRUE}
 wine <- read.csv(file = "datasets/wine.csv", header = TRUE)
 ```
-```{r, collapse = TRUE, cache = TRUE, eval = FALSE}
+```{r, case2-6, collapse = TRUE, cache = TRUE, eval = FALSE}
 # Load data - notice that "Year" is also included
 wine <- read.csv(file = "wine.csv", header = TRUE)
 ```
 `stepAIC` takes the argument `k` as $2$ (default) or $\log n$, where $n$ is the sample size. With `k = 2` it uses the AIC criterion and with `k = log(n)` it considers the BIC. 
-```{r, collapse = TRUE, cache = TRUE}
+```{r, bic-1, collapse = TRUE, cache = TRUE}
 # Full model
 mod <- lm(Price ~ ., data = wine)
 
@@ -129,7 +131,7 @@ summary(modAIC)
 
 Note that the selected models `modBIC` and `modAIC` are equivalent to the `modWine2` we selected in Section \@ref(lm-i-modfit-case) as the best model. This is an illustration that the model selected by `stepAIC` is often a good starting point for further additions or deletions of predictors. 
 
-```{block, type = 'rmdtip'}
+```{block, tipstep, type = 'rmdtip'}
 When applying `stepAIC` for BIC/AIC, different final models might be selected depending on the choice of `direction`. This is the interpretation:
 
 - `"backward"`: starts from the full model, *removes* predictors sequentially.
@@ -140,7 +142,7 @@ The **advice** is to try several of these methods and retain the one with minimu
 ```
 
 Further options with `stepAIC`:
-```{r, collapse = TRUE, cache = TRUE}
+```{r, bic-2, collapse = TRUE, cache = TRUE}
 # Different search directions and omitting the trace,
 # gives only the final model
 modAICFor <- stepAIC(mod, trace = 0, direction = "forward")
@@ -149,8 +151,8 @@ modAICFor
 modAICBack
 ```
 
-```{block, type = 'rmdcaution'}
-`stepAIC` assumes that no `NA`'s (missing values) are present in the data. It is advised to remove the missing values in the data before. Their presence might lead to errors. To do so, employ `data = na.omit(dataset)` in the call to `lm` (if your dataset is `dataset`).
+```{block2, type = 'rmdcaution'}
+`stepAIC` assumes that no `NA`'s (missing values) are present in the data. It is advised to remove the missing values in the data before. Their presence might lead to errors. To do so, employ `data = na.omit(dataset)` in the call to `lm` (if your dataset is `dataset`). Also, see Appendix \@ref(app-nas).
 ```
 
 We conclude highlighting a caveat on the use of the BIC and AIC: they are constructed assuming that the sample size $n$ is much larger than the number of parameters in the model ($p+2$). Therefore, they will work reasonably well if $n>>p+2$, but if this is not true they may favor unrealistic complex models. An illustration of this phenomena is Figure \@ref(fig:bic), which is the BIC/AIC version of Figure \@ref(fig:R2) for the experiment done in Section \@ref(lm-i-anova). The BIC and AIC curves tend to have local minimums close to $p=2$ and then increase. But when $p+2$ gets close to $n$, they quickly drop down. Note also how the BIC penalizes more the complexity than the AIC, which is more flat.
@@ -162,14 +164,14 @@ knitr::include_graphics("images/R/BICandAIC.png")
 ### Case study application {#lm-ii-modsel-case}
 
 We want to build a linear model for predicting and explaining `medv`. There are a good number of predictors and some of them might be of little use for predicting `medv`. However, there is no clear intuition of which predictors will yield better explanations of `medv` with the information at hand. Therefore, we can start by doing a linear model on *all* the predictors:
-```{r, collapse = TRUE, cache = TRUE}
+```{r, case2-7, collapse = TRUE, cache = TRUE}
 modHouse <- lm(medv ~ ., data = Boston)
 summary(modHouse)
 ```
 There are a couple of non-significant variables, but so far the model has an $R^2=0.74$ and the fitted coefficients are sensible with what it would be expected. For example, `crim`, `tax`, `ptratio`, and `nox` have negative effects on `medv`, while `rm`, `rad`, and `chas` have positive. However, the non-significant coefficients are not significantly the model, but only adding artificial noise and decreasing the overall accuracy of the coefficient estimates.
 
 Let's polish a little bit the previous model. Instead of removing manually each non-significant variable to reduce the complexity, we employ `stepAIC` for selecting a candidate *best model*:
-```{r, collapse = TRUE, cache = TRUE}
+```{r, case2-8, collapse = TRUE, cache = TRUE}
 # Best models
 modBIC <- stepAIC(modHouse, k = log(nrow(Boston)))
 modAIC <- stepAIC(modHouse, trace = 0, k = 2)
@@ -187,6 +189,13 @@ We have quantified the influence of the predictor variables in the housing price
 
 - `chas`, `age`, `rad`, and `black` have a **significantly positive** influence on `medv`.
 - `nox`, `dis`, `tax`, `pratio`, and `lstat` have a **significantly negative** influence on `medv`.
+
+```{block2, exadddrop, type = 'rmdexercise'}
+The `MASS` functions `addterm` and `dropterm` allow to add and remove all individual predictors to a given mode, and inform the BICs / AICs of the possible combinations. Check that:
+- `modBIC` can not be improved in terms of BIC by removing predictors. Use `dropterm(modBIC, k = log(nobs(modBIC)))` for that.
+- `modBIC` can not be improved in terms of BIC by adding predictors. Use `addterm(modBIC, scope = lm(medv ~ ., data  = Boston), k = log(nobs(modBIC)))` for that. `scope` must specify the maximal model or formula^[However, be careful because `addterm(modBIC, scope = medv ~ ., k = log(nobs(modBIC)))` will understand that `.` refers to all the predictors *in* `modBIC`, not in the `Boston` dataset, and will return an error. Calling `addterm(modBIC, scope = medv ~ . + indus + age, k = log(nobs(modBIC)))` gives the required result, at expenses of manually adding the remaining predictors.] to compare additions with.
+
+```
 
 ## Use of qualitative predictors {#lm-ii-qualpred}
 
@@ -223,7 +232,7 @@ Then $C=a$ is represented by $D_1=D_2=0$, $C=b$ is represented by $D_1=1,D_2=0$ 
 
 In general, if we have a categorical variable with $J$ levels, then the number of dummy variables required is $J-1$. Again, `R` does the dummification automatically for you if it detects that a factor variable is present in the regression model. Let's see an example with the `iris` dataset.
 
-```{r, collapse = TRUE, cache = TRUE}
+```{r, qua, collapse = TRUE, cache = TRUE}
 # Load the iris dataset - factors in the last column
 data(iris)
 summary(iris)
@@ -259,7 +268,7 @@ iris$Species <- relevel(iris$Species, ref = "setosa")
 contrasts(iris$Species)
 ```
 
-```{block, type = 'rmdinsight'}
+```{block, insdummy, type = 'rmdinsight'}
 It may happen that one dummy variable, say $D_1$ is not significant, while other dummy variables, say $D_2$, are significant. For example, this happens in the example above at level $\alpha=0.01$. 
 ```
 
@@ -279,7 +288,7 @@ The right way of dealing with categorical variables in regression is to set the 
 
 Let's see what are the dummy variables in the `Boston` dataset and what effect they have in `medv`.
 
-```{r, collapse = TRUE, cache = TRUE}
+```{r, case2-9, collapse = TRUE, cache = TRUE}
 # Load the Boston dataset
 library(MASS)
 data(Boston)
@@ -306,9 +315,11 @@ summary(modBIC)
 # chas is significant as well in the presence of more predictors
 ```
 
+We will see how to mix dummy and quantitative predictors in Section \@ref(lm-ii-nonlin-ints).
+
 ## Nonlinear relationships {#lm-ii-nonlin}
 
-#### Transformations in the simple linear model {-}
+### Transformations in the simple linear model {#lm-ii-nonlin-simp}
 
 The linear model is termed *linear* not because the regression curve is a plane, but because *the effects of the **parameters** are linear*. Indeed, the predictor $X$ may exhibit a nonlinear effect on the response $Y$ and still be a linear model! For example, the following models can be transformed into simple linear models:
 
@@ -368,18 +379,18 @@ legend("topright", legend = expression(y == -x, y == -x^2, y == -x^3, y == -sqrt
 knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/non-linear/', height = '550px')
 ```
 
-```{block2, type = 'rmdinsight'}
+```{block2, instransf, type = 'rmdinsight'}
 If you apply a nonlinear transformation, namely $f$, and fit the linear model $Y=\beta_0+\beta_1 f(X)+\varepsilon$, then there is no point in fit also the model resulting from the negative transformation $-f$. The model with $-f$ is exactly the same as the one with $f$ but with the sign of $\beta_1$ flipped!
 
 As a rule of thumb, use Figure \@ref(fig:nonlineartransf) with the transformations to compare it with the data pattern, then choose the most similar curve, and finally apply the corresponding function with **positive sign**.
 ```
 
-<!-- ```{block2, type = 'rmdinsight'} -->
+<!-- ```{block2, insmultico-3, type = 'rmdinsight'} -->
 <!-- As you might have realized, applying nonlinear transformations to the predictors is a **simple trick that extends enormously the functionality of the linear model**. This is particularly useful in real applications, where linearity is hardly verified. -->
 <!-- ``` -->
 
 Let's see how we can compute transformations of our predictors and perform a linear regression with them. The data for Figure \@ref(fig:quadratic) is:
-```{r, cache = TRUE, collapse = TRUE}
+```{r, datatra, cache = TRUE, collapse = TRUE}
 # Data
 x <- c(-2, -1.9, -1.7, -1.6, -1.4, -1.3, -1.1, -1, -0.9, -0.7, -0.6,
        -0.4, -0.3, -0.1, 0, 0.1, 0.3, 0.4, 0.6, 0.7, 0.9, 1, 1.1, 1.3,
@@ -407,7 +418,7 @@ summary(mod2)
 # mod2 has a larger R^2. Also notice the intercept is not significative
 ```
 
-```{block, type = 'rmdtip'}
+```{block, tipx2, type = 'rmdtip'}
 A fast way of performing and summarizing the quadratic fit is
 
     summary(lm(y ~ I(x^2), data = nonLinear))
@@ -416,7 +427,7 @@ The `I()` function wrapping `x^2` is fundamental when applying arithmetic operat
 
 ```
 
-```{block2, type = 'rmdexercise'}
+```{block2, exassump-4, type = 'rmdexercise'}
 Load the dataset `assumptions.RData`. We are going to work with the regressions `y2 ~ x2`, `y3 ~ x3`, `y8 ~ x8`, and `y9 ~ x9`, in order to identify which transformation of Figure \@ref(fig:nonlineartransf) gives the best fit. (For the purpose of illustration, we do not care if the assumptions are respected.) For these, do the following:
 
 - Find the transformation that yields the largest $R^2$.
@@ -430,7 +441,7 @@ Some hints:
 
 ```
 
-#### Polynomial transformations {-}
+### Polynomial transformations {#lm-ii-nonlin-poly}
 
 A powerful nonlinear extension of the linear model are **polynomial models**. These are constructed from replacing each predictor $X_j$ by the set of monomials $(X_j,X_j^2,\ldots,X_j^k)$ that are formed from $X_j$. In the case with a single predictor $X$, we have the $k$-th order polynomial fit:
 \[
@@ -452,13 +463,13 @@ $$
 where $p_1,\ldots,p_k$ are *orthogonal*^[In theory this means that $\int p_j(x)p_l(x)\mathrm{d}x=0$ for $j\neq l$, which in practice translates to $\sum_{i=1}^{n} p_j(X_i)p_l(X_i)=0$, thus uncorrelation.] polynomials of orders $1,\ldots.k$, respectively.
 
 Let's see a couple of examples:
-```{r, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, pol-1, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1}
 x1 <- 1:5
 poly(x = x1, degree = 2, raw = TRUE) # (X, X^2)
 poly(x = x1, degree = 2) # By default, it employs orthogonal polynomials
 ```
 These matrices can now be used as inputs in the predictor side of `lm`. Let's see this in an example.
-```{r, echo = TRUE, collapse = TRUE, cache = TRUE}
+```{r, pol-2, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Data containing speed (mph) and stopping distance (ft) of cars from 1920
 data(cars)
 plot(cars, xlab = "Speed (mph)", ylab = "Stopping distance (ft)")
@@ -505,20 +516,28 @@ cor(mod2$model[, -1])
 cor(mod2Raw$model[, -1])
 ```
 
-```{block2, type = 'rmdinsight'}
+```{block2, insortho, type = 'rmdinsight'}
 The use of **orthogonal polynomials** is advised for a high order polynomial fits, since it avoids numerical unstabilities and excessive linear dependencies between the predictors. However, the coefficients of orthogonal polynomials are less interpretable than the ones from raw polynomials.
 ```
 
-#### Interactions {-}
+### Interactions {#lm-ii-nonlin-ints}
 
 When two or more predictors $X_1$ and $X_2$ are present, it may be of interest to explore the **interaction** between them $X_1X_2$. This is a new variable that affects positively (negatively) the response $Y$ when both $X_1$ and $X_2$ are positive or negative at the same time (at different times): 
 \[
 Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon
 \]
+The coefficient $\beta_3$ in $Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon$ can be interpreted as the **increment of the effect of the predictor $X_1$ in the mean of $Y$ for a unit increment in $X_2$** (the roles of $X_1$ and $X_2$ in can be interchanged). Significance testing on these coefficients can be carried as usual.
+
 The way of adding these interactions in `lm` is through `:` and `*`. The operator `:` only adds the term $X_1X_2$ and `*` adds $X_1$, $X_2$, and $X_1X_2$. Let's see an example in the `Boston` dataset.
-```{r, echo = TRUE, collapse = TRUE, cache = TRUE}
+```{r, int-1, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Interaction between lstat and age
 summary(lm(medv ~ lstat + lstat:age, data = Boston))
+# For a unit increment in age, the effect of lstat in the response 
+# increases positively by 0.004103 units, shifting from -1.388161 to -1.384058
+# Thus, the fact that age increases makes lstat is affecting less 
+# negatively medv. Note that the same intepretation does NOT hold if we
+# switching the roles of age and lstat because age is not present as a sole
+# predictor!
 
 # First order interaction
 summary(lm(medv ~ lstat * age, data = Boston))
@@ -527,39 +546,169 @@ summary(lm(medv ~ lstat * age, data = Boston))
 summary(lm(medv ~ lstat * age * indus, data = Boston))
 ```
 
-Interactions are also possible with categorical variables. For example, for one predictor $X_1$ and one dummy variable $D$ encoding a factor with two levels, we have four possibilities:
+**Stepwise regression** can also be done with interaction terms. `stepAIC` supports interaction terms, but their inclusion must be asked for in the `scope` argument. By default, `scope` considers the largest model in which to perform stepwise regression as the formula of the model in `object`, the first argument. In order to set the largest model to search for the best subset of predictors as the one that contains first-order interactions, we proceed as follows:
+```{r, int-2, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Include first-order interactions in the search for the best model in
+# terms of BIC, not just single predictors
+modIntBIC <- stepAIC(object = lm(medv ~ ., data = Boston), scope = medv ~ .^2, 
+                     k = log(nobs(modBIC)), trace = 0)
+summary(modIntBIC)
 
-```{r, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1}
-# No dummy variable
-summary(mod1 <- lm(medv ~ lstat, data = Boston)) # 1
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5)
-abline(coef = mod1$coefficients, col = 2)
+# There is no improvement by removing terms in modIntBIC
+dropterm(modIntBIC, k = log(nobs(modIntBIC)), sorted = TRUE)
 
-# Interaction in the intercept
-summary(mod2 <- lm(medv ~ lstat + chas, data = Boston)) # 2
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5)
-abline(a = mod2$coefficients[1], b = mod2$coefficients[2], col = 3)
+# Neither by including other terms interactions
+addterm(modIntBIC, scope = lm(medv ~ .^2, data = Boston), 
+        k = log(nobs(modIntBIC)), sorted = TRUE)
+```
+
+```{block, tipcircum, type = 'rmdtip'}
+A fast way of accounting interactions between predictors is to use the `^` operator in `lm`: 
+
+- `lm(y ~ (x1 + x2 + x3)^2)` equals `lm(y ~ x1 + x2 + x3 + x1:x2 + x1:x3 + x2:x3)`. Higher powers like `lm(y ~ (x1 + x2 + x3)^3)` serve to include up to second-order interactions like `x1:x2:x3`. 
+- It is possible to regress on all the predictors and the first order interactions using `lm(y ~ .^2)`. 
+- Further flexibility in `lm` is possible, e.g. removing a particular interaction with `lm(y ~ .^2 - x1:x2)` or forcing the intercept to be zero with `lm(y ~ 0 + .^2)`.
+
+```
+
+Interactions are also possible with categorical variables. For example, for one predictor $X$ and one dummy variable $D$ encoding a factor with two levels, we have seven possible linear models stemming from how we want to combine $X$ and $D$:
+
+1. *Predictor and no dummy variable*. Then we have the usual simple linear model:
+\[
+Y=\beta_0+\beta_1X+\varepsilon
+\]
+2. *Predictor and dummy variable*. Then $D$ affects the intercept of the linear fit, which is different for each group:
+\[
+Y=\beta_0+\beta_1X+\beta_2D+\varepsilon=\begin{cases}\beta_0+\beta_1X+\varepsilon,&\text{if }D=0,\\(\beta_0+\beta_2)+\beta_1X+\varepsilon,&\text{if }D=1.\end{cases}
+\]
+3. *Predictor and dummy variable, with interaction*. Then $D$ affects the intercept *and* the slope of the linear fit, and both are different for each group:
+\[
+Y=\beta_0+\beta_1X+\beta_2D+\beta_3(X\cdot D)+\varepsilon=\begin{cases}\beta_0+\beta_1X+\varepsilon,&\text{if }D=0,\\(\beta_0+\beta_2)+(\beta_1+\beta_3)X+\varepsilon,&\text{if }D=1.\end{cases}
+\]
+4. *Predictor and interaction with dummy variable*. Then $D$ affects only the slope of the linear fit, which is different for each group:
+\[
+Y=\beta_0+\beta_1X+\beta_2(X\cdot D)+\varepsilon=\begin{cases}\beta_0+\beta_1X+\varepsilon,&\text{if }D=0,\\\beta_0+(\beta_1+\beta_2)X+\varepsilon,&\text{if }D=1.\end{cases}
+\]
+5. *Dummy variable and no predictor*. Then $D$ controls the intercept of a constant fit, depending on each group:
+\[
+Y=\beta_0+\beta_1 D+\varepsilon=\begin{cases}\beta_0+\varepsilon,&\text{if }D=0,\\(\beta_1+\beta_1)+\varepsilon,&\text{if }D=1.\end{cases}
+\]
+6. *Dummy variable and interaction with predictor*. Then $D$ adds the predictor $X$ for one group and affects the intercept, which is different for each group:
+\[
+Y=\beta_0+\beta_1D+\beta_2(X\cdot D)+\varepsilon=\begin{cases}\beta_0+\varepsilon,&\text{if }D=0,\\(\beta_0+\beta_1)+\beta_2X+\varepsilon,&\text{if }D=1.\end{cases}
+\]
+7. *Interaction of dummy and predictor*. Then $D$ the predictor $X$ for one group and both intercepts are the same:
+\[
+Y=\beta_0+\beta_1(X\cdot D)+\varepsilon=\begin{cases}\beta_0+\varepsilon,&\text{if }D=0,\\\beta_0+\beta_1X+\varepsilon,&\text{if }D=1.\end{cases}
+\]
+Let's see the visualization of these seven possibilities.
+```{r, int-3, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1}
+# 1. No dummy variable
+(mod1 <- lm(medv ~ lstat, data = Boston))
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+     main = "1")
+abline(coef = mod1$coefficients, col = 2, lwd = 2)
+
+# The rest of plots
+par(mfrow = c(2, 3))
+
+# 2. Dummy variable
+(mod2 <- lm(medv ~ lstat + chas, data = Boston))
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+     main = "2")
+abline(a = mod2$coefficients[1], b = mod2$coefficients[2], col = 3, lwd = 2)
 abline(a = mod2$coefficients[1] + mod2$coefficients[3], 
-       b = mod2$coefficients[2], col = 4)
+       b = mod2$coefficients[2], col = 4, lwd = 2)
 
-# Interaction in the slope
-summary(mod3 <- lm(medv ~ lstat + lstat:chas, data = Boston)) # 3
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5)
-abline(a = mod3$coefficients[1], b = mod3$coefficients[2], col = 3)
-abline(a = mod3$coefficients[1], 
-       b = mod3$coefficients[2] + mod3$coefficients[3], col = 4)
+# 3. Dummy variable, with interaction
+(mod3 <- lm(medv ~ lstat * chas, data = Boston))
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+     main = "3")
+abline(a = mod3$coefficients[1], b = mod3$coefficients[2], col = 3, lwd = 2)
+abline(a = mod3$coefficients[1] + mod3$coefficients[3], 
+       b = mod3$coefficients[2] + mod3$coefficients[4], col = 4, lwd = 2)
 
-# Interaction in the intercept and slope
-summary(mod4 <- lm(medv ~ lstat * chas, data = Boston)) # 4
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5)
-abline(a = mod4$coefficients[1], b = mod4$coefficients[2], col = 3)
-abline(a = mod4$coefficients[1] + mod4$coefficients[3], 
-       b = mod4$coefficients[2] + mod4$coefficients[4], col = 4)
+# 4. Dummy variable only present in interaction
+(mod4 <- lm(medv ~ lstat + lstat:chas, data = Boston))
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+     main = "4")
+abline(a = mod4$coefficients[1], b = mod4$coefficients[2], col = 3, lwd = 2)
+abline(a = mod4$coefficients[1], 
+       b = mod4$coefficients[2] + mod4$coefficients[3], col = 4, lwd = 2)
+
+# 5. Dummy variable and no predictor
+(mod5 <- lm(medv ~ chas, data = Boston))
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+     main = "5")
+abline(a = mod5$coefficients[1], b = 0, col = 3, lwd = 2)
+abline(a = mod5$coefficients[1] + mod5$coefficients[2], b = 0, col = 4, lwd = 2)
+
+# 6. Dummy variable. Interaction in the intercept and slope
+(mod6 <- lm(medv ~ chas + lstat:chas, data = Boston))
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+     main = "6")
+abline(a = mod6$coefficients[1], b = 0, col = 3, lwd = 2)
+abline(a = mod6$coefficients[1] + mod6$coefficients[2], 
+       b = mod6$coefficients[3], col = 4, lwd = 2)
+
+# 7. Dummy variable. Interaction in the intercept and slope
+(mod7 <- lm(medv ~ lstat:chas, data = Boston))
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+     main = "7")
+abline(a = mod7$coefficients[1], b = 0, col = 3, lwd = 2)
+abline(a = mod7$coefficients[1], b = mod7$coefficients[2], col = 4, lwd = 2)
+```
+
+From the above illustration, it is clear that the effect of adding a dummy variable is to **fit simultaneously two linear models (with varying flexibility) to the two groups of data encoded by the dummy variable**, and merge this simultaneous fit within a single linear model. We can check this in more detail using the `subset` option of `lm`:
+```{r, int-4, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Model using a dummy variable in the full dataset
+lm(medv ~ lstat + chas + lstat:chas, data = Boston)
+
+# Individual model for the group with chas == 0
+lm(medv ~ lstat, data = Boston, subset = chas == 0)
+# Notice that the intecept and lstat coeffient are the same as before
+
+# Individual model for the group with chas == 1
+lm(medv ~ lstat, data = Boston, subset = chas == 1)
+# Notice that the intecept and lstat coeffient equal the ones from the 
+# joint model, plus the specific terms associated to chas
+```
+
+This discussion can be extended to the situation where we have a factor with several levels, and hence more dummy variables. Such as for example in the `iris` dataset, where there are three groups. The next code shows how three group-specific linear regressions are modeled together by means of two dummy variables:
+```{r, int-5, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1}
+# Does not take into account the groups in the data
+(modIris <- lm(Sepal.Width ~ Petal.Width, data = iris))
+
+# Adding interactions with the groups
+(modIrisSpecies <- lm(Sepal.Width ~ Petal.Width * Species, data = iris))
+
+# Joint regression line shows negative correlation, but each group
+# regression line shows a positive correlation
+plot(Sepal.Width ~ Petal.Width, data = iris, col = as.integer(Species) + 1, 
+     pch = 16)
+abline(a = modIris$coefficients[1], b = modIris$coefficients[2], lwd = 2)
+abline(a = modIrisSpecies$coefficients[1], b = modIrisSpecies$coefficients[2], 
+       col = 2, lwd = 2)
+abline(a = modIrisSpecies$coefficients[1] + modIrisSpecies$coefficients[3], 
+       b = modIrisSpecies$coefficients[2] + modIrisSpecies$coefficients[5], 
+       col = 3, lwd = 2)
+abline(a = modIrisSpecies$coefficients[1] + modIrisSpecies$coefficients[4], 
+       b = modIrisSpecies$coefficients[2] + modIrisSpecies$coefficients[6], 
+       col = 4, lwd = 2)
+```
+
+
+```{block, inssimpson, type = 'rmdinsight'}
+The last scatterplot is an illustration of the **Simpson's paradox**. The simplest case of the paradox arises in simple linear regression, when there are two or more well-defined groups in the data such that:
+
+1. Within each group, there is a clear and common correlation pattern between the response and the predictor.
+2. When the groups are aggregated, the response and the predictor exhibit an *opposite* correlation pattern.
+
 ```
 
 ### Case study application {#lm-ii-nonlin-case}
 
-```{block2, type = 'rmdexercise'}
+```{block2, exharrison, type = 'rmdexercise'}
 The model employed in @Harrison1978 is different from the `modBIC` model. In the paper, several nonlinear transformations of the predictors and the response are done to improve the linear fit. Also, different units are used for `medv`, `black`, `lstat`, and `nox`. The authors considered these variables:
 
 - *Response*: `log(1000 * medv)`
@@ -586,12 +735,12 @@ As we saw in Section \@ref(lm-i-assumps), checking the assumptions of the multip
 
 We will illustrate them in the `wine` dataset, which you can download as an `.RData`  ([here](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/wine.RData)).
 
-```{r, cache = TRUE, collapse = TRUE, include = FALSE}
+```{r, case2-10, cache = TRUE, collapse = TRUE, include = FALSE}
 load("datasets/wine.RData")
 mod <- lm(Price ~ Age + AGST + HarvestRain + WinterRain, data = wine)
 summary(mod)
 ```
-```{r, cache = TRUE, collapse = TRUE, eval = FALSE}
+```{r, case2-11, cache = TRUE, collapse = TRUE, eval = FALSE}
 load("wine.RData")
 mod <- lm(Price ~ Age + AGST + HarvestRain + WinterRain, data = wine)
 summary(mod)
@@ -609,12 +758,12 @@ Linearity between the response $Y$ and the predictors $X_1,\ldots,X_p$ is the bu
 
 The so-called **residuals vs. fitted values plot** is the scatterplot of $(\hat\varepsilon_i,\hat Y_i)$, $i=1,\ldots,n$, and is a very useful for detecting linearity departures using a single graphical device. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i$ with respect to $\hat Y_i$. For example:
 
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, diag-1, collapse = TRUE, cache = TRUE, fig.asp = 1}
 plot(mod, 1)
 ```
 
 **Under linearity, we expect the red line** (a flexible fit of the mean of the residuals) **to capture no trend**. If nonlinearities are observed, it is worth to plot the *regression terms* of the model. These are the $p$ scatterplots $(Y_i,X_{ij})$, $i=1,\ldots,n$, that are accompanied by the regression lines $y=\hat\beta_0+\hat\beta_jx$ (important: $\hat\beta_j$, $j=1,\ldots,p$, come from the *multiple* linear fit that gives $\hat{\boldsymbol\beta}$, not from individual *simple* linear regressions). They help on detecting which predictor is having  nonlinear effects on $Y$.
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, diag-2, collapse = TRUE, cache = TRUE, fig.asp = 1}
 par(mfrow = c(2, 2)) # We have 4 predictors
 termplot(mod, partial.resid = TRUE)
 ```
@@ -626,7 +775,7 @@ knitr::include_graphics("images/R/diagnostics1.png")
 #### What to do if fails {-}
 
 Using an adequate nonlinear transformation for the problematic predictors or adding interaction terms, as we saw in Section \@ref(lm-ii-nonlin). Alternatively, using a nonlinear transformation $f$ *for the response* $Y$ (of course, at the price of predicting $f(Y)$ rather than $Y$), as we will see in the case study of Section \@ref(lm-ii-diagnostics-case). Let's see the transformation of predictors in the example that motivated Section \@ref(lm-ii-nonlin).
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, diag-3, collapse = TRUE, cache = TRUE, fig.asp = 1}
 plot(lm(y ~ x, data = nonLinear), 1) # Nonlinear
 plot(lm(y ~ I(x^2), data = nonLinear), 1) # Linear
 ```
@@ -640,14 +789,14 @@ As a rule of thumb: **non-severe^[Distributions that are not heavy tailed, not h
 #### How to check it {-}
 
 The **QQ-plot** (Theoretical Quantile vs. Empirical Quantile) allows to check if the *standardized* residuals follow a $\mathcal{N}(0,1)$. What it does is to compare the theoretical quantiles of a $\mathcal{N}(0,1)$ with the quantiles of the sample of standardized residuals.
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, diag-4, collapse = TRUE, cache = TRUE, fig.asp = 1}
 plot(mod, 2)
 ```
 
 **Under normality, we expect the points to align with the diagonal line**, which represents the ideal position of the points if those were sampled from a $\mathcal{N}(0,1)$. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non-normal.
 
 There are formal tests to check the null hypothesis of normality in our residuals:
-```{r, echo = TRUE, cache = TRUE, collapse = TRUE}
+```{r, diag-5, echo = TRUE, cache = TRUE, collapse = TRUE}
 # Shapiro-Wilks test of normality
 shapiro.test(mod$residuals) # Allows up to 5000 observations
 # We do not reject normality
@@ -674,14 +823,14 @@ The constant-variance assumption of the errors is also key for obtaining the inf
 
 Heteroskedasticity can be detected by looking into irregular *vertical* dispersion patterns in the residuals vs. fitted values plot. However, it is simpler to use the **scale-location plot**, where the standardized residuals are transformed by a square root (of its absolute value) to look only for deviations in the positive axis.
 
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, diag-6, collapse = TRUE, cache = TRUE, fig.asp = 1}
 plot(mod, 3)
 ```
 
 **Under homoscedasticity, we expect the red line to show no trend.** If there are consistent nonlinear patterns, then there is evidence of heteroskedasticity. 
 
 There are formal tests to check the null hypothesis of homoscedasticity in our residuals. For example:
-```{r, echo = TRUE, cache = TRUE, collapse = TRUE}
+```{r, diag-7, echo = TRUE, cache = TRUE, collapse = TRUE}
 # Breusch-Pagan test
 ncvTest(mod)
 # We do not reject homoscedasticity
@@ -694,7 +843,7 @@ knitr::include_graphics("images/R/diagnostics3.png")
 #### What to do if fails {-}
 
 Using a nonlinear transformation *for the response* $Y$ may help controlling the variance. Typical choices are $\log Y$ and $\sqrt{Y}$, which reduce the scale of the larger responses and leads to a reduction of heteroskedasticity. Let's see a quick example of this. 
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1/2}
+```{r, diag-8, collapse = TRUE, cache = TRUE, fig.asp = 1/2}
 # Artificial data with heteroskedasticity
 set.seed(12345)
 x <- rnorm(500)
@@ -722,14 +871,14 @@ An extreme case is the following: suppose we have two samples of sizes $n$ and $
 
 The set of possible dependence structures is immense, and there is no simple  way of checking all of them. Usually what it is examined is the presence of *autocorrelation*, which appears when there is some kind of time dependence in the measurement of observations. The **serial plot of the residuals** allows to detect time trends in them.
 
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, diag-9, collapse = TRUE, cache = TRUE, fig.asp = 1}
 plot(mod$residuals, type = "o")
 ```
 
 **Under uncorrelation, we expect the series to show no *tracking* of the residuals**. This is, that the closer observations do not take similar values, but rather change without any kind of distinguishable pattern.
 
 There are also formal tests for testing for the absence of autocorrelation (null hypothesis):
-```{r, collapse = TRUE, cache = TRUE}
+```{r, diag-10, collapse = TRUE, cache = TRUE}
 # Durbin-Watson test
 durbinWatsonTest(mod)
 # Does not reject at alpha = 0.05
@@ -744,7 +893,7 @@ Little can be done if there is dependence in the data, once this has been collec
 
 However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovarions* of the series of $Y$. 
 
-```{block, type = 'rmdexercise'}
+```{block, exassump3d, type = 'rmdexercise'}
 Load the dataset `assumptions3D.RData`([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions3D.RData)) and compute the regressions `y.3 ~ x1.3 + x2.3`, `y.4 ~ x1.4 + x2.4`, `y.5 ~ x1.5 + x2.5`, and `y.8 ~ x1.8 + x2.8`. Use the presented diagnostic tools to test the assumptions of the linear model and look out for possible problems.
 ```
 
@@ -755,18 +904,18 @@ A common problem that arises in multiple linear regression is **multicollinearit
 - It **reduces the precision of the estimates**. As a consequence, signs of fitted coefficients may be reversed and valuable predictors may appear as non significant.
 - It is **difficult to determine how each of the highly related predictors affects the response**, since one masks the other. Also, this may result in numerical instabilities because $\mathbf{X}'\mathbf{X}$ will be close to being singular.
 
-```{block, type = 'rmdinsight'}
+```{block, insmultico-1, type = 'rmdinsight'}
 Intuitively, multicollinearity can be visualized as a card (fitting plane) that is hold on its opposite corners and that spins on its diagonal (where the data is concentrated). Then very different planes will fit almost equally good the data, which results in a large variability of the selected plane. 
 ```
 
 An approach is to detect multicollinearity is to compute the correlation matrix between the predictors by `cor`
-```{r, collapse = TRUE, cache = TRUE}
+```{r, multico-1, collapse = TRUE, cache = TRUE}
 cor(wine)
 ```
 Here we can see what we already knew from Section \@ref(lm-i-lab-wine), that `Age` and `Year` are perfectly linearly related and that `Age` and `FrancePop` are highly linearly related. Then one approach will be to directly remove one of the highly-correlated predictors.
 
 However, **is not enough to inspect pair by pair correlations in order to get rid of multicollinearity**. It is possible to build counterexamples that show non-suspicious pairwise correlations but problematic more complex linear relations that remain hidden. Here is one:
-```{r, collapse = TRUE, cache = TRUE}
+```{r, multico-2, collapse = TRUE, cache = TRUE}
 # Create predictors with multicollinearity: x4 depends on the rest
 set.seed(45678)
 x1 <- rnorm(100)
@@ -792,7 +941,7 @@ where $R^2_{X_j|X_{-j}}$ represents the $R^2$ from the regression of $X_j$ into 
 > - **VIF larger than 5 or 10: problematic amount of multicollinearity**. Advised to remove the predictor with largest VIF.
 
 VIF is computed with the `vif` function and takes as argument a linear model. We continue with the previous example.
-```{r, collapse = TRUE, cache = TRUE}
+```{r, multico-3, collapse = TRUE, cache = TRUE}
 # Abnormal variance inflation factors: largest for x4, we remove it
 modMultiCo <- lm(y ~ x1 + x2 + x3 + x4)
 vif(modMultiCo)
@@ -813,7 +962,7 @@ summary(modClean)
 vif(modClean)
 ```
 
-```{block2, type = 'rmdinsight'}
+```{block2, insmultico-2, type = 'rmdinsight'}
 Note that multicollinearity is another instance of the **model correctness vs. usefulness**. A model with multicollinearity might be perfectly valid in the sense of respecting the assumptions of the model. As we saw in Section \@ref(lm-i-assumps), it does not matter whether the predictors are related or not. At least for the verification of the assumptions. But the model will be useless if the multicollinearity is high, since it can inflate the variability of the estimation without any kind of bound.
 ```
 
@@ -821,11 +970,11 @@ Note that multicollinearity is another instance of the **model correctness vs. u
 
 Outliers and high-leverage points are particular observations that have a large impact in the final linear model, either on the estimates or on the properties of the model.
 
-- **Outliers** are the observations with a *response $Y_i$ far away from the regression plane*. They typically do not affect the estimate of the plane, unless one of the predictors is also extreme (see next point). But they affect $\hat\sigma$ and as a consequence the $R^2$ of the model (drowing it down) and the confidence intervals (expanding them).
-- **High-leverage points** are observations with an *extreme predictor $X_{ij}$ located far away from the rest*. Thesw observations are highly influentian and may drive the fitting of the linear model. the reason is the squared distance in the RSS: an individual extremal point contributes a large portion of the RSS.
+- **Outliers** are the observations with a *response $Y_i$ far away from the regression plane*. They typically do not affect the estimate of the plane, unless one of the predictors is also extreme (see next point). But they affect $\hat\sigma$ and as a consequence the $R^2$ of the model (drawing it down) and the confidence intervals (expanding them).
+- **High-leverage points** are observations with an *extreme predictor $X_{ij}$ located far away from the rest*. These observations are highly influential and may drive the fitting of the linear model. the reason is the squared distance in the RSS: an individual extremal point contributes a large portion of the RSS.
 
 Both outliers and high-leverage points can be identified with the **residuals vs leverage plot**:
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, outl-1, collapse = TRUE, cache = TRUE, fig.asp = 1}
 plot(mod, 5)
 ```
 
@@ -835,7 +984,7 @@ The rule of thumb for declaring outliers and high-leverage points are:
 > - If the leverage statistic is greatly exceeding $(p+1)/n$, then it may be suspected of having a high leverage.
 
 Let's see an artificial example.
-```{r, collapse = TRUE, cache = TRUE, fig.asp = 1/2}
+```{r, outl-2, collapse = TRUE, cache = TRUE, fig.asp = 1/2}
 # Create data 
 set.seed(12345)
 x <- rnorm(100)
@@ -874,7 +1023,7 @@ summary(m2)
 
 ### Case study application {#lm-ii-diagnostics-case}
 
-```{block2, type = 'rmdexercise'}
+```{block2, exmoore, type = 'rmdexercise'}
 
 *Moore's law* [@Moore1965] is an empirical law that states that the power of a computer doubles approximately every two years. Translated into a mathematical formula, Moore's law is
 \begin{align*}
@@ -907,55 +1056,7 @@ The dataset `cpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-
 
 ```
 
-```{block, type = 'rmdexercise'}
+```{block, exgpus, type = 'rmdexercise'}
 The dataset `gpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/gpus.txt)) contains the transistor counts for the GPUs appeared in the period 1997--2016. Repeat the previous analysis for this dataset.
 ```
 
-<!-- ## Dimension reduction techniques {#lm-ii-dimred} -->
-
-<!-- ### Principal Components Regression {#lm-ii-dimred-pcr} -->
-
-<!-- #### Case study -->
-
-<!-- ### Partial Least Squares {#lm-ii-dimred-pls} -->
-
-<!-- #### Case study application {-} -->
-
-<!-- ```{r, collapse = TRUE, cache = TRUE} -->
-<!-- library(ISLR) -->
-<!-- Hitters <- na.omit(Hitters) -->
-<!-- x <- model.matrix(Salary ~ ., data = Hitters)[,-1] -->
-<!-- y <- Hitters$Salary -->
-<!-- set.seed(1) -->
-<!-- train <- sample(1:nrow(x), nrow(x)/2)  -->
-<!-- test <- (-train) -->
-<!-- y.test <- y[test] -->
-<!-- library(pls) -->
-<!-- set.seed(2) -->
-<!-- pcr.fit <- pcr(Salary ~ ., data = Hitters, scale = TRUE,  -->
-<!--                validation = "CV") -->
-<!-- summary(pcr.fit) -->
-<!-- validationplot(pcr.fit, val.type = "MSEP") -->
-
-<!-- set.seed(1) -->
-<!-- pcr.fit = pcr(Salary~., data = Hitters, subset = train, scale = TRUE, validation = "CV") -->
-<!-- validationplot(pcr.fit, val.type = "MSEP") -->
-
-<!-- pcr.pred = predict(pcr.fit, x[test, ], ncomp = 7) -->
-<!-- mean((pcr.pred - y.test) ^ 2) -->
-
-<!-- pcr.fit <- pcr(y ~ x, scale = TRUE, ncomp = 7) -->
-<!-- summary(pcr.fit) -->
-
-<!-- set.seed(1) -->
-<!-- pls.fit  <-  plsr(Salary ~ ., data = Hitters, subset = train, scale = TRUE, validation = "CV") -->
-<!-- summary(pls.fit) -->
-<!-- validationplot(pls.fit, val.type = "MSEP") -->
-
-
-<!-- pls.pred = predict(pls.fit, x[test, ], ncomp = 2) -->
-<!-- mean((pls.pred - y.test) ^ 2) -->
-
-<!-- pls.fit <- plsr(Salary ~ ., data = Hitters, scale = TRUE, ncomp = 2) -->
-<!-- summary(pls.fit) -->
-<!-- ``` -->
