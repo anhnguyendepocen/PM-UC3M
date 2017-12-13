@@ -22,7 +22,7 @@ plot(x, y, pch = 16, xlab = "X", ylab = "Y")
 
 ## Case study: *The Bordeaux equation* {#lm-i-lab-wine}
 
-```{r, video2, echo = FALSE, fig.pos = 'h!', fig.cap = 'ABC interview to Orley Ashenfelter, broadcasted in 1992.', screenshot.opts = list(delay = 15), dev = 'png', cache = TRUE}
+```{r, video2, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'ABC interview to Orley Ashenfelter, broadcasted in 1992.', screenshot.opts = list(delay = 15), dev = 'png', cache = TRUE}
 knitr::include_url("https://www.youtube.com/embed/Ec8hPHLMyzY")
 ```
 
@@ -132,7 +132,7 @@ yExp <- -0.5 + 1.5 * 2^x + eps
 leastSquares <- data.frame(x = x, yLin = yLin, yQua = yQua, yExp = yExp)
 ```
 For a simple linear model, `lm` has the syntax `lm(formula = response ~ predictor, data = data)`, where `response` and `predictor` are the names of two variables in the data frame `data`. Note that the LHS of `~` represents the response and the RHS the predictors.
-```{r, lscheck-2, collapse = TRUE, cache = TRUE}
+```{r, lscheck-2, collapse = TRUE, cache = TRUE, out.width = '70%', fig.pos = 'h!'}
 # Call lm
 lm(yLin ~ x, data = leastSquares)
 lm(yQua ~ x, data = leastSquares)
@@ -153,7 +153,7 @@ plot(x, yLin)
 abline(coef = mod$coefficients, col = 2)
 ```
 
-```{block2, exdistances, type = 'rmdexercise'}
+```{block2, exdistances, type = 'rmdexercise', cache = TRUE}
 Check that you can *not* improve the error in Figure \@ref(fig:leastsquares) when using the coefficients given by `lm`, *if* vertical distances are selected. Check also that these coefficients are *only* optimal for vertical distances.
 ```
 
@@ -175,7 +175,7 @@ mod <- lm(yLin ~ x, data = leastSquares)
 mod$coefficients
 ```
 
-```{block, caupopreg, type = 'rmdcaution'}
+```{block, caupopreg, type = 'rmdcaution', cache = TRUE}
 The *population regression coefficients*, $(\beta_0,\beta_1)$, **are not the same** as the *estimated regression coefficients*, $(\hat\beta_0,\hat\beta_1)$:
 
 - $(\beta_0,\beta_1)$ are the theoretical and **always** unknown quantities (except under controlled scenarios).
@@ -193,7 +193,7 @@ wine <- read.table(file = "wine.csv", header = TRUE, sep = ",")
 ```
 
 Now we can conduct a quick exploratory analysis to have insights into the data:
-```{r, wintab-2, collapse = TRUE, cache = TRUE, fig.asp = 1}
+```{r, wintab-2, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '90%', fig.pos = 'h!'}
 # Numerical - marginal distributions
 summary(wine)
 
@@ -224,7 +224,7 @@ names(sumModAGST)
 sumModAGST$r.squared
 ```
 
-```{block, exR2, type = 'rmdexercise'}
+```{block, exR2, type = 'rmdexercise', cache = TRUE}
 Complete the analysis by computing the linear models `Price ~ FrancePop`, `Price ~ Age` and `Price ~ WinterRain`. Name them as `modFrancePop`, `modAge`, and `modWinterRain`. Obtain their $R^2$ and display them in a table like:
 
 | Predictor | $R^2$ |
@@ -310,7 +310,7 @@ into something as compact as
 \mathbf{Y}=\mathbf{X}\boldsymbol{\beta}+\boldsymbol{\varepsilon}.
 \]
 
-```{block2, insdesign1, type = 'rmdinsight'}
+```{block2, insdesign1, type = 'rmdinsight', cache = TRUE}
 Recall that if $p=1$ we have the simple linear model. In this case:
 \[
 \mathbf{X}=\begin{pmatrix}
@@ -338,7 +338,7 @@ Luckily, thanks to the matrix form of \@ref(eq:rss), it is possible^[If follows 
 \hat{\boldsymbol{\beta}}=(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}.(\#eq:k3)
 \end{align}
 
-```{block2, insestcoefinterp, type = 'rmdinsight'}
+```{block2, insestcoefinterp, type = 'rmdinsight', cache = TRUE}
 There are some similarities between \@ref(eq:k3) and $\hat\beta_1=(s_x^2)^{-1}s_{xy}$ from the simple linear model: both are related to the covariance between $\mathbf{X}$ and $Y$ weighted by the variance of $\mathbf{X}$.
 ```
 
@@ -384,7 +384,7 @@ beta <- solve(t(X) %*% X) %*% t(X) %*% Y
 beta
 ```
 
-```{block2, excheck, type = 'rmdexercise'}
+```{block2, excheck, type = 'rmdexercise', cache = TRUE}
 Compute $\boldsymbol{\beta}$ for the regressions `yLin ~ x1 + x2`, `yQua ~ x1 + x2`, and `yExp ~ x2 + x3` using:
 
 - equation \@ref(eq:k3) and
@@ -422,7 +422,7 @@ mod$residuals
 
 We conclude with an insight on the relation of multiple and simple linear regressions. It is illustrated in Figure \@ref(fig:multmarg).
 
-```{block, insjointmargcoef, type = 'rmdinsight'}
+```{block, insjointmargcoef, type = 'rmdinsight', cache = TRUE}
 Consider the multiple linear model $Y=\beta_0+\beta_1X_1+\beta_2X_2+\varepsilon$ and its associated simple linear models $Y=\alpha_0+\alpha_1X_1+\varepsilon$ and $Y=\gamma_0+\gamma_1X_2+\varepsilon$. Assume that we have a sample $(X_{11},X_{12},Y_1),\ldots, (X_{n1},X_{n2},Y_n)$. Then, in general, $\hat\alpha_0\neq\hat\beta_0$, $\hat\alpha_1\neq\hat\beta_1$, $\hat\gamma_0\neq\hat\beta_0$, and $\hat\gamma_1\neq\hat\beta_1$. This is, in general, **the inclusion of a new predictor changes the coefficient estimates**.
 ```
 
@@ -440,7 +440,7 @@ y <- 1 + 2 * x1 - x2 + rnorm(n, sd = 1)
 data <- data.frame(x1 = x1, x2 = x2, y = y)
 ```
 
-```{block, excoef, type = 'rmdexercise'}
+```{block, excoef, type = 'rmdexercise', cache = TRUE}
 With the above `data`, check how the fitted coefficients change for `y ~ x1`, `y ~ x2`, and `y ~ x1 + x2`.
 ```
 
@@ -497,7 +497,7 @@ with $Y_1,\ldots,Y_n$ being independent conditionally on the sample of predictor
 \mathbf{Y}|\mathbf{X}\sim\mathcal{N}_n(\mathbf{X}\boldsymbol{\beta},\sigma^2\mathbf{I}).(\#eq:sampcond2)
 \end{align}
 
-```{block2, insrempreds, type = 'rmdinsight'}
+```{block2, insrempreds, type = 'rmdinsight', cache = TRUE}
 Recall:
 
 - Nothing is said about the distribution of $X_1,\ldots,X_p$. They could be deterministic (called *fixed design*) or random (*random design*). They could be discrete or continuous.
@@ -526,7 +526,7 @@ Figure \@ref(fig:linearmodelassump) represents situations where the assumptions 
 knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/assump-lm-3D/', height = '700px')
 ```
 
-```{block, exassump-1, type = 'rmdexercise'}
+```{block, exassump-1, type = 'rmdexercise', cache = TRUE}
 The dataset `assumptions.RData` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions.RData)) contains the variables `x1`, ..., `x9` and `y1`, ..., `y9`. For each regression `y1 ~ x1`, ..., `y9 ~ x9`:
 
 - Check whether the assumptions of the linear model are being satisfied (make a scatterplot with a regression line).
@@ -646,11 +646,11 @@ For the moment, we will focus only on bilateral hypothesis.
 
 Remember the following insights about hypothesis testing.
 
-```{block2, inshyp-1, type = 'rmdinsight'}
+```{block2, inshyp-1, type = 'rmdinsight', cache = TRUE}
 The analogy of conducting an hypothesis test and a **trial** can be seen in Appendix \@ref(app-ht).
 ```
 
-```{block, inshyp-2, type = 'rmdinsight'}
+```{block, inshyp-2, type = 'rmdinsight', cache = TRUE}
 In an hypothesis test, the *$p$-value measures the degree of veracity of $H_0$ according to the data*. The rule of thumb is the following:
 
 **Is the $p$-value lower than $\alpha$?**
@@ -735,14 +735,14 @@ confint(modWine3)
 ```
 In `modWine3`, the 95% CI for $\beta_0$ is $(4.7460, 7.2201)$, for $\beta_1$ is $(0.0077, 0.0644)$, and for $\beta_2$ is $(-0.0010, 0.0026)$. Therefore, we can say with a 95% confidence that *the coefficient of* `WinterRain` *is non significant* (`0` is inside the CI). But inspecting the CI of $\beta_2$ in `modWine2` we can see that *it is significant* for the model! How is this possible? The answer is that the presence of extra predictors affects the coefficient estimate, as we saw in Figure \@ref(fig:multmarg). Therefore, the precise statement to make is: **in the model `Price ~ Age + WinterRain`**, with $\alpha=0.05$, the coefficient of `WinterRain` is non significant. Note that this **does not** mean that it will be always non significant: in `Price ~ Age + AGST + HarvestRain + WinterRain` it is.
 
-```{block, excis, type = 'rmdexercise'}
+```{block, excis, type = 'rmdexercise', cache = TRUE}
 Compute and interpret the CIs for the coefficients, at levels $\alpha=0.10,0.05,0.01$, for the following regressions:
 
 - `Price ~ WinterRain + HarvestRain + AGST` (`wine`)
 - `AGST ~ Year + FrancePop` (`wine`)
 ```
 
-```{block, exassump-2, type = 'rmdexercise'}
+```{block, exassump-2, type = 'rmdexercise', cache = TRUE}
 For the `assumptions` dataset, do the next:
 
 - Regression `y7 ~ x7`. Check that:
@@ -790,7 +790,7 @@ knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/ci
 
 The prediction and computation of prediction CIs can be done with `predict`. The objects required for `predict` are: first, an `lm` object; second, a `data.frame` containing the locations $\mathbf{x}=(x_1,\ldots,x_p)$ where we want to predict $\beta_0+\beta_1x_1+\ldots+\beta_{p}x_p$. The prediction is $\hat\beta_0+\hat\beta_1x_1+\ldots+\hat\beta_{p}x_p$ and the CIs returned are either \@ref(eq:ci1) or \@ref(eq:ci2).
 
-```{block, caunamespred, type = 'rmdcaution'}
+```{block, caunamespred, type = 'rmdcaution', cache = TRUE}
 It is mandatory to name the columns of the data frame with the same names of the predictors used in `lm`. Otherwise `predict` will generate an error, see below.
 ```
 
@@ -840,7 +840,7 @@ weather2 <- data.frame(WinterRain = c(500, 200), HarvestRain = c(123, 200),
 predict(modWine4, newdata = weather2, interval = "prediction")
 ```
 
-```{block2, exwine, type = 'rmdexercise'}
+```{block2, exwine, type = 'rmdexercise', cache = TRUE}
 For the `wine` dataset, do the following:
 
 - Regress `WinterRain` on `HarvestRain` and `AGST`. Name the fitted model `modExercise`.
@@ -872,7 +872,7 @@ The graphical interpretation of \@ref(eq:anovamult) when $p=1$ is shown in Figur
 
 (ref:anovatitle) Visualization of the ANOVA decomposition. SST measures the variation of $Y_1,\ldots,Y_n$ with respect to $\bar Y$. SST measures the variation with respect to the conditional means, $\hat \beta_0+\hat\beta_1X_i$. SSE collects the variation of the residuals.
 
-```{r, anova, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:anovatitle)', fig.show = 'hold'}
+```{r, anova, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:anovatitle)', fig.show = 'hold', cache = TRUE}
 knitr::include_graphics("images/R/anova.png")
 ```
 
@@ -899,7 +899,7 @@ F=\frac{\text{SSR}/p}{\text{SSE}/(n-p-1)}\stackrel{H_0}{\sim} F_{p,n-p-1},
 \end{align*}
 where $F_{p,n-p-1}$ represents the *Snedecor's $F$ distribution* with $p$ and $n-p-1$ degrees of freedom. If $H_0$ is true, then $F$ is expected to be *small* since SSR will be close to zero (little variation is explained by the regression model since $\hat{\boldsymbol{\beta}}\approx\mathbf{0}$).
 
-```{block, cauanova, type = 'rmdcaution'}
+```{block, cauanova, type = 'rmdcaution', cache = TRUE}
 The "ANOVA table" is a broad concept in statistics, with different variants. Here we are only covering the basic ANOVA table from the relation $\text{SST} = \text{SSR} + \text{SSE}$. However, further sophistications are possible when $\text{SSR}$ is decomposed into the variations contributed by *each* predictor. In particular, for multiple linear regression `R`'s `anova` implements a *sequential (type I) ANOVA table*, which is **not** the previous table!
 ```
 
@@ -971,11 +971,11 @@ simpleAnova(modWine2)
 anova(modWine1)
 ```
 
-```{block, exanova, type = 'rmdexercise'}
+```{block, exanova, type = 'rmdexercise', cache = TRUE}
 Compute the ANOVA table for the regression `Price ~ WinterRain + AGST + HarvestRain + Age` in the `wine` dataset. Check that the $p$-value for the $F$-test given in `summary` and by `simpleAnova` are the same.
 ```
 
-```{block, exassump-3, type = 'rmdexercise'}
+```{block, exassump-3, type = 'rmdexercise', cache = TRUE}
 For the `y6 ~ x6` and `y7 ~ x7` in the `assumptions` dataset, compute their ANOVA tables. Check that the $p$-values of the $t$-test for $\beta_1$ and the $F$-test are the same (any explanation of why is so?).
 ```
 
@@ -1004,7 +1004,7 @@ r^2_{y\hat y}&=\frac{s_{y\hat y}^2}{s_y^2s_{\hat y}^2}\\
 \end{align*}
 and as a consequence $r^2_{y\hat y}=r^2_{xy}=R^2$ when $p=1$.
 
-```{block2, insR2connection, type = 'rmdinsight'}
+```{block2, insR2connection, type = 'rmdinsight', cache = TRUE}
 Show that $R^2=r^2_{xy}$ when $p=1$. *Hint*: start from the definition of $R^2$ and use \@ref(eq:3) to arrive to $r^2_{xy}$.
 ```
 
@@ -1054,10 +1054,10 @@ We can visualize the fit of the latter multiple linear model since we are in $p=
 scatter3d(y ~ x1 + x2, fit = "linear")
 ```
 
-```{block, insR2-1, type = 'rmdinsight'}
+```{block, insR2-1, type = 'rmdinsight', cache = TRUE}
 A large $R^2$ means *nothing* in terms of inference if the **assumptions of the model do not hold**. $R^2$ is the proportion of variance of $Y$ explained by $X_1,\ldots,X_p$, but, of course, *only when the linear model is correct*.
 ```
-```{block, insR2-2, type = 'rmdinsight'}
+```{block, insR2-2, type = 'rmdinsight', cache = TRUE}
 Remember that:
 
 - $R^2$ does not measure the correctness of a linear model but its **usefulness**, assuming the model is correct.
@@ -1066,7 +1066,7 @@ Remember that:
 
 We finalize by pointing out a nice connection between the $R^2$, the ANOVA decomposition and the least squares estimator $\hat{\boldsymbol{\beta}}$:
 
-```{block, insR2RSS, type = 'rmdinsight'}
+```{block, insR2RSS, type = 'rmdinsight', cache = TRUE}
 The ANOVA decomposition gives another interpretation of the least-squares estimates: **$\hat{\boldsymbol{\beta}}$ are the estimated coefficients that maximize the $R^2$** (among all the possible estimates we could think about). To see this, recall that
 \[
 R^2=\frac{\text{SSR}}{\text{SST}}=\frac{\text{SST} - \text{SSE}}{\text{SST}}=\frac{\text{SST} - \text{RSS}(\hat{\boldsymbol{\beta}})}{\text{SST}},
@@ -1127,7 +1127,7 @@ summary(lm(y ~ x.1 + x.2, data = data))
 summary(lm(y ~ X[, 1:22], data = data))
 ```
 
-```{block, cauR2Adj, type = 'rmdcaution'}
+```{block, cauR2Adj, type = 'rmdcaution', cache = TRUE}
 The $R^2_\text{Adj}$ no longer measures the proportion of variation of $Y$ explained by the regression, but the result of *correcting this proportion by the number of predictors employed*. As a consequence of this, $R^2_\text{Adj}\leq1$ but **it can be negative!**
 ```
 
@@ -1143,7 +1143,7 @@ y <- 1 + rnorm(100)
 summary(lm(y ~ x1 + x2))
 ```
 
-```{block, expreds, type = 'rmdexercise'}
+```{block, expreds, type = 'rmdexercise', cache = TRUE}
 For the previous example, construct more predictors (`x3`, `x4`, ...) that are independent from `y`  and check that when the predictors are added to the model, the $R^2_\text{Adj}$ decreases and the $R^2$ increases.
 ```
 

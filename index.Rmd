@@ -2,7 +2,7 @@
 title: "Notes for Predictive Modeling"
 subtitle: "MSc in Big Data Analytics at Carlos III University of Madrid"
 author: "Eduardo García Portugués"
-date: "`r Sys.Date()`, v3.2"
+date: "`r Sys.Date()`, v3.3"
 knit: "bookdown::render_book"
 documentclass: book
 bibliography: PM-UC3M.bib
@@ -23,7 +23,7 @@ apple-touch-icon-size: 120
 favicon: "favicon.ico"
 -->
 
-```{block2, cauanimations, type = 'rmdcaution'}
+```{block2, cauanimations, type = 'rmdcaution', cache = TRUE}
 The **animations** of these notes will not be displayed the first time they are browsed^[The reason is because they are hosted at `https` websites with auto-signed SSL certificates.]. See for example Figure \@ref(fig:overfitting). **To see them**, click on the caption's link *"Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/over-fitting/)"*. You will get a warning from your browser saying that *"Your connection is not private"*. Click in *"Advanced"* and **allow an exception** in your browser (I guarantee you I will not do anything evil!). The next time the animation will show up correctly within the notes.
 ```
 
@@ -42,7 +42,7 @@ We will employ several packages that are not contained in `R` (*note: list to be
 ```{r, install, echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, eval = FALSE}
 # Installation of required packages
 install.packages(c("car", "readxl", "rgl", "nortest", "pca3d", "ISLR", "pls", 
-                   "glmnet", "mice", "VIM"))
+                   "glmnet", "biglm", "mice", "VIM"))
 #, "caret", "KernSmooth", "locfit"))
 ```
 
@@ -58,6 +58,7 @@ library(pca3d)
 library(ISLR)
 library(pls)
 library(glmnet)
+library(biglm)
 # library(caret)
 # library(KernSmooth)
 # library(locfit)
@@ -77,9 +78,9 @@ In predictive modeling we are interested in predicting a random variable, typica
 - Predicting the probability of failure ($Y$) of a rocket launcher from the ambient temperature ($X_1$).
 
 The process of predictive modelling can be statistically abstracted in the following way. We believe that $Y$ and $X_1,\ldots,X_p$ are related by a *regression model* of the form
-\[
-Y=m(X_1,\ldots,X_p)+\varepsilon,
-\]
+\begin{align}
+Y=m(X_1,\ldots,X_p)+\varepsilon,(\#eq:ym)
+\end{align}
 where $m$ is the *regression function* and $\varepsilon$ is a random error (which accounts for the uncertainty of knowing $Y$ if $X_1,\ldots,X_p$ are known) with zero mean. The function $m:\mathbb{R}^p\rightarrow\mathbb{R}$ is unknown in practice and is the target of predictive modelling: **$m$ encodes the relation**^[The relation is encoded in *average* by means of the *conditional expectation*.] **between $Y$ and $X_1,\ldots,X_p$**. $m$ captures the *trend* of the relation between $Y$ and $X_1,\ldots,X_p$, and $\varepsilon$ the *stochasticity* of that relation. 
 
 Therefore, knowing $m$ allows to predict $Y$. We are going to devote this course to see some statistical models to came up with an estimate of $m$, denoted by $\hat m$, and use $\hat m$ to predict $Y$. 
@@ -89,20 +90,21 @@ Let's see a concrete example of this with an artificial dataset. Suppose $Y$ rep
 Y=a+bX+cX^2+\varepsilon.
 \]
 Then $m:\mathbb{R}\rightarrow\mathbb{R}$ ($p=1$) with $m(x)=a+bx+cx^2$. Suppose the following data are measurements from a given car model, measured in different drivers and conditions (we do not have data for accounting for all those effects, which go to the $\varepsilon$ term):
-```{r, speedfuel, echo = TRUE}
+```{r, speedfuel, echo = TRUE, out.width = '70%', fig.pos = 'h!', fig.asp = 1, cache = TRUE}
 x <- c(64, 20, 14, 64, 44, 39, 25, 53, 48, 9, 
        100, 112, 78, 105, 116, 94, 71, 71, 101, 109)
 y <- c(4, 6, 6.4, 4.1, 4.9, 4.4, 6.6, 4.4, 3.8, 7, 
        7.4, 8.4, 5.2, 7.6, 9.8, 6.4, 5.1, 4.8, 8.2, 8.7)
 plot(x, y, xlab = "Speed", ylab = "Fuel consumption")
 ```
+
 From this data, we can estimate $m$ by means of a polynomial model^[Note we use the information that $m$ *has to be* of a particular form (in this case quadratic) which is an unrealistic situation for other data applications.]:
-```{r, abcx2, echo = TRUE}
+```{r, abcx2, echo = TRUE, cache = TRUE}
 # Estimates for a, b, and c
 lm(y ~ x + I(x^2))
 ```
 Then the estimate of $m$ is $\hat m(x)=\hat a+\hat b x+\hat c x^2=8.512-0.153x+0.001x^2$ and its fit to the data is pretty good. As a consequence, we can use this precise mathematical function to predict the $Y$ from a particular observation $X$. For example, the average fuel consumption of at a speed 90 km/h is `8.512421 - 0.153291 * 90 + 0.001408 * 90^2=6.1210`.
-```{r, fitparabola, echo = TRUE, fig.asp = 1}
+```{r, fitparabola, echo = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!', cache = TRUE}
 plot(x, y, xlab = "Speed", ylab = "Fuel consumption")
 curve(8.512421 - 0.153291 * x + 0.001408 * x^2, add = TRUE, col = 2)
 ```
@@ -135,7 +137,7 @@ For a random variable $X\sim F$, the *expectation* of $g(X)$ is
 \int g(x)f(x)\mathrm{d}x,&\text{ if }X\text{ is continuous,}\\\sum_{\{i:\mathbb{P}[X=x_i]>0\}} g(x_i)\mathbb{P}[X=x_i],&\text{ if }X\text{ is discrete.}
 \end{cases}
 \end{align*}
-Unless otherwise stated, the integration limits of any integral are $\mathbb{R}$ or $\mathbb{R}^p$. The *variance* is defined as $\mathbb{V}\mathrm{ar}[X]:=\mathbb{E}[(X-\mathbb{E}[X])^2]$.
+Unless otherwise stated, the integration limits of any integral are $\mathbb{R}$ or $\mathbb{R}^p$. The *variance* is defined as $\mathbb{V}\mathrm{ar}[X]:=\mathbb{E}[(X-\mathbb{E}[X])^2]=\mathbb{E}[X^2]-\mathbb{E}[X]^2$.
 
 We employ boldface to denote vectors (assumed to be column matrices, although sometimes written in row-layout), like $\mathbf{a}$, and matrices, like $\mathbf{A}$. We denote by $\mathbf{A}'$ to the transpose of $\mathbf{A}$. Boldfaced capitals will be used simultaneously for denoting matrices and also *random vectors* $\mathbf{X}=(X_1,\ldots,X_p)$, which are collections random variables $X_1,\ldots,X_p$. The (joint) cdf of $\mathbf{X}$ is 
 $$
@@ -157,7 +159,32 @@ The *conditional expectation* of $Y\vert X$ is the following random variable^[Re
 $$
 \mathbb{E}[Y\vert X]:=\int y \mathrm{d}F_{Y\vert X}(y\vert X).
 $$
-The *$p$-dimensional normal* of mean $\boldsymbol{\mu}\in\mathbb{R}^p$ and covariance $\boldsymbol{\Sigma}$ (a $p\times p$ symmetric and positive definite matrix) is denoted by $\mathcal{N}_{p}(\boldsymbol{\mu},\boldsymbol{\Sigma})$ and is the generalization to $p$ random variables of usual the *normal* distribution. Its (joint) pdf is given by
+
+For two random variables $X_1$ and $X_2$, the *covariance* between them is defined as
+\[
+\mathrm{Cov}[X_1,X_2]:=\mathbb{E}[(X_1-\mathbb{E}[X_1])(X_2-\mathbb{E}[X_2])]=\mathbb{E}[X_1X_2]-\mathbb{E}[X_1]\mathbb{E}[X_2],
+\]
+and the *correlation* between them is defined as 
+\[
+\mathrm{Cor}[X_1,X_2]:=\frac{\mathrm{Cov}[X_1,X_2]}{\sqrt{\mathbb{V}\mathrm{ar}[X_1]\mathbb{V}\mathrm{ar}[X_2]}}.
+\]
+The variance and covariance are extended to a random vector $\mathbf{X}=(X_1,\ldots,X_p)'$ by means of the so-called *variance-covariance matrix*:
+\begin{align*}
+\mathbb{V}\mathrm{ar}[\mathbf{X}]:=&\mathbb{E}[(\mathbf{X}-\mathbb{E}[\mathbf{X}])(\mathbf{X}-\mathbb{E}[\mathbf{X}])']=\mathbb{E}[\mathbf{X}\mathbf{X}']-\mathbb{E}[\mathbf{X}]\mathbb{E}[\mathbf{X}]'\\
+=&
+\begin{pmatrix}
+\mathbb{V}\mathrm{ar}[X_1] & \mathrm{Cov}[X_1,X_2] & \cdots & \mathrm{Cov}[X_1,X_p]\\
+\mathrm{Cov}[X_2,X_1] & \mathbb{V}\mathrm{ar}[X_2] & \cdots & \mathrm{Cov}[X_2,X_p]\\
+\vdots & \vdots & \ddots & \vdots \\
+\mathrm{Cov}[X_p,X_1] & \mathrm{Cov}[X_p,X_2] & \cdots & \mathbb{V}\mathrm{ar}[X_p]\\
+\end{pmatrix},
+\end{align*}
+where $\mathbb{E}[\mathbf{X}]:=(\mathbb{E}[X_1],\ldots,\mathbb{E}[X_p])'$. As in the univariate case, the expectation is a linear operator, which means that
+\begin{align}
+\mathbb{E}[\mathbf{A}\mathbf{X}\mathbf{B}+\mathbf{C}]=\mathbf{A}\mathbb{E}[\mathbf{X}]\mathbf{B}+\mathbf{C},\quad\text{for matrices } \mathbf{A}, \mathbf{B}\text{, and }\mathbf{C}.(\#eq:linexp)
+\end{align}
+
+The *$p$-dimensional normal* of mean $\boldsymbol{\mu}\in\mathbb{R}^p$ and covariance matrix $\boldsymbol{\Sigma}$ (a $p\times p$ symmetric and positive definite matrix) is denoted by $\mathcal{N}_{p}(\boldsymbol{\mu},\boldsymbol{\Sigma})$ and is the generalization to $p$ random variables of usual the *normal* distribution. Its (joint) pdf is given by
 $$
 \phi(\mathbf{x};\boldsymbol{\mu},\boldsymbol{\Sigma}):=\frac{1}{(2\pi)^{p/2}|\boldsymbol{\Sigma}|^{1/2}}e^{-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})'\boldsymbol{\Sigma}^{-1}(\mathbf{x}-\boldsymbol{\mu})},\quad \mathbf{x}\in\mathbb{R}^p.
 $$

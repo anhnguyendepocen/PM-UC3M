@@ -28,7 +28,7 @@ This section provides a collection of self-explainable snippets of the programmi
 
 In the following, `#` denotes comments to the code and `##` outputs of the code.
 
-```{r, r-1, echo = FALSE, eval = TRUE}
+```{r, r-1, echo = FALSE, eval = TRUE, cache = TRUE}
 rm(list = ls())
 ```
 
@@ -62,7 +62,7 @@ sqrt(-1)
 (1 + 3
 ```
 
-```{block, exsimp, type = 'rmdexercise'}
+```{block, exsimp, type = 'rmdexercise', cache = TRUE}
 Compute:
 
 - $\frac{e^{2}+\sin(2)}{\cos^{-1}\left(\tfrac{1}{2}\right)+2}$. *Answer*: `2.723274`.
@@ -104,7 +104,7 @@ rm(X)
 X
 ```
 
-```{block, exvars, type = 'rmdexercise'}
+```{block, exvars, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Store $-123$ in the variable `y`.
@@ -166,7 +166,7 @@ myData2[c(-1, 2)]
 myData2 <- myData2[-1]
 ```
 
-```{block, exvec, type = 'rmdexercise'}
+```{block, exvec, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Create the vector $x=(1, 7, 3, 4)$.
@@ -212,7 +212,7 @@ args(mean)
 ?mean
 ```
 
-```{block, exfuncs-1, type = 'rmdexercise'}
+```{block, exfuncs-1, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Compute the mean, median and variance of $y$. *Answers*: `49.5`, `49.5`, `843.6869`.
@@ -302,7 +302,7 @@ str(myDf)
 names(myList)
 ```
 
-```{block, exmats, type = 'rmdexercise'}
+```{block, exmats, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Create a matrix called `M` with rows given by `y[3:5]`, `y[3:5]^2` and `log(y[3:5])`.
@@ -354,7 +354,7 @@ levels(iris$Species)
 # when imported into R
 ```
 
-```{block, exdf, type = 'rmdexercise'}
+```{block, exdf, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Load the `faithful` dataset into `R`.
@@ -389,7 +389,7 @@ table(iris$Sepal.Length)
 table(iris$Species)
 ```
 
-```{block, exvecfun, type = 'rmdexercise'}
+```{block, exvecfun, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Create the vector $x=(0.3, 0.6, 0.9, 1.2)$.
@@ -491,7 +491,7 @@ y[index2]
 summary(iris[iris$Sepal.Width > 3 & iris$Sepal.Width < 3.5, ])
 ```
 
-```{block, exlogical, type = 'rmdexercise'}
+```{block, exlogical, type = 'rmdexercise', cache = TRUE}
 Do the following for the `iris` dataset:
 
 - Compute the subset corresponding to `Petal.Length` either smaller than `1.5` or larger than `2`. Save this dataset as `irisPetal`.
@@ -503,7 +503,7 @@ Do the following for the `iris` dataset:
 
 #### Plotting functions {-}
 
-```{r, r-11, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-11, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE, out.width = '70%', fig.pos = 'h!'}
 # "plot" is the main function for plotting in R
 # It has a different behaviour depending on the kind of object that it receives
 
@@ -549,7 +549,7 @@ points(x, y + 10, col = "blue") # Add points
 abline(a = 5, b = 1, col = "orange", lwd = 2) # Add a straight line y = a + b * x
 ```
 
-```{block, explots, type = 'rmdexercise'}
+```{block, explots, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Plot the `faithful` dataset.
@@ -560,7 +560,7 @@ Do the following:
 
 #### Distributions {-}
 
-```{r, r-12, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-12, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE, out.width = '70%', fig.pos = 'h!'}
 # R allows to sample [r], compute density/probability mass functions [d],
 # compute distribution function [p], and compute quantiles [q] for several
 # continuous and discrete distributions. The format employed is [rdpq]name,
@@ -629,7 +629,7 @@ y <- pbinom(q = x, size = 10, prob = 0.5)
 plot(x, y, type = "h")
 ```
 
-```{block, exdistribs, type = 'rmdexercise'}
+```{block, exdistribs, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Compute the $90\%$, $95\%$ and $99\%$ quantiles of a $F$ distribution with `df1 = 1` and `df2 = 5`. *Answer*: `c(4.060420, 6.607891, 16.258177)`.
@@ -642,7 +642,7 @@ Do the following:
 
 #### Functions {-}
 
-```{r, r-13, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, r-13, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE, out.width = '70%', fig.pos = 'h!'}
 # A function is a way of encapsulating a block of code so it can be reused easily
 # They are useful for simplifying repetitive tasks and organize the analysis
 
@@ -705,7 +705,7 @@ apply(A, 1, sqrt)
 apply(A, 2, function(x) x^2)
 ```
 
-```{block, exfuncs-2, type = 'rmdexercise'}
+```{block, exfuncs-2, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Create a function that takes as argument $n$ and returns the value of $\sum_{i=1}^n i^2$.
@@ -768,7 +768,7 @@ for (i in 1:1000) {
 }
 ```
 
-```{block, excontr, type = 'rmdexercise'}
+```{block, excontr, type = 'rmdexercise', cache = TRUE}
 Do the following:
 
 - Compute $\mathbf{C}_{n\times k}$ in $\mathbf{C}_{n\times k}=\mathbf{A}_{n\times m} \mathbf{B}_{m\times k}$ from $\mathbf{A}$ and $\mathbf{B}$. Use that $c_{i,j}=\sum_{l=1}^ma_{i,l}b_{l,j}$. Test the implementation with simple examples.
@@ -846,7 +846,7 @@ $$
 
 # Dealing with missing data {#app-nas}
 
-Missing data, codified as `NA` in `R`, can be problematic in predictive modeling. By default, most of the regression models in `R` work with the complete cases of the data, this is, **they exclude the cases in which there is at least one **`NA`. This may be problematic in certain cases. Let's see an example.
+Missing data, codified as `NA` in `R`, can be problematic in predictive modeling. By default, most of the regression models in `R` work with the complete cases of the data, this is, **they exclude the cases in which there is at least one** `NA`. This may be problematic in certain cases. Let's see an example.
 
 ```{r, nas-1, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # The airquality dataset contains NA's
@@ -897,7 +897,7 @@ AIC(lm(Ozone ~ ., data = subset(airquality, select = -Solar.R)))
 # Considers only complete cases including Solar.R
 AIC(lm(Ozone ~ . - Solar.R, data = airquality))
 ```
-We have seen the problems that missing data may cause in regression models. There are many techniques designed to handle missing data, depending on the missing data mechanism (whether is it completely at random or there is some pattern in the missing process) and the approach to impute the data (parametric, nonparametric, Bayesian, etc). We do not give an exhaustive view of the topic here, but we outline three concrete approaches to handle missing data in practice:
+We have seen the problems that missing data may cause in regression models. There are many techniques designed to handle missing data, depending on the missing data mechanism (whether is it completely at random or there is some pattern in the missing process) and the approach to impute the data (parametric, nonparametric, Bayesian, etc). We do not give an exhaustive view of the topic here, but we outline **three concrete approaches to handle missing data in practice**:
 
 1. **Use complete cases**. This is the simplest solution and can be achieved by restricting the analysis to the set of fully-observed observations. The advantage of this solution is that it can be implemented very easily by using the `complete.cases` or `na.omit` f, and therefore the precision of the estimates will be much lower. In addition, it may lead to a biased representation of the original data (if the the missing process is associated with the values of the predictors).
 2. **Remove predictors with many missing data**. This is another simple solution in case most of the missing data is concentrated in one predictor.
@@ -906,7 +906,7 @@ We have seen the problems that missing data may cause in regression models. Ther
     - When different predictors and the response are missing, we can use a direct imputation for them. The simplest approach is to **replace the missing data with the sample mean** of the observed cases (in the case of quantitative variables). This and **more sophisticated imputation methods**, based on predictive models, are available within the `mice` package [@R-mice]. This approach is interesting if the data contains many `NA`s scattered in different predictors (hence a complete cases analysis will be inefficient).
 
 Let's put in practise these three approaches in the previous example.
-```{r, nas-2, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
+```{r, nas-2, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE, out.width = '70%', fig.pos = 'h!'}
 # The complete cases approach is the default in R
 summary(lm(Ozone ~ ., data = airquality))
 
@@ -1039,7 +1039,7 @@ Upload **one** report per group, in the form of a `.pdf`, to the `Turnitin` task
 
 Need extra time? Buy it at expenses of a penalization in your grade: `-0.04` points per extra hour! ;) But only until the **25th of January**, reports received after that date will not be graded. The maximum grade according to the hours past the deadline is given in the graph below.
 
-```{r, penalization, message = FALSE, echo = FALSE}
+```{r, penalization, message = FALSE, echo = FALSE, out.width = '70%', fig.pos = 'h!', cache = TRUE}
 # Requires lubridate
 # install.packages("lubridate")
 library(lubridate)
