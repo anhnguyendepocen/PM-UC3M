@@ -157,7 +157,9 @@ modAICBack
 
 We conclude highlighting a caveat on the use of the BIC and AIC: they are constructed assuming that the sample size $n$ is much larger than the number of parameters in the model ($p+2$). Therefore, they will work reasonably well if $n>>p+2$, but if this is not true they may favor unrealistic complex models. An illustration of this phenomena is Figure \@ref(fig:bic), which is the BIC/AIC version of Figure \@ref(fig:R2) for the experiment done in Section \@ref(lm-i-anova). The BIC and AIC curves tend to have local minimums close to $p=2$ and then increase. But when $p+2$ gets close to $n$, they quickly drop down. Note also how the BIC penalizes more the complexity than the AIC, which is more flat.
 
-```{r, bic, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = 'Comparison of BIC and AIC for $n=200$ and $p$ ranging from $1$ to $198$. $M=100$ datasets were simulated with **only the first two** predictors being significant. The thicker curves are the mean of each color\'s curves.', fig.show = 'hold', cache = TRUE}
+(ref:bictitle) Comparison of BIC and AIC for $n=200$ and $p$ ranging from $1$ to $198$. $M=100$ datasets were simulated with **only the first two** predictors being significant. The thicker curves are the mean of each color's curves.
+
+```{r, bic, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:bictitle)', fig.show = 'hold', cache = TRUE}
 knitr::include_graphics("images/R/BICandAIC.png")
 ```
 
@@ -1325,7 +1327,7 @@ predict(modPCABIC, newdata = newScores, interval = "prediction")
 laliga[1:2, 1]
 ```
 
-The second approach employs the function `pcr` from the `pls` library and is more direct, yet less connected with the techniques we have seen so far. It employs a model object different from the `lm` object and, as a consequence, functions like `summary()`, `BIC()`, `stepAIC()`, or `plot()` do not work properly. This implies that inference, model selection, and model validation are not so simple. In exchange, `pcr` allows for model fitting in an easier way and model selection through the use of cross-validation. In summary, this is a more *predictive* approach than *predictive and explicative*.
+The second approach employs the function `pcr` from the `pls` library and is more direct, yet less connected with the techniques we have seen so far. It employs a model object different from the `lm` object and, as a consequence, functions like `summary`, `BIC`, `stepAIC`, or `plot` do not work properly. This implies that inference, model selection, and model validation are not so simple. In exchange, `pcr` allows for model fitting in an easier way and model selection through the use of cross-validation. In summary, this is a more *predictive* approach than *predictive and explicative*.
 
 ```{r, pcr-2, collapse = TRUE, cache = TRUE, out.width = '70%', fig.pos = 'h!'}
 # Create a dataset without the problematic predictors and with the response
@@ -1360,12 +1362,13 @@ predict(modPcr, newdata = laligaRed2[1:2, ], ncomp = 12)
 modPcr2 <- pcr(Points ~ ., data = laligaRed2, scale = TRUE, ncomp = 3)
 summary(modPcr2)
 
-# Selecting the number of components to retain by Leave-One-Out cross-validation
+# Selecting the number of components to retain by Leave-One-Out
+# cross-validation
 modPcrCV1 <- pcr(Points ~ ., data = laligaRed2, scale = TRUE, 
                  validation = "LOO")
 summary(modPcrCV1)
 
-# View cross-validation Mean Squared Error Prediction
+# View cross-validation Mean Squared Error in Prediction
 validationplot(modPcrCV1, val.type = "MSEP") # l = 8 gives the minimum CV
 
 # Selecting the number of components to retain by 10-fold Cross-Validation
@@ -1376,7 +1379,7 @@ summary(modPcrCV10)
 validationplot(modPcrCV10, val.type = "MSEP") # l = 8 gives the minimum CV
 ```
 
-The selection of $l$ by **cross-validation** attempts to minimize the *Mean Squared Error in Prediction* (MSEP) or, equivalently, the *Root MSEP* (RMSEP), of the model. This is a **jackknife method** valid for the selection of any tuning parameter $\lambda$ that affects the form of the estimate $\hat m_\lambda$ of the regression function $m$ (remember \@ref(eq:ym)). Given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n,Y_n)$, *leave-one-out cross-validation* considers the tuning parameter
+The selection of $l$ by **cross-validation** attempts to minimize the *Mean Squared Error in Prediction* (MSEP) or, equivalently, the *Root MSEP* (RMSEP), of the model. (Alternatively, the "*in Prediction*" part of the latter terms is dropped and they are just referred as the MSE and RMSE.) This is a **jackknife method** valid for the selection of any tuning parameter $\lambda$ that affects the form of the estimate $\hat m_\lambda$ of the regression function $m$ (remember \@ref(eq:ym)). Given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n,Y_n)$, *leave-one-out cross-validation* considers the tuning parameter
 \[
 \hat{\lambda}_\mathrm{CV}:=\arg\min_\lambda \sum_{i=1}^n (Y_i-\hat m_{\lambda,-i}(\mathbf{X}_i))^2,
 \]
@@ -1386,7 +1389,13 @@ A less computationally expensive variation on leave-one-out cross-validation is 
 \[
 \hat{\lambda}_{k-\mathrm{CV}}:=\arg\min_\lambda \sum_{j=1}^k \sum_{i\in F_j} (Y_i-\hat m_{\lambda,-F_{j}}(\mathbf{X}_i))^2,
 \]
-where $\hat m_{\lambda,-F_{j}}$ represents the fit of the model $\hat m_\lambda$ excluding the data from the $j$-th fold $F_{j}$. Recall that leave-one-out cross-validation is a particular case of $k$-fold cross-validation with $k=n-1$.
+where $\hat m_{\lambda,-F_{j}}$ represents the fit of the model $\hat m_\lambda$ excluding the data from the $j$-th fold $F_{j}$. Recall that leave-one-out cross-validation is a particular case of $k$-fold cross-validation with $k=n$.
+
+```{block2, caukfold, type = 'rmdcaution', cache = TRUE}
+$k$-fold cross validation with $k<n$ has an inconvenience to be aware of: it depends on the choice of the folds for splitting the data (*i.e.*, how each datum is assigned to each of the $k$ folds). Some statistical software do this assignment **randomly**, which means that the selection of $\hat{\lambda}_{k-\mathrm{CV}}$ may vary from one run to another. Thus, fixing the seed prior to the parameter selection is important to ensure reproducibility. Another alternative is to aggregate the results of several cross-validations in a convenient way.
+
+Notice that this problematic is not present in leave-one-out cross-validation (where $k=n$).
+```
 
 ### Partial least squares {#lm-ii-dimred-pls}
 

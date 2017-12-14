@@ -2,7 +2,7 @@
 title: "Notes for Predictive Modeling"
 subtitle: "MSc in Big Data Analytics at Carlos III University of Madrid"
 author: "Eduardo García Portugués"
-date: "`r Sys.Date()`, v3.3"
+date: "`r Sys.Date()`, v4.0"
 knit: "bookdown::render_book"
 documentclass: book
 bibliography: PM-UC3M.bib

@@ -544,7 +544,7 @@ The distribution of $\hat{\boldsymbol{\beta}}$ is:
 \hat{\boldsymbol{\beta}}\sim\mathcal{N}_{p+1}\left(\boldsymbol{\beta},\sigma^2(\mathbf{X}'\mathbf{X})^{-1}\right).
 (\#eq:normp)
 \end{align}
-This result can be obtained from the form of $\hat{\boldsymbol{\beta}}$ given in  \@ref(eq:k3) and the sample version of the model assumptions given in \@ref(eq:sampcond2). Equation \@ref(eq:normp) implies that each *individual* $\hat\beta_j$ satisfies
+This result can be obtained from the form of $\hat{\boldsymbol{\beta}}$ given in \@ref(eq:k3) and the sample version of the model assumptions given in \@ref(eq:sampcond2). Equation \@ref(eq:normp) implies that each *individual* $\hat\beta_j$ satisfies
 \begin{align}
 \hat{\beta}_j\sim\mathcal{N}\left(\beta_j,\mathrm{SE}(\hat\beta_j)^2\right),(\#eq:normp1b)
 \end{align}
