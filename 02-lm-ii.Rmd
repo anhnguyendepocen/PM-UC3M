@@ -842,6 +842,10 @@ ncvTest(mod)
 knitr::include_graphics("images/R/diagnostics3.png")
 ```
 
+<!-- ```{block2, cauhomos, type = 'rmdcaution'} -->
+<!-- TODO -->
+<!-- ``` -->
+
 #### What to do if fails {-}
 
 Using a nonlinear transformation *for the response* $Y$ may help controlling the variance. Typical choices are $\log Y$ and $\sqrt{Y}$, which reduce the scale of the larger responses and leads to a reduction of heteroskedasticity. Let's see a quick example of this. 
@@ -973,7 +977,7 @@ Note that multicollinearity is another instance of the **model correctness vs. u
 Outliers and high-leverage points are particular observations that have a large impact in the final linear model, either on the estimates or on the properties of the model.
 
 - **Outliers** are the observations with a *response $Y_i$ far away from the regression plane*. They typically do not affect the estimate of the plane, unless one of the predictors is also extreme (see next point). But they affect $\hat\sigma$ and as a consequence the $R^2$ of the model (drawing it down) and the confidence intervals (expanding them).
-- **High-leverage points** are observations with an *extreme predictor $X_{ij}$ located far away from the rest*. These observations are highly influential and may drive the fitting of the linear model. the reason is the squared distance in the RSS: an individual extremal point contributes a large portion of the RSS.
+- **High-leverage points** are observations with an *extreme predictor $X_{ij}$ located far away from the rest of points*. These observations are highly influential and may drive the fitting of the linear model. the reason is the squared distance in the RSS: an individual extremal point contributes a large portion of the RSS.
 
 Both outliers and high-leverage points can be identified with the **residuals vs leverage plot**:
 ```{r, outl-1, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
@@ -983,7 +987,7 @@ plot(mod, 5)
 The rule of thumb for declaring outliers and high-leverage points are:
 
 > - If the standardised residual of an observation is larger than $3$ in absolute value, then it it may be an outlier.
-> - If the leverage statistic is greatly exceeding $(p+1)/n$, then it may be suspected of having a high leverage.
+> - If the leverage statistic is *greatly exceeding* $(p+1)/n$, then it may be suspected of having a high leverage.
 
 Let's see an artificial example.
 ```{r, outl-2, collapse = TRUE, cache = TRUE, fig.asp = 1/2, out.width = '70%', fig.pos = 'h!'}
@@ -1021,6 +1025,37 @@ plot(x, y)
 abline(coef = m2$coefficients, col = 2)
 plot(m2, 5)
 summary(m2)
+```
+
+The leverage statistic associated to the $i$-th datum corresponds to the $i$-th diagonal entry of the hat matrix $\mathbf{H}$:
+\[
+h_{i}:=\mathbf{H}_{ii}=(\mathbf{X}(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}')_{ii}
+\]
+and it can be seen that $\frac{1}{n}\leq h_i\leq 1$ and that the mean $\bar{h}=\frac{1}{n}\sum_{i=1}^nh_i=\frac{p+1}{n}$. This can be clearly seen in the case of simple linear regression, where the leverage statistic has the explicit form
+\[
+h_{i}=\frac{1}{n}+\frac{(X_i-\bar{X})^2}{\sum_{j=1}^n(X_j-\bar{X})^2}.
+\]
+Interestingly, this expression shows that the leverage statistic is directly dependent on the distance to the center of the predictor. A measure of how much $h_i$ exceeds the expected value $\bar{h}$ can be given if the predictors are assumed to be jointly normal. In this case, $nh_i-1\sim\chi^2_{p}$ [@Pena2002] and hence the $i$-th point is declared as a *potential high-leverage point* if $h_i>\frac{\chi^2_{p;\alpha}+1}{n}$, where $\chi^2_{p;\alpha}$ is the *$\alpha$-upper quantile of the $\chi^2_p$* distribution and $\alpha$ can be taken as $0.05$ or $0.01$.
+
+The functions `influence`, `hat`, and `rstandard` allow to have a finer inspection of a the leverage statistics 
+
+```{r, outl-3, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
+# Access leverage statistics
+influence(model = m2, do.coef = FALSE)$hat
+
+# Another option
+h <- hat(x = x)
+
+# 1% most influential points
+n <- length(x)
+p <- 1
+hist(h)
+abline(v = (qchisq(0.99, df = p) + 1) / n, col = 2)
+
+# Standardized residuals
+rs <- rstandard(m2)
+plot(m2, 2) # QQ-plot
+points(qnorm(ppoints(n = n)), sort(rs), col = 2, pch = '+') # Manually computed
 ```
 
 ### Case study application {#lm-ii-diagnostics-case}
@@ -1068,7 +1103,7 @@ As we have seen in Section \@ref(lm-ii-modsel), the selection of the best linear
 
 ### Review on principal component analysis {#lm-ii-dimred-pca}
 
-Principal Component Analysis (PCA) is a multivariate technique designed to summarize the most important features and relations of $p$ numerical random variables $X_1,\ldots,X_p$. PCA computes a new set of variables, the **principal components** $\text{PC}_1,\ldots \text{PC}_p$, that contain the same information as $X_1,\ldots,X_p$ but expressed in a more convenient way. The goal after is to retain only a limited number $1\leq l<p$ of principal components such that they explain most of the information and do *dimension reduction*. 
+Principal Component Analysis (PCA) is a multivariate technique designed to summarize the most important features and relations of $p$ numerical random variables $X_1,\ldots,X_p$. PCA computes a new set of variables, the **principal components** $\text{PC}_1,\ldots \text{PC}_p$, that contain the same information as $X_1,\ldots,X_p$ but expressed in a more convenient way. The goal is to retain only a limited number $1\leq l<p$ of principal components such that they explain most of the information and do *dimension reduction*. 
 
 If $X_1,\ldots,X_p$ are *centred* (this is, $\mathbb{E}[X_j]=0$, $j=1,\ldots,p$), then the principal components are *orthogonal linear combinations* of $X_1,\ldots,X_p$:
 \[
