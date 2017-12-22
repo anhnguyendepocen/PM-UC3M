@@ -819,13 +819,13 @@ From these two equations we can obtain the log-likelihood function of $Y_1,\ldot
 
 Now we are ready to show the next result.
 
-```{theorem, thlik, label = "lik"}
+```{theorem, thlik, label = "lik", cache = TRUE}
 Under assumptions i--iv in Section \@ref(lm-i-assumps), the maximum likelihood estimate of $\boldsymbol{\beta}$ is the least squares estimate \@ref(eq:k3):
 $$
 \hat{\boldsymbol{\beta}}_\mathrm{ML}=\arg\max_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\ell(\boldsymbol{\beta})=(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}\mathbf{Y}.
 $$
 ```
-```{proof, prooflik}
+```{proof, prooflik, cache = TRUE}
 Expanding the first equality at \@ref(eq:ell) gives (recall that $|\sigma^2\mathbf{I}|^{1/2}=\sigma^{n}$)
 $$
 \ell(\boldsymbol{\beta})=-\log((2\pi)^{n/2}\sigma^n)-\frac{1}{2\sigma^2}(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})'(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta}).

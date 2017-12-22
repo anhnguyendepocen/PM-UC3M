@@ -107,7 +107,7 @@ summary(mod1)
 summary(mod2)
 ```
 
-Let's go back to the selection of predictors. If we have $p$ predictors, a naive procedure would be to check *all the possible* models that can be constructed with them and then select the best one in terms of BIC/AIC. This is the so-called *best subset selection*. The problem is that there are $2^{p+1}$ possible models! Fortunately, the `stepAIC` procedure helps us navigating this ocean of models by iteratively adding useful predictors and removing the non-important ones. The function takes as input a *model employing all the available predictors*. Let's see how it works with the already studied `wine` dataset.
+Let's go back to the selection of predictors. If we have $p$ predictors, a naive procedure would be to check *all the possible* models that can be constructed with them and then select the best one in terms of BIC/AIC. This is the so-called *best subset selection*. The problem is that there are $2^{p+1}$ possible models! Fortunately, the `stepAIC` procedure helps us navigating this ocean of models by iteratively adding useful predictors and removing the non important ones. The function takes as input a *model employing all the available predictors*. Let's see how it works with the already studied `wine` dataset.
 ```{r, case2-5, echo = FALSE, collapse = TRUE, cache = TRUE}
 wine <- read.csv(file = "datasets/wine.csv", header = TRUE)
 ```
@@ -170,9 +170,9 @@ We want to build a linear model for predicting and explaining `medv`. There are 
 modHouse <- lm(medv ~ ., data = Boston)
 summary(modHouse)
 ```
-There are a couple of non-significant variables, but so far the model has an $R^2=0.74$ and the fitted coefficients are sensible with what it would be expected. For example, `crim`, `tax`, `ptratio`, and `nox` have negative effects on `medv`, while `rm`, `rad`, and `chas` have positive. However, the non-significant coefficients are not significantly the model, but only adding artificial noise and decreasing the overall accuracy of the coefficient estimates.
+There are a couple of non significant variables, but so far the model has an $R^2=0.74$ and the fitted coefficients are sensible with what it would be expected. For example, `crim`, `tax`, `ptratio`, and `nox` have negative effects on `medv`, while `rm`, `rad`, and `chas` have positive. However, the non significant coefficients are not significantly the model, but only adding artificial noise and decreasing the overall accuracy of the coefficient estimates.
 
-Let's polish a little bit the previous model. Instead of removing manually each non-significant variable to reduce the complexity, we employ `stepAIC` for selecting a candidate *best model*:
+Let's polish a little bit the previous model. Instead of removing manually each non significant variable to reduce the complexity, we employ `stepAIC` for selecting a candidate *best model*:
 ```{r, case2-8, collapse = TRUE, cache = TRUE}
 # Best models
 modBIC <- stepAIC(modHouse, k = log(nrow(Boston)))
@@ -784,9 +784,9 @@ plot(lm(y ~ I(x^2), data = nonLinear), 1) # Linear
 
 ### Normality {#lm-ii-diagnostics-2}
 
-The normality in the errors $\varepsilon_i$, $i=1,\ldots,n$, allows to make *exact* inference in the linear model, in the sense that the distribution of $\hat{\boldsymbol{\beta}}$ given in \@ref(eq:normp) is exact for $n$, is not asymptotic with $n\to\infty$ or approximate. If normality does not hold, then the inference we did (confidence intervals for $\beta_j$, hypothesis testing, confidence intervals for prediction) is to be *somehow* suspected. Why just *somehow*? Roughly speaking, the reason is that the central limit theorem will make $\hat{\boldsymbol{\beta}}$ *asymptotically* normal, even if the errors are not. However, the speed of this asymptotic convergence greatly depends on how non-normal is the distribution of the errors.
+The normality in the errors $\varepsilon_i$, $i=1,\ldots,n$, allows to make *exact* inference in the linear model, in the sense that the distribution of $\hat{\boldsymbol{\beta}}$ given in \@ref(eq:normp) is exact for $n$, is not asymptotic with $n\to\infty$ or approximate. If normality does not hold, then the inference we did (confidence intervals for $\beta_j$, hypothesis testing, confidence intervals for prediction) is to be *somehow* suspected. Why just *somehow*? Roughly speaking, the reason is that the central limit theorem will make $\hat{\boldsymbol{\beta}}$ *asymptotically* normal, even if the errors are not. However, the speed of this asymptotic convergence greatly depends on how non normal is the distribution of the errors.
 
-As a rule of thumb: **non-severe^[Distributions that are not heavy tailed, not heavy multimodal, and not heavy skewed.] departures from normality yield valid (asymptotic) inference for relatively large sample sizes $n$**. Therefore, the failure of normality is less problematic than other assumptions.
+As a rule of thumb: **non severe^[Distributions that are not heavy tailed, not heavy multimodal, and not heavy skewed.] departures from normality yield valid (asymptotic) inference for relatively large sample sizes $n$**. Therefore, the failure of normality is less problematic than other assumptions.
 
 #### How to check it {-}
 
@@ -795,7 +795,7 @@ The **QQ-plot** (Theoretical Quantile vs. Empirical Quantile) allows to check if
 plot(mod, 2)
 ```
 
-**Under normality, we expect the points to align with the diagonal line**, which represents the ideal position of the points if those were sampled from a $\mathcal{N}(0,1)$. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non-normal.
+**Under normality, we expect the points to align with the diagonal line**, which represents the ideal position of the points if those were sampled from a $\mathcal{N}(0,1)$. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal.
 
 There are formal tests to check the null hypothesis of normality in our residuals:
 ```{r, diag-5, echo = TRUE, cache = TRUE, collapse = TRUE}
@@ -842,9 +842,26 @@ ncvTest(mod)
 knitr::include_graphics("images/R/diagnostics3.png")
 ```
 
-<!-- ```{block2, cauhomos, type = 'rmdcaution'} -->
-<!-- TODO -->
-<!-- ``` -->
+```{block2, cauhomos, type = 'rmdcaution', cache = TRUE}
+The Breusch-Pagan test checks homoscedasticity against a nonconstant, *linearly increasing with respect to the predictors*, variance in the residuals. This fact means that the test can be *fooled* by a nonlinear pattern in the variance of the residuals that results in a flat plane fit (e.g., a quadratic pattern). It is advised then to **check the scale-location plot in addition to performing the Breusch-Pagan test** in order to identify evident non constant variances driven by possibly tricky nonlinearities. The following code illustrates this with two examples:
+
+    # Heteroskedastic models
+    set.seed(123456)
+    x <- rnorm(100)
+    y1 <- 1 + 2 * x + rnorm(100, sd = x^2)
+    y2 <- 1 + 2 * x + rnorm(100, sd = 1 + x * (x > 0))
+    modHet1 <- lm(y1 ~ x)
+    modHet2 <- lm(y2 ~ x)
+    
+    # Heteroskedasticity not detected
+    ncvTest(modHet1)
+    plot(modHet1, 3)
+    
+    # Heteroskedasticity correctly detected
+    ncvTest(modHet2)
+    plot(modHet2, 3)
+
+```
 
 #### What to do if fails {-}
 
@@ -899,7 +916,7 @@ Little can be done if there is dependence in the data, once this has been collec
 
 However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovarions* of the series of $Y$. 
 
-```{block, exassump3d, type = 'rmdexercise'}
+```{block, exassump3d, type = 'rmdexercise', cache = TRUE}
 Load the dataset `assumptions3D.RData`([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions3D.RData)) and compute the regressions `y.3 ~ x1.3 + x2.3`, `y.4 ~ x1.4 + x2.4`, `y.5 ~ x1.5 + x2.5`, and `y.8 ~ x1.8 + x2.8`. Use the presented diagnostic tools to test the assumptions of the linear model and look out for possible problems.
 ```
 
@@ -910,7 +927,7 @@ A common problem that arises in multiple linear regression is **multicollinearit
 - It **reduces the precision of the estimates**. As a consequence, signs of fitted coefficients may be reversed and valuable predictors may appear as non significant.
 - It is **difficult to determine how each of the highly related predictors affects the response**, since one masks the other. Also, this may result in numerical instabilities because $\mathbf{X}'\mathbf{X}$ will be close to being singular.
 
-```{block, insmultico-1, type = 'rmdinsight'}
+```{block, insmultico-1, type = 'rmdinsight', cache = TRUE}
 Intuitively, multicollinearity can be visualized as a card (fitting plane) that is hold on its opposite corners and that spins on its diagonal (where the data is concentrated). Then very different planes will fit almost equally good the data, which results in a large variability of the selected plane. 
 ```
 
@@ -920,7 +937,7 @@ cor(wine)
 ```
 Here we can see what we already knew from Section \@ref(lm-i-lab-wine), that `Age` and `Year` are perfectly linearly related and that `Age` and `FrancePop` are highly linearly related. Then one approach will be to directly remove one of the highly-correlated predictors.
 
-However, **is not enough to inspect pair by pair correlations in order to get rid of multicollinearity**. It is possible to build counterexamples that show non-suspicious pairwise correlations but problematic more complex linear relations that remain hidden. Here is one:
+However, **is not enough to inspect pair by pair correlations in order to get rid of multicollinearity**. It is possible to build counterexamples that show non suspicious pairwise correlations but problematic more complex linear relations that remain hidden. Here is one:
 ```{r, multico-2, collapse = TRUE, cache = TRUE}
 # Create predictors with multicollinearity: x4 depends on the rest
 set.seed(45678)
@@ -968,7 +985,7 @@ summary(modClean)
 vif(modClean)
 ```
 
-```{block2, insmultico-2, type = 'rmdinsight'}
+```{block2, insmultico-2, type = 'rmdinsight', cache = TRUE}
 Note that multicollinearity is another instance of the **model correctness vs. usefulness**. A model with multicollinearity might be perfectly valid in the sense of respecting the assumptions of the model. As we saw in Section \@ref(lm-i-assumps), it does not matter whether the predictors are related or not. At least for the verification of the assumptions. But the model will be useless if the multicollinearity is high, since it can inflate the variability of the estimation without any kind of bound.
 ```
 
@@ -1060,8 +1077,7 @@ points(qnorm(ppoints(n = n)), sort(rs), col = 2, pch = '+') # Manually computed
 
 ### Case study application {#lm-ii-diagnostics-case}
 
-```{block2, exmoore, type = 'rmdexercise'}
-
+```{block2, exmoore, type = 'rmdexercise', cache = TRUE}
 *Moore's law* [@Moore1965] is an empirical law that states that the power of a computer doubles approximately every two years. Translated into a mathematical formula, Moore's law is
 \begin{align*}
 \text{transistors}\approx 2^{\text{years}/2}.
@@ -1093,7 +1109,7 @@ The dataset `cpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-
 
 ```
 
-```{block, exgpus, type = 'rmdexercise'}
+```{block, exgpus, type = 'rmdexercise', cache = TRUE}
 The dataset `gpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/gpus.txt)) contains the transistor counts for the GPUs appeared in the period 1997--2016. Repeat the previous analysis for this dataset.
 ```
 
@@ -1305,7 +1321,7 @@ The first approach combines the use of the `princomp` and `lm` functions. Its st
 # A linear model is problematic
 mod <- lm(Points ~ . - Wins - Draws - Loses - Matches.without.conceding, 
           data = laliga)
-summary(mod) # Lots of non-significant predictors
+summary(mod) # Lots of non significant predictors
 
 # We try to clean the model
 modBIC <- stepAIC(mod, k = log(nrow(laliga)), trace = 0)
