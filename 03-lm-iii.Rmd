@@ -17,34 +17,34 @@ Under the validity of the assumptions of Section \@ref(lm-i-assumps), in Section
 \[
 \hat{\boldsymbol{\beta}}\sim\mathcal{N}_{p+1}\left(\boldsymbol{\beta},\sigma^2(\mathbf{X}'\mathbf{X})^{-1}\right).
 \]
-A particular consequence of this result is that $\hat{\boldsymbol{\beta}}$ is *unbiased* in estimating $\boldsymbol{\beta}$ -- $\hat{\boldsymbol{\beta}}$ do not make any systematic error in the estimation. However, bias is only one dimension of the quality of an estimate: variance is also important. Indeed, the *bias-variance tradeoff* (see Section \@ref(intro-what-is)) arises from the bias-variance decomposition of the Mean Squared Error (MSE) of an estimate. For example, for the estimate $\hat\beta_j$ of $\beta_j$, we have
+A particular consequence of this result is that $\hat{\boldsymbol{\beta}}$ is *unbiased* in estimating $\boldsymbol{\beta}$, this is, $\hat{\boldsymbol{\beta}}$ does not make any systematic error in the estimation. However, bias is only one dimension of the quality of an estimate: variance is also important. Indeed, the *bias-variance trade-off* (see Section \@ref(intro-what-is)) arises from the bias-variance decomposition of the Mean Squared Error (MSE) of an estimate. For example, for the estimate $\hat\beta_j$ of $\beta_j$, we have
 \begin{align}
 \mathrm{MSE}[\hat\beta_j]:=\mathbb{E}[(\hat\beta_j-\beta_j)^2]=\underbrace{(\mathbb{E}[\hat\beta_j]-\beta_j)^2}_{\mathrm{Bias}^2}+\underbrace{\mathbb{V}\mathrm{ar}[\hat\beta_j]}_{\mathrm{Variance}}.(\#eq:biasvar)
 \end{align}
 
 *Shrinkage* methods pursue the following idea: 
 
-> Add a small amount of *smart bias* to $\boldsymbol{\beta}$ in order to reduce its variance, in such a way that we obtain *simpler interpretations* from the biased $\boldsymbol{\beta}$.
+> Add a small amount of *smart bias* to $\hat{\boldsymbol{\beta}}$ in order to reduce its variance, in such a way that we obtain *simpler interpretations* from the biased version of $\hat{\boldsymbol{\beta}}$.
 
 This is done by enforcing *sparsity*, this is, by biasing the estimates of $\boldsymbol{\beta}$ towards being non-null only in the most important relations between the response and predictors. The two methods covered in this section, **ridge regression** and **lasso** (*least absolute shrinkage and selection operator*), use this idea in a different way. Both methods considered the standard linear model, what it is different now is *the way of estimating $\boldsymbol{\beta}$*. 
 
 The way they enforce sparsity in the estimates is by minimizing the RSS plus a penalty term that favors sparsity on the estimated coefficients:
 \begin{align}
-\text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(\alpha+1)}.(\#eq:pen1)
+\text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(2-\alpha)}.(\#eq:pen1)
 \end{align}
 **Ridge regression corresponds to $\alpha=1$** (quadratic penalty), **and lasso to consider $\alpha=0$** (linear penalty). Obviously, if $\lambda=0$, we are back to the least squares problem and theory. The optimization of \@ref(eq:pen1) gives
 \begin{align}
-\hat{\boldsymbol{\beta}}_\lambda:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\left\{ \text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(\alpha+1)}\right\},(\#eq:pen2)
+\hat{\boldsymbol{\beta}}_\lambda:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\left\{ \text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\right\},(\#eq:pen2)
 \end{align}
 which is the penalized estimation of $\boldsymbol{\beta}$. Note that the sparsity is enforced in the slopes, not in the intercept, since this depends on the scale of $Y$. $\lambda$ is a tuning parameter that will need to be chosen suitably. What it is important now is to recall that the *predictors need to be standardized*, or otherwise its scale will distort the optimization of \@ref(eq:pen1).
 
 An equivalent way of viewing \@ref(eq:pen2) that helps on visualizing the differences between the ridge and lasso regressions try to solve 
 \begin{align}
-\hat{\boldsymbol{\beta}}_\lambda:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}:\sum_{j=1}^p |\beta_j|^{(\alpha+1)}\leq s_\lambda} \text{RSS}(\boldsymbol{\beta}),(\#eq:pen3)
+\hat{\boldsymbol{\beta}}_\lambda:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}:\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\leq s_\lambda} \text{RSS}(\boldsymbol{\beta}),(\#eq:pen3)
 \end{align}
 where $s_\lambda$ is certain scalar that does not depend on $\boldsymbol{\beta}$.
 
-(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3). The elliptical contours show regions with equal RSS, the objective function. The diamond ($\alpha=0$) and circular ($\alpha=1$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(\alpha+1)}\leq s_\lambda$ for the optimization problem. Extracted from @James2013. 
+(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3). The elliptical contours show regions with equal RSS, the objective function. The diamond ($\alpha=0$) and circular ($\alpha=1$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(2\alpha-1)}\leq s_\lambda$ for the optimization problem. Extracted from @James2013. 
 
 ```{r, ridgelasso, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:ridgelassotitle)', fig.show = 'hold', cache = TRUE}
 knitr::include_graphics("images/figures/ridgelasso.png")

@@ -1121,11 +1121,11 @@ As we have seen in Section \@ref(lm-ii-modsel), the selection of the best linear
 
 Principal Component Analysis (PCA) is a multivariate technique designed to summarize the most important features and relations of $p$ numerical random variables $X_1,\ldots,X_p$. PCA computes a new set of variables, the **principal components** $\text{PC}_1,\ldots \text{PC}_p$, that contain the same information as $X_1,\ldots,X_p$ but expressed in a more convenient way. The goal is to retain only a limited number $1\leq l<p$ of principal components such that they explain most of the information and do *dimension reduction*. 
 
-If $X_1,\ldots,X_p$ are *centred* (this is, $\mathbb{E}[X_j]=0$, $j=1,\ldots,p$), then the principal components are *orthogonal linear combinations* of $X_1,\ldots,X_p$:
+If $X_1,\ldots,X_p$ are *centred* (this is, $\mathbb{E}[X_j]=0$, $j=1,\ldots,p$), then the principal components are *orthonormal linear combinations* of $X_1,\ldots,X_p$:
 \[
 \text{PC}_j:=a_{1j}X_1+a_{2j}X_2+\ldots+a_{pj}X_p=\mathbf{a}_j'\mathbf{X},\quad j=1,\ldots,p,
 \]
-where $\mathbf{a}_j:=(a_{1j},\ldots,a_{pj})'$, $\mathbf{X}:=(X_1,\ldots,X_p)'$, and the *orthogonality* condition is
+where $\mathbf{a}_j:=(a_{1j},\ldots,a_{pj})'$, $\mathbf{X}:=(X_1,\ldots,X_p)'$, and the *orthonormality* condition is
 \[
 \mathbb{a}_i'\mathbb{a}_j=\begin{cases}1,&\text{if } i=j,\\0,&\text{if } i\neq j.\end{cases}
 \]
@@ -1137,7 +1137,7 @@ Mathematically, PCA reduces to compute the *spectral decomposition*^[Recall that
 \[
 \boldsymbol\Sigma=\mathbf{A}'\boldsymbol\Lambda\mathbf{A},
 \]
-where $\boldsymbol\Lambda=\mathrm{diag}(\lambda_1,\ldots,\lambda_p)$ contains the eigenvalues of $\boldsymbol\Sigma$ and $\mathbf{A}$ is the orthogonal matrix that contains the eigenvectors of $\boldsymbol\Sigma$ as columns. $\mathbf{A}$ gives thus the coefficients of the orthogonal linear combinations:
+where $\boldsymbol\Lambda=\mathrm{diag}(\lambda_1,\ldots,\lambda_p)$ contains the eigenvalues of $\boldsymbol\Sigma$ and $\mathbf{A}$ is the orthogonal matrix that contains the unit-norm eigenvectors of $\boldsymbol\Sigma$ as columns. $\mathbf{A}$ gives, thus, the coefficients of the orthonormal linear combinations:
 \[
 \mathbf{A}=\begin{pmatrix}
 \mathbf{a}_1 & \mathbf{a}_2 & \cdots & \mathbf{a}_p 
@@ -1168,7 +1168,7 @@ a transformation of the sample that makes the scores *centred*, *uncorrelated*, 
 We implicitly assume that $n>p$. Otherwise, the maximum number of principal components is $\min(n-1,p)$.
 ```
 
-Let's see an example of these concepts in *La Liga 2015/2016* ([download](https://raw.githubusercontent.com/egarpor/SSS2-UC3M/master/datasets/la-liga-2015-2016.xlsx)) dataset. It contains the standings and team statistics for La Liga 2015/2016.
+Let's see an example of these concepts in *La Liga 2015/2016* ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx)) dataset. It contains the standings and team statistics for La Liga 2015/2016.
 ```{r, laliga-1, echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE}
 library(readxl)
 laliga <- read_excel("datasets/la-liga-2015-2016.xlsx", sheet = 1, col_names = TRUE)
@@ -1202,8 +1202,8 @@ plot(pcaLaliga, type = "l")
 # when the next variances are almost similar and notably smaller when 
 # compared with the previous
 
-# Plot of the percentage of variance
-barplot(pcaLaliga$sdev^2 / sum(pcaLaliga$sdev^2))
+# Plot of the cumulated percentage of variance
+barplot(cumsum(pcaLaliga$sdev^2) / sum(pcaLaliga$sdev^2))
 
 # Computation of PCA from the spectral decomposition
 n <- nrow(laliga)
@@ -1240,7 +1240,10 @@ pcaLaligaStd <- princomp(x = laliga, cor = TRUE)
 summary(pcaLaligaStd)
 
 # The effects of the distorsion can be clearly seen with the biplot
+# Variability absorbed by Shots, Shots.on.goal, Fouls.made
 biplot(pcaLaliga, cex = 0.75)
+
+# The effects of the variables are more balanced
 biplot(pcaLaligaStd, cex = 0.75)
 ```
 
@@ -1287,7 +1290,7 @@ biplot(pcaLaligaStd, cex = 0.75)
 ```
 
 A 3D representation of the biplot can be computed through:
-```{r, pca3d, webgl = knitr:::is_html_output(), cache = TRUE, eval = knitr:::is_html_output(), echo = FALSE}
+```{r, pca3d, webgl = knitr:::is_html_output(), cache = TRUE, eval = knitr:::is_html_output(), echo = TRUE, eval = FALSE}
 library(pca3d)
 pca3d(pcaLaligaStd, show.labels = TRUE, biplot = TRUE)
 ```
@@ -1340,7 +1343,6 @@ summary(pcaLaligaRed) # l = 3 gives 86% of variance explained
 # Interpretation of PC1 and PC2
 biplot(pcaLaligaRed)
 # PC1: attack performance of the team
-# PC2: passiveness of the team
 
 # Create a new dataset with the response + principal components
 laligaPCA <- data.frame("Points" = laliga$Points, pcaLaligaRed$scores)
@@ -1359,7 +1361,7 @@ summary(modPCA3)
 modPCABIC <- stepAIC(modPCA, k = 2 * log(nrow(laliga)), trace = 0)
 summary(modPCABIC)
 # Note the order of the principal components does not correspond
-# excatly to its importance in the regression
+# exactly to its importance in the regression
 
 # To perform prediction we need to compute first the scores associated to the 
 # new values of the predictors, conveniently preprocessed
@@ -1404,6 +1406,9 @@ names(modPcr)
 
 # The coefficients of the original predictors, not of the components!
 modPcr$coefficients[, , 12]
+# pcr() computes up to ncomp (in this case, 12) linear models, each one 
+# considering one extra principal component. $coefficients returns in a 
+# 3-dim array the coefficients of all the linear models
 
 # Prediction is simpler and can be done for different number of components
 predict(modPcr, newdata = laligaRed2[1:2, ], ncomp = 12)
@@ -1427,7 +1432,7 @@ validationplot(modPcrCV1, val.type = "MSEP") # l = 8 gives the minimum CV
 modPcrCV10 <- pcr(Points ~ ., data = laligaRed2, scale = TRUE, 
                   validation = "CV")
 summary(modPcrCV10)
-validationplot(modPcrCV10, val.type = "MSEP") # l = 8 gives the minimum CV
+validationplot(modPcrCV10, val.type = "MSEP") # l = 6 gives the minimum CV
 ```
 
 The selection of $l$ by **cross-validation** attempts to minimize the *Mean Squared Error in Prediction* (MSEP) or, equivalently, the *Root MSEP* (RMSEP), of the model. (Alternatively, the "*in Prediction*" part of the latter terms is dropped and they are just referred as the MSE and RMSE.) This is a **jackknife method** valid for the selection of any tuning parameter $\lambda$ that affects the form of the estimate $\hat m_\lambda$ of the regression function $m$ (remember \@ref(eq:ym)). Given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n,Y_n)$, *leave-one-out cross-validation* considers the tuning parameter
@@ -1448,6 +1453,17 @@ $k$-fold cross validation with $k<n$ has an inconvenience to be aware of: it dep
 Notice that this problematic is not present in leave-one-out cross-validation (where $k=n$).
 ```
 
+Assumptions
+
+\begin{align*}
+\mathbf{Y}&=\mathbf{X}\boldsymbol{\beta}+\boldsymbol{\varepsilon}\\
+&=(\mathbf{A}\,\mathbf{PC}+\boldsymbol{\mu})\boldsymbol{\beta}+\boldsymbol{\varepsilon}\\
+\end{align*}
+
+\[
+\mathbf{PC}=\mathbf{A}'(\mathbf{X}-\boldsymbol{\mu}),\quad \mathbf{X}=\mathbf{A}\,\mathbf{PC}+\boldsymbol{\mu}.
+\]
+
 ### Partial least squares {#lm-ii-dimred-pls}
 
 PCR works by replacing the predictors $X_1,\ldots,X_p$ by a set of principal components $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$ under the hope that these directions, that explain most of the variability of the predictors, are also the best directions for predicting the response $Y$. However, this is not guaranteed, and the idea behind *Partial Least Squares* (PLS) is to regress the response $Y$ in a set of new variables $\mathrm{PLS}_1,\ldots,\mathrm{PLS}_l$ that are constructed with the objective of *best predicting the response $Y$ from the predictors $X_1,\ldots,X_p$*.
@@ -1466,7 +1482,7 @@ where $\beta_{j1}$ stems from $Y=\beta_{0}+\beta_{j1}X_j+\varepsilon$. The secon
 \[
 X_j=\beta_0+\beta_{j1}\mathrm{PLS}_1+\varepsilon_j,\quad j=1,\ldots,p.
 \]
-2. Regress $Y$ in each of the $p$ random errors $\varepsilon_{1},\ldots,\hat\varepsilon_{p}$ (they play the role of $X_1,\ldots,X_p$ in the computation of $\mathrm{PLS}_1$) from the above regressions, yielding
+2. Regress $Y$ in each of the $p$ random errors $\varepsilon_{1},\ldots,\varepsilon_{p}$ (they play the role of $X_1,\ldots,X_p$ in the computation of $\mathrm{PLS}_1$) from the above regressions, yielding
 \[
 a_{j2}:=\beta_{j2}:=\frac{\mathrm{Cov}[\varepsilon_j,Y]}{\mathbb{V}\mathrm{ar}[\varepsilon_j]},
 \]
