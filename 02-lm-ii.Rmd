@@ -593,7 +593,7 @@ Y=\beta_0+\beta_1X+\beta_2(X\cdot D)+\varepsilon=\begin{cases}\beta_0+\beta_1X+\
 \]
 5. *Dummy variable and no predictor*. Then $D$ controls the intercept of a constant fit, depending on each group:
 \[
-Y=\beta_0+\beta_1 D+\varepsilon=\begin{cases}\beta_0+\varepsilon,&\text{if }D=0,\\(\beta_1+\beta_1)+\varepsilon,&\text{if }D=1.\end{cases}
+Y=\beta_0+\beta_1 D+\varepsilon=\begin{cases}\beta_0+\varepsilon,&\text{if }D=0,\\(\beta_0+\beta_1)+\varepsilon,&\text{if }D=1.\end{cases}
 \]
 6. *Dummy variable and interaction with predictor*. Then $D$ adds the predictor $X$ for one group and affects the intercept, which is different for each group:
 \[
