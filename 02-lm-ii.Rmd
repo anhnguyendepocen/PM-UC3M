@@ -1480,7 +1480,7 @@ where $\beta_{j1}$ stems from $Y=\beta_{0}+\beta_{j1}X_j+\varepsilon$. The secon
 
 1. Regressing each of $X_1,\ldots,X_p$ on $\mathrm{PLS}_1$. This is, fit the $p$ simple linear models
 \[
-X_j=\beta_0+\beta_{j1}\mathrm{PLS}_1+\varepsilon_j,\quad j=1,\ldots,p. 
+X_j=\beta_0+\beta_{j1}\mathrm{PLS}_1+\varepsilon_j,\quad j=1,\ldots,p.
 \]
 2. Regress $Y$ in each of the $p$ random errors $\varepsilon_{1},\ldots,\varepsilon_{p}$ (they play the role of $X_1,\ldots,X_p$ in the computation of $\mathrm{PLS}_1$) from the above regressions, yielding
 \[
