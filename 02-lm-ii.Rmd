@@ -1119,12 +1119,12 @@ As we have seen in Section \@ref(lm-ii-modsel), the selection of the best linear
 
 ### Review on principal component analysis {#lm-ii-dimred-pca}
 
-Principal Component Analysis (PCA) is a multivariate technique designed to summarize the most important features and relations of $p$ numerical random variables $X_1,\ldots,X_p$. PCA computes a new set of variables, the **principal components** $\text{PC}_1,\ldots \text{PC}_p$, that contain the same information as $X_1,\ldots,X_p$ but expressed in a more convenient way. The goal is to retain only a limited number $1\leq l<p$ of principal components such that they explain most of the information and do *dimension reduction*. 
+Principal Component Analysis (PCA) is a multivariate technique designed to summarize the most important features and relations of $p$ numerical random variables $X_1,\ldots,X_p$. PCA computes a new set of variables, the **principal components** $\text{PC}_1,\ldots, \text{PC}_p$, that contain the same information as $X_1,\ldots,X_p$ but expressed in a more convenient way. The goal is to retain only a limited number $1\leq l<p$ of principal components such that they explain most of the information and do *dimension reduction*. 
 
-If $X_1,\ldots,X_p$ are *centred* (this is, $\mathbb{E}[X_j]=0$, $j=1,\ldots,p$), then the principal components are *orthonormal linear combinations* of $X_1,\ldots,X_p$:
-\[
-\text{PC}_j:=a_{1j}X_1+a_{2j}X_2+\ldots+a_{pj}X_p=\mathbf{a}_j'\mathbf{X},\quad j=1,\ldots,p,
-\]
+If $X_1,\ldots,X_p$ are *centred* (this is, $\mathbb{E}[X_j]=0$, $j=1,\ldots,p$ -- this is important since PCA is sensitive to the centering of the data), then the principal components are *orthonormal linear combinations* of $X_1,\ldots,X_p$:
+\begin{align}
+\text{PC}_j:=a_{1j}X_1+a_{2j}X_2+\ldots+a_{pj}X_p=\mathbf{a}_j'\mathbf{X},\quad j=1,\ldots,p,(\#eq:pcalin)
+\end{align}
 where $\mathbf{a}_j:=(a_{1j},\ldots,a_{pj})'$, $\mathbf{X}:=(X_1,\ldots,X_p)'$, and the *orthonormality* condition is
 \[
 \mathbb{a}_i'\mathbb{a}_j=\begin{cases}1,&\text{if } i=j,\\0,&\text{if } i\neq j.\end{cases}
@@ -1150,8 +1150,14 @@ a_{p1} & a_{p2} & \cdots & a_{pp}
 \]
 If the data is not centered, the computation of the principal components is done by first subtracting $\boldsymbol\mu=\mathbb{E}[\mathbf{X}]$ and then premultiplying with $\mathbf{A}^{-1}$:
 \begin{align}
-\mathbf{PC}=\mathbf{A}'(\mathbf{X}-\boldsymbol\mu).(\#eq:pc)
+\mathbf{PC}=\mathbf{A}'(\mathbf{X}-\boldsymbol{\mu}),(\#eq:pc)
 \end{align}
+where $\mathbf{PC}=(\mathrm{PC}_1,\ldots,\mathrm{PC}_p)'$, $\mathbf{X}=(X_1,\ldots,X_p)'$, and $\boldsymbol{\mu}=(\mu_1,\ldots,\mu_p)'$. From \@ref(eq:pc), it is evident than we can express the random variables $\mathbf{X}$ in terms of $\mathbf{PC}$:
+\begin{align}
+\mathbf{X}=\boldsymbol{\mu}+\mathbf{A}\mathbf{PC},(\#eq:pc2)
+\end{align}
+which admits an insightful interpretation: the $\mathbf{PC}$ are uncorrelated variables that, once *rotated* by $\mathbf{A}$ and *translated* to the location $\boldsymbol{\mu}$, produce exactly $\mathbf{X}$.
+
 From \@ref(eq:pc), the linearity of the expectation \@ref(eq:linexp), and the spectral decomposition, it is trivial to show that: (*i*) \@ref(eq:varsort) holds; (*ii*) the **principal components are centred and uncorrelated between them**:
 \[
 \mathbb{E}[\mathrm{PC}_i]=0\text{ and }\mathrm{Cov}[\mathrm{PC}_i,\mathrm{PC}_j]=\begin{cases}\lambda_i,&\text{if } i=j,\\0,&\text{if } i\neq j.\end{cases}
@@ -1225,11 +1231,17 @@ head(cov(pcaLaliga$scores))
 
 # The scores are A' * (X_i - mu). We center the data with scale()
 # and then multiply each row by A'
-scores <- t(apply(scale(laliga, center = TRUE, scale = FALSE), 1, 
-                  function(x) t(A) %*% x))
+scores <- scale(laliga, center = TRUE, scale = FALSE) %*% A
+
+# Same as (but this is much slower)
+# scores <- t(apply(scale(laliga, center = TRUE, scale = FALSE), 1, 
+#                   function(x) t(A) %*% x))
 
 # Same scores (up to possible changes in signs)
 sum(abs(abs(pcaLaliga$scores) - abs(scores)))
+
+# Reconstruct the data from the principal components
+sweep(pcaLaliga$scores %*% t(pcaLaliga$loadings), 2, pcaLaliga$center, "+")
 ```
 An important issue when doing PCA is the **scale** of the variables, since the variance depends on the units in which the variable is measured. Therefore, a sample of lengths measured in centimeters will have a variance $10^4$ times larger than the same sample measured in meters -- yet it is the same information! The same phenomenon may happen when variables with different ranges are mixed: the variability of one may dominate the other as an artifact of the scale. To prevent this, we **standardize the dataset prior to a PCA**.
 
@@ -1297,10 +1309,10 @@ pca3d(pcaLaligaStd, show.labels = TRUE, biplot = TRUE)
 
 ### Principal components regression {#lm-ii-dimred-pcr}
 
-The key idea behind *Principal Components Regression* (PCR) is to regress the response $Y$ in a set of principal components $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$ obtained from the predictors $X_1,\ldots,X_p$, where $l<p$. The motivation is that often a small number of principal components is enough to explain most of the variability of the predictors *and consequently their relationship with $Y$*^[This  does not need to be true, but it is often the case.]. Therefore, we look for fitting the linear model
-\[
-Y=\beta_0+\beta_1\mathrm{PC}_1+\ldots+\beta_l\mathrm{PC}_l+\varepsilon.
-\]
+The key idea behind *Principal Components Regression* (PCR) is to regress the response $Y$ in a set of principal components $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$ obtained from the predictors $X_1,\ldots,X_p$, where $l<p$. The motivation is that often a small number of principal components is enough to explain most of the variability of the predictors *and consequently their relationship with $Y$*^[This does not need to be true, but it is often the case.]. Therefore, we look for fitting the linear model
+\begin{align}
+Y=\alpha_0+\alpha_1\mathrm{PC}_1+\ldots+\alpha_l\mathrm{PC}_l+\varepsilon.(\#eq:pcr1)
+\end{align}
 The main advantages of PCR are two:
 
 1. **Multicollinearity is avoided** by design: $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$ are uncorrelated between them.
@@ -1308,8 +1320,28 @@ The main advantages of PCR are two:
 
 However, keep in mind that PCR affects the linear model in two fundamental ways:
 
-1. *Interpretation of the coefficients is not inmediatly related with the predictors*, but with the principal components. Hence, the interpretability of a  given coefficient is inherited from the interpretability of the associated principal component.
+1. *Interpretation of the coefficients is not inmediatly related with the predictors*, but with the principal components. Hence, the interpretability of a given coefficient is inherited from the interpretability of the associated principal component.
 2. *Prediction needs from an extra step*, since it is required to obtain the scores of the new observations of the predictors in the principal components.
+
+The first point is worth to discuss now. The PCR model \@ref(eq:pcr1) can be seen as a linear model expressed in terms of the original predictors. To make this point clearer, let re-express  \@ref(eq:pcr1) as
+\begin{align}
+Y=\alpha_0+\mathbf{PC}_{1:l}'\boldsymbol{\alpha}_{1:l}+\varepsilon,(\#eq:pcr2)
+\end{align}
+where the subindex $1:l$ denotes the inclusion of the vector entries from $1$ to $l$. Then, we can express the PCR problem \@ref(eq:pcr2) in terms of the original predictors, since we know that $\mathrm{PC}_j=\mathbf{a}_j'(\mathbf{X}-\boldsymbol{\mu})$ (check \@ref(eq:pcalin) for the centered case):
+\begin{align}
+Y&=\alpha_0+(\mathbf{a}_1'(\mathbf{X}-\boldsymbol{\mu}),\ldots,\mathbf{a}_l'(\mathbf{X}-\boldsymbol{\mu}))'\boldsymbol{\alpha}_{1:l}+\varepsilon\nonumber\\
+&=\alpha_0+(\mathbf{A}_{1:l}'(\mathbf{X}-\boldsymbol{\mu}))'\boldsymbol{\alpha}_{1:l}+\varepsilon\nonumber\\
+&=(\alpha_0-\boldsymbol{\mu}'\mathbf{A}_{1:l}\boldsymbol{\alpha}_{1:l})+\mathbf{X}'\mathbf{A}_{1:l}\boldsymbol{\alpha}_{1:l}+\varepsilon,(\#eq:pcr3)
+\end{align}
+where $\mathbf{A}_{1:l}$ represents the $\mathbf{A}$ matrix with only its first $l$ columns. In other words, the $\boldsymbol{\alpha}_{1:l}$ of the coefficients of the PCR done with $l$ principal components in \@ref(eq:pcr2) yield the $\boldsymbol{\beta}$ coefficients associated to the linear model $Y=\gamma_0+\gamma_1X_1+\ldots+\gamma_pX_p+\varepsilon$:
+\[
+\gamma_0=\alpha_0-\boldsymbol{\mu}'\mathbf{A}_{1:l}\boldsymbol{\alpha}_{1:l},\quad \boldsymbol{\gamma}_{1:p}=\mathbf{A}_{1:l}\boldsymbol{\alpha}_{1:l}.
+\]
+In the sample case, we have that
+\begin{align}
+\hat{\gamma}_0=\hat\alpha_0-\bar{\mathbf{X}}'\hat{\mathbf{A}}_{1:l}\hat{\boldsymbol{\alpha}}_{1:l},\quad \hat{\boldsymbol{\gamma}}_{1:p}=\hat{\mathbf{A}}_{1:l}\hat{\boldsymbol{\alpha}}_{1:l}.(\#eq:gamma)
+\end{align}
+Notice that $\hat{\boldsymbol{\gamma}}$ is **not the least squares estimator** we have denoted by $\hat{\boldsymbol{\beta}}$, but just the coefficient of the PCR associated to the original predictors. $\hat{\boldsymbol{\gamma}}$ is useful for interpretation of the linear model produced by PCR.
 
 Finally, remember that the **usefulness** of PCR relies on how well we are able to reduce the dimensionality of the predictors (if $l=p$, then PCR is equivalent to the least squares estimation) and the veracity of the assumption that the $l$ principal components are related with $Y$.
 
@@ -1355,6 +1387,12 @@ vif(modPCA) # No problems at all
 # Using the first three components
 modPCA3 <- lm(Points ~ Comp.1 + Comp.2 + Comp.3, data = laligaPCA)
 summary(modPCA3)
+
+# Coefficients associated to each original predictor (gamma)
+alpha <- modPCA3$coefficients
+gamma <- pcaLaligaRed$loadings[, 1:3] %*% alpha[-1] # Slopes
+gamma <- c(alpha[1] - pcaLaligaRed$center %*% gamma, gamma) # Intercept
+gamma
 
 # We can overpenalize to have a simpler model - also one single 
 # principal component does quite well
@@ -1435,6 +1473,32 @@ summary(modPcrCV10)
 validationplot(modPcrCV10, val.type = "MSEP") # l = 6 gives the minimum CV
 ```
 
+```{block2, caupcr, type = 'rmdcaution', cache = TRUE}
+`pcr()` does an internal scaling of the predictors by their *quasi-standard deviations*. This means that each variable is divided by  $\frac{1}{\sqrt{n-1}}$, when in `princomp` a scaling of $\frac{1}{\sqrt{n}}$ is applied (the *standard deviations* are employed). This results in a minor discrepancy in the `scores` object of both methods that is easily patchable. The `scores` of `princomp()` are the ones of `pcr()` **multiplied** by $\sqrt{\frac{n}{n-1}}$. This problem is inherited to the coefficients, which assume scores divided by $\frac{1}{\sqrt{n-1}}$. Therefore, the $\hat{\boldsymbol{\gamma}}$ coefficients described in \@ref(eq:gamma) are obtained by **dividing** the `coefficients` of `pcr()` by $\sqrt{\frac{n}{n-1}}$.
+```
+
+The next chunk of code illustrates the previous warning.
+
+```{r, pcr-3, collapse = TRUE, cache = TRUE, out.width = '70%', fig.pos = 'h!'}
+# Equality of loadings from princomp() and pcr()
+sum(abs(abs(pcaLaligaRed$loadings[, 1:3]) - abs(modPcr$loadings[, 1:3])))
+
+# Equality of scores from princomp() and pcr() (with the same standardization)
+sum(abs(abs(pcaLaligaRed$scores[, 1:3]) - 
+          abs(modPcr$scores[, 1:3] * sqrt(n / (n - 1)))))
+
+# Equality of the gamma coefficients obtained previously for 3 PCA 
+# (with the same standardization)
+modPcr$coefficients[, , 3] / sqrt(n / (n - 1))
+gamma[-1]
+
+# Coefficients associated to the principal components - same as in modPCA3
+lm(Points ~ ., data = data.frame("Points" = laliga$Points, 
+                                 modPcr$scores[, 1:3] * sqrt(n / (n - 1))))
+modPCA3
+# Of course, flipping of signs is always possible with PCA
+```
+
 The selection of $l$ by **cross-validation** attempts to minimize the *Mean Squared Error in Prediction* (MSEP) or, equivalently, the *Root MSEP* (RMSEP), of the model. (Alternatively, the "*in Prediction*" part of the latter terms is dropped and they are just referred as the MSE and RMSE.) This is a **jackknife method** valid for the selection of any tuning parameter $\lambda$ that affects the form of the estimate $\hat m_\lambda$ of the regression function $m$ (remember \@ref(eq:ym)). Given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n,Y_n)$, *leave-one-out cross-validation* considers the tuning parameter
 \[
 \hat{\lambda}_\mathrm{CV}:=\arg\min_\lambda \sum_{i=1}^n (Y_i-\hat m_{\lambda,-i}(\mathbf{X}_i))^2,
@@ -1453,16 +1517,21 @@ $k$-fold cross validation with $k<n$ has an inconvenience to be aware of: it dep
 Notice that this problematic is not present in leave-one-out cross-validation (where $k=n$).
 ```
 
-Assumptions
+```{block2, cauinference, type = 'rmdcaution', cache = TRUE}
+Inference in PCR can be carried out in the same way as it was done for the standard linear model. The key point is to realize that the inferences are about the coefficients $\boldsymbol{\alpha}_{0:l}$ associated to the $l$ principal components, and that it can be carried out by the `summary()` function on the output of `lm()`. These are the ones that are estimated by least squarest when considering the scores of the $l$ principal components as our data. The inference is **not about** $\boldsymbol{\gamma}$, which on the other hand is directly interpretable in terms of the predictors.
+```
 
-\begin{align*}
-\mathbf{Y}&=\mathbf{X}\boldsymbol{\beta}+\boldsymbol{\varepsilon}\\
-&=(\mathbf{A}\,\mathbf{PC}+\boldsymbol{\mu})\boldsymbol{\beta}+\boldsymbol{\varepsilon}\\
-\end{align*}
+```{block2, insinference, type = 'rmdinsight', cache = TRUE}
+Inference in PCR is based on the assumptions of the linear model being satisfied for the principal components we are considering. The evaluation of the assumptions can be done using the exact same tools described in Section \@ref(lm-ii-diagnostics), but considering the principal components instead of the predictors. 
 
-\[
-\mathbf{PC}=\mathbf{A}'(\mathbf{X}-\boldsymbol{\mu}),\quad \mathbf{X}=\mathbf{A}\,\mathbf{PC}+\boldsymbol{\mu}.
-\]
+**PCA is a linear transformation of the data**. Therefore:
+
+- If the **linearity** assumption fails for the predictors $X_1,\ldots,X_p$, then it will likely fail for $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$, since the transformation will not introduce nonlinearities able to capture the nonlinear effects.
+- Similarly, if the **homoscedasticity, normality, or independence** assumptions fail for $X_1,\ldots,X_p$, then they will likely fail for $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$. 
+
+Exceptions to the previous common implications are possible, and may involve the association of one or several *problematic* predictors (e.g., have nonlinear effects on the response) to the principal components that are excluded from the model. Up to which extent the failure of the assumptions in the original predictors can be mitigated by PCR depends on each application.
+
+```
 
 ### Partial least squares {#lm-ii-dimred-pls}
 

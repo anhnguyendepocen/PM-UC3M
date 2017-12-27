@@ -44,7 +44,7 @@ An equivalent way of viewing \@ref(eq:pen2) that helps on visualizing the differ
 \end{align}
 where $s_\lambda$ is certain scalar that does not depend on $\boldsymbol{\beta}$.
 
-(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3). The elliptical contours show regions with equal RSS, the objective function. The diamond ($\alpha=0$) and circular ($\alpha=1$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(2\alpha-1)}\leq s_\lambda$ for the optimization problem. Extracted from @James2013. 
+(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3) with $p=2$. The elliptical contours show the regions with equal $\mathrm{RSS}(\beta_1,\beta_2)$, the objective function, for $(\beta_1,\beta_2)\in\mathbb{R}^2$ ($\beta_0=0$ is assumed). The diamond ($\alpha=0$) and circular ($\alpha=1$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(2\alpha-1)}\leq s_\lambda$ for the optimization problem. The *sharpeness* of the diamond makes the lasso to attain solutions with many coefficients *exactly* zero, in a similar situation to the one depicted. Extracted from @James2013. 
 
 ```{r, ridgelasso, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:ridgelassotitle)', fig.show = 'hold', cache = TRUE}
 knitr::include_graphics("images/figures/ridgelasso.png")
@@ -165,22 +165,6 @@ kcvRidge$lambda[indMin]
 kcvRidge$cvm[indMin]
 min(kcvRidge$cvm)
 
-# But the CV curve is random, since it depends on the sample. Its variability
-# can be estimated by considering the CV curves of each fold. An alternative
-# approach to select lambda is to choose the largest within one standard 
-# deviation of the minimum error, in order to favour simplicity of the model
-# around the optimal lambda value. This is know as the "one standard error rule"
-kcvRidge$lambda.1se
-
-# Location of both optimal lambdas in the CV loss function in dashed vertical
-# lines, and lowest CV error and lowest CV error + one standard error
-plot(kcvRidge)
-abline(h = kcvRidge$cvm[indMin] + c(0, kcvRidge$cvsd[indMin]))
-# The consideration of the one standard error rule for selecting lambda makes
-# special sense when the CV function is quite flat around the minimum (hence an
-# overpenalization that gives more sparsity does not affect so much the CV loss)
-# In this case, it is partially adequate
-
 # Potential problem! Minimum occurs at one extreme of the lambda grid in which
 # CV is done. This was automatically selected, but can be manually inputted
 range(kcvRidge$lambda)
@@ -192,7 +176,21 @@ kcvRidge2 <- cv.glmnet(x = x, y = y, nfolds = 10, alpha = 0,
 # Much better
 plot(kcvRidge2)
 kcvRidge2$lambda.min
+
+# But the CV curve is random, since it depends on the sample. Its variability
+# can be estimated by considering the CV curves of each fold. An alternative
+# approach to select lambda is to choose the largest within one standard 
+# deviation of the minimum error, in order to favour simplicity of the model
+# around the optimal lambda value. This is know as the "one standard error rule"
 kcvRidge2$lambda.1se
+
+# Location of both optimal lambdas in the CV loss function in dashed vertical
+# lines, and lowest CV error and lowest CV error + one standard error
+plot(kcvRidge2)
+abline(h = kcvRidge2$cvm[indMin] + c(0, kcvRidge2$cvsd[indMin]))
+# The consideration of the one standard error rule for selecting lambda makes
+# special sense when the CV function is quite flat around the minimum (hence an
+# overpenalization that gives more sparsity does not affect so much the CV loss)
 
 # Leave-one-out cross-validation. More computationally intense but completely
 # objective in the choice of the fold-assignment
@@ -328,7 +326,7 @@ summary(modBIC)
 <!-- ``` -->
 
 ```{block, exaridlasso, type = 'rmdexercise', cache = TRUE}
-Consider [`laliga`](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx) dataset. We will predict `Points` after removing the perfectly related linear variables to it. Do:
+Consider [`la-liga-2015-2016.xlsx`](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx) dataset. We will predict `Points` after removing the perfectly related linear variables to it. Do:
 
 - Lasso regression. Select $\lambda$ by cross-validation. Obtain the estimated coefficients for the chosen lambda.
 - Use the predictors with non-null coefficients for creating a model with `lm`.
