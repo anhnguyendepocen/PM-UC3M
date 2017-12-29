@@ -319,12 +319,6 @@ summary(modBIC)
 # good starting points for performing further model selection
 ```
 
-<!-- ```{block, caulassovarsel, type = 'rmdcaution', cache = TRUE} -->
-<!-- Inferences from the resulting model of a model-selection procedure, such as stepwise, lasso, ridge, or other method are to be suspected. Why is so? Because we use the data twice: one for selecting the model and other for making inference, violating in the process the that has been TODO. Unrealistically small. Why? Inference was derived assuming.  -->
-
-<!-- A simple solution to this problem, if inference is wanted, is to split the dataset in two, one for model-selection and other for performing inference o the coefficients. -->
-<!-- ``` -->
-
 ```{block, exaridlasso, type = 'rmdexercise', cache = TRUE}
 Consider [`la-liga-2015-2016.xlsx`](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx) dataset. We will predict `Points` after removing the perfectly related linear variables to it. Do:
 
