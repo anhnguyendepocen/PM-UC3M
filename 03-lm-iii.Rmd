@@ -334,11 +334,85 @@ Consider [`la-liga-2015-2016.xlsx`](https://raw.githubusercontent.com/egarpor/PM
 
 ```
 
-<!-- ### Comparison {#lm-iii-shrink} -->
+```{block, caulassovarsel, type = 'rmdcaution', cache = TRUE}
+Inferences from models that result from model-selection procedures, such as stepwise regression, ridge, or lasso, have to analysed with caution. The reason is because *we are using the sample twice*: one for selecting the most significant / informative predictors in order to be included in the model, and other for making inference using the same sample. While making this, we are biasing the significance tests, and thus obtaining **unrealistically small $p$-values**. In other words, when included in the model, some selected predictors will be shown as significant when in reality they are not.
 
-<!-- ### Tuning parameter selection {#lm-iii-tuning} -->
+A simple solution for performing valid inference in a data-driven selected model is to split the dataset in two parts: one part for model-selection, and other for performing inference on the coefficients.
+```
 
-<!-- ### Case study {#lm-iii-shrink-case} -->
+The next simulation exercise exemplifies the previous remark. Consider the following linear model
+\begin{align}
+Y=\beta_1X_1+\beta_2X_2+\beta_3X_3+\beta_4X_4+\varepsilon,
+\end{align}
+where $\beta_1=\beta_2=1$, $\beta_3=\beta_4=0$, and $\varepsilon\sim\mathcal{N}(0,1)$. The next chunk of code analyses the significances of the four coefficients for:
+
+1. **The model with all the predictors**. The inferences for the coefficients are correct: the distribution of the $p$-values (`pvalues1`) is uniform whenever $H_0:\beta_j=0$ holds (for $j=3,4$) and concentrated around $0$ when $H_0$ does not hold (for $j=1,2$).
+2. **The model with selected predictors by stepwise regression**. The inferences for the coefficients are biased: when $X_3$ and $X_4$ are included in the model is because they are highly significant for the given sample by mere chance. Therefore, the distribution of the $p$-values (`pvalues2`) is not uniform but concentrated at $0$.
+3. **The model with selected predictors by stepwise regression, but fitted in a separate dataset**. In this case, the $p$-values (`pvalues3`) are not unrealistically small if the non-significant predictors are included in the model.
+
+```{r, lasso-4, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!', message = FALSE}
+# Simulation setting
+n <- 2e2
+p <- 4
+p0 <- p %/% 2
+beta <- c(rep(1, p0), rep(0, p - p0))
+
+# Generate two sets of independent data following the same linear model 
+# with coefficients beta and null intercept
+x1 <- matrix(rnorm(n * p), nrow = n, ncol = p)
+data1 <- data.frame("x" = x1)
+xbeta1 <- x1 %*% beta
+x2 <- matrix(rnorm(n * p), nrow = n, ncol = p)
+data2 <- data.frame("x" = x2)
+xbeta2 <- x2 %*% beta
+
+# Objects for the simulation
+M <- 5e4
+pvalues1 <- pvalues2 <- pvalues3 <- matrix(NA, nrow = M, ncol = p)
+set.seed(12345678)
+data1$y <- xbeta1 + rnorm(n)
+nam <- names(lm(y ~ 0 + ., data = data1)$coefficients)
+
+# Simulation
+for (i in 1:M) {
+  
+  # Generate new data
+  data1$y <- xbeta1 + rnorm(n)
+  
+  # Obtain the significances of the coefficients for the usual linear model
+  mod1 <- lm(y ~ 0 + ., data = data1)
+  s1 <- summary(mod1)
+  pvalues1[i, ] <- s1$coefficients[, 4]
+  
+  # Obtain the significances of the coefficients for a data-driven selected
+  # linear model (in this case, by stepwise regression using BIC)
+  mod2 <- stepAIC(mod1, k = log(n), trace = 0)
+  s2 <- summary(mod2)
+  ind <- match(x = names(s2$coefficients[, 4]), table = nam)
+  pvalues2[i, ind] <- s2$coefficients[, 4]
+  
+  # Generate independent data
+  data2$y <- xbeta2 + rnorm(n)
+  
+  # Significances of the coefficients by the data-driven selected model 
+  s3 <- summary(lm(y ~ 0 + ., data = data2[, c(ind, p + 1)]))
+  pvalues3[i, ind] <- s3$coefficients[, 4]
+  
+}
+
+# Percentage of NA's: NA = predictor excluded
+apply(pvalues2, 2, function(x) mean(is.na(x)))
+
+# Boxplots of significances
+boxplot(pvalues1, names = expression(beta[1], beta[3], beta[3], beta[4]),
+        main = "p-values in the full model", ylim = c(0, 1))
+boxplot(pvalues2, names = expression(beta[1], beta[3], beta[3], beta[4]),
+        main = "p-values in the stepwise model", ylim = c(0, 1))
+boxplot(pvalues3, names = expression(beta[1], beta[3], beta[3], beta[4]),
+        main = "p-values in the model with the predictors selected by 
+        stepwise regression, and fitted in an independent sample", 
+        ylim = c(0, 1))
+```
 
 <!-- ## Big Data considerations {#lm-iii-bigdata} -->
 

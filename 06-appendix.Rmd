@@ -798,6 +798,10 @@ More formally, the $p$-value of an hypothesis test about $H0$ is defined as:
 
 Therefore, **if the $p$-value is small** (smaller than the chosen level $\alpha$), **it is unlikely that the evidence against $H_0$ is due to randomness. As a consequence, $H_0$ is rejected**. If the $p$-value is large (larger than $\alpha$), then it is more possible that the evidences against $H_0$ are merely due to the randomness of the data. In this case, we do not reject $H_0$.
 
+```{block, inspvalue, type = 'rmdinsight', cache = TRUE}
+If $H_0$ holds, then the $p$-value (which is a random variable) is distributed uniformly in $(0,1)$. If $H_0$ does not hold, then the distribution of the $p$-value is not uniform but concentrated at $0$ (where the rejections of $H_0$ take place).
+```
+
 # Least squares and maximum likelihood {#app-mle}
 
 Least squares had a prominent role in linear models. Why is so? After all, it is a purely *geometrical argument* for fitting a plane to a cloud of points. It is not motivated as a *statistical procedure* for estimating the unknown parameters $\boldsymbol{\beta}$... at least apparently.
