@@ -420,7 +420,7 @@ An alternative for computing \@ref(eq:bd) in a memory-friendly way is to split t
 \begin{align}
 \hat{\boldsymbol{\beta}}=\hat{\boldsymbol{\beta}}_{-i}+(\mathbf{X}'\mathbf{X})^{-1}\mathbf{x}_{i}\left(Y_{i}-\mathbf{x}_{i}'\hat{\boldsymbol{\beta}}_{-i}\right).(\#eq:rec)
 \end{align}
-In \@ref(eq;rec) above, $\mathbf{x}_{i}'$ is the $i$-th row of the design matrix $\mathbf{X}$ and $\mathbf{X}_{-i}$ is $\mathbf{X}$ but with the $i$-th row removed. The expression follows from the Sherman--Morrison formula for an invertible matrix $\mathbf{A}$ and a vector $\mathbf{b}$,
+In \@ref(eq:rec) above, $\mathbf{x}_{i}'$ is the $i$-th row of the design matrix $\mathbf{X}$ and $\mathbf{X}_{-i}$ is $\mathbf{X}$ but with the $i$-th row removed. The expression follows from the Sherman--Morrison formula for an invertible matrix $\mathbf{A}$ and a vector $\mathbf{b}$,
 \[
 (\mathbf{A}+\mathbf{b}\mathbf{b}')^{-1}=\mathbf{A}^{-1}-\frac{\mathbf{A}^{-1}\mathbf{b}\mathbf{b}'\mathbf{A}^{-1}}{1+\mathbf{b}'\mathbf{A}^{-1}\mathbf{b}},
 \]
@@ -517,7 +517,7 @@ AIC(biglmMod, k = log(n))
 s2$sigma^2
 ```
 
-Model selection of `biglm` models can be done, not by `stepAIC`, but with the more advanced `leaps` package. This is achieved by the `regsubsets` function, which returns the *best subset* of up to (by default) `nvmax = 8` predictors among the $p$ possible predictors to be included in the model. The function requires the *full* `biglm` model to begin the *exhaustive*^[Not really exhaustive, the method behind, due to @Furnival1974, employs an ingenious branch-and-bound algorithm to remove most of the non-interesting models.] search (by default). The kind of search can be changed using the `method` argument and `forward` or `backward` selection.
+Model selection of `biglm` models can be done, not by `stepAIC`, but with the more advanced `leaps` package. This is achieved by the `regsubsets` function, which returns the *best subset* of up to (by default) `nvmax = 8` predictors among the $p$ possible predictors to be included in the model. The function requires the *full* `biglm` model to begin the *exhaustive*^[Not really exhaustive: the method behind, due to @Furnival1974, employs an ingenious branch-and-bound algorithm to remove most of the non-interesting models.] search [@Furnival1974]. The kind of search can be changed using the `method` argument and choosing the `exhaustive` (by default), `forward`, or `backward` selection.
 
 ```{r, biglm-2, echo = TRUE, out.width = '70%', fig.pos = 'h!', fig.asp = 1, collapse = TRUE, cache = TRUE}
 # Model selection adapted to big data models
