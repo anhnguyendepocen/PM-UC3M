@@ -2,7 +2,7 @@
 title: "Notes for Predictive Modeling"
 subtitle: "MSc in Big Data Analytics at Carlos III University of Madrid"
 author: "Eduardo García Portugués"
-date: "`r Sys.Date()`, v4.2"
+date: "`r Sys.Date()`, v4.3"
 knit: "bookdown::render_book"
 documentclass: book
 bibliography: PM-UC3M.bib
@@ -42,8 +42,9 @@ We will employ several packages that are not contained in `R` (*note: list to be
 ```{r, install, echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, eval = FALSE}
 # Installation of required packages
 install.packages(c("car", "readxl", "rgl", "nortest", "pca3d", "ISLR", "pls", 
-                   "glmnet", "biglm", "mice", "VIM"))
-#, "caret", "KernSmooth", "locfit"))
+                   "glmnet", "biglm", "leaps", "KernSmooth", "mice", "VIM", 
+                   "nnet"))
+#, "caret", "locfit"))
 ```
 
 The codes in the notes may assume that the packages have been loaded, so it is better to do it now (*note: list to be updated*):
@@ -59,11 +60,13 @@ library(ISLR)
 library(pls)
 library(glmnet)
 library(biglm)
+library(leaps)
 # library(caret)
-# library(KernSmooth)
+library(KernSmooth)
 # library(locfit)
 library(mice)
 library(VIM)
+library(nnet)
 ```
 
 ## What is *predictive modeling*? {#intro-what-is}
@@ -234,22 +237,22 @@ This is a (constantly updated) handy list of all the relevant datasets used in t
 
 - `la-liga-2015-2016.xlsx` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx)). Contains 19 performance metrics for the 20 football teams in La Liga 2015/2016.
 
-<!-- - `challenger.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/challenger.txt)). Contains data for 23 Space-Shuttle launches. The data consists of 23 shuttle flights. There are 8 variables. Among them: `temp` (the temperature in Celsius degrees at the time of launch), and `fail.field` and `fail.nozzle` (indicators of whether there were an incidents in the O-rings of the field joints and nozzles of the solid rocket boosters). -->
+- `challenger.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/challenger.txt)). Contains data for 23 Space-Shuttle launches. The data consists of 23 shuttle flights. There are 8 variables. Among them: `temp` (the temperature in Celsius degrees at the time of launch), and `fail.field` and `fail.nozzle` (indicators of whether there were an incidents in the O-rings of the field joints and nozzles of the solid rocket boosters).
 
-<!-- - `Chile.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/Chile.txt)). Contains data for 2700 respondents on a survey for the voting intentions in the 1988 Chilean national plebiscite. There are 8 variables: `region`, `population`, `sex`, `age`, `education`, `income`, `statusquo` (scale of support for the status quo), and `vote`. `vote` is a factor with levels `A` (abstention), `N` (against Pinochet), `U` (undecided), and `Y` (for Pinochet). Available in `R` through the package `car` and `data(Chile)`. -->
+- `Chile.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/Chile.txt)). Contains data for 2700 respondents on a survey for the voting intentions in the 1988 Chilean national plebiscite. There are 8 variables: `region`, `population`, `sex`, `age`, `education`, `income`, `statusquo` (scale of support for the status quo), and `vote`. `vote` is a factor with levels `A` (abstention), `N` (against Pinochet), `U` (undecided), and `Y` (for Pinochet). Available in `R` through the package `car` and `data(Chile)`.
 
 ## Main references and credits {#intro-credits}
 
-Several great reference books have been used for preparing these notes. The following list details the sections in which each of them has been consulted (*note: list to be updated*):
+Several great reference books have been used for preparing these notes. The following list details the sections in which each of them has been consulted (*note: list to be updated and to be more detailed*):
 
 - @Kuhn2013 <!-- (Sections \@ref(intro-what-is)) -->
 - @James2013 <!-- (Sections \@ref(lm-i-model) - \@ref(lm-i-modfit), \@ref(lm-ii-lab-boston)) -->
-- @Fan1996 <!-- (Sections \@ref(reg-kre), \@ref(reg-asymp), \@ref(reg-bwd)). -->
+- @Fan1996 <!-- (Sections \@ref(npreg-kre), \@ref(npreg-asymp), \@ref(npreg-bwd)). -->
 - @Pena2002 <!--(Sections \@ref(lm-i-model) - \@ref(lm-i-modfit)) -->
-- @Loader1999 <!-- (Section \@ref(reg-loclik)). -->
-- @Wand1995 <!-- (Sections \@ref(reg-loclik)). -->
-- @Wasserman2004 <!-- (Sections \@ref(reg-param), \@ref(reg-loclik)). -->
-- @Wasserman2006 <!-- (Sections \@ref(reg-bwd)). -->
+- @Loader1999 <!-- (Section \@ref(npreg-loclik)). -->
+- @Wand1995 <!-- (Sections \@ref(npreg-loclik)). -->
+- @Wasserman2004 <!-- (Sections \@ref(npreg-param), \@ref(npreg-loclik)). -->
+- @Wasserman2006 <!-- (Sections \@ref(npreg-bwd)). -->
 
 In addition, these notes are possible due to the existence of these incredible pieces of software: @R-bookdown, @R-knitr, @R-rmarkdown, and @R-base.
 

@@ -3,7 +3,7 @@
 
 Given the response $Y$ and the predictors $X_1,\ldots,X_p$, many linear models can be build for predicting and explaining $Y$. In this chapter we will see how to address the problem of selecting the *best subset of predictors* $X_1,\ldots,X_p$ for explaining $Y$. Among others, we will also see how to extend the linear model to account for nonlinear relations between $Y$ and $X_1,\ldots,X_p$, and how to check whether the assumptions of the model are realistic in practice.
 
-## Case study: Housing values in Boston {#lm-ii-lab-boston}
+## Case study: *Housing values in Boston* {#lm-ii-lab-boston}
 
 This case study is motivated by @Harrison1978, who proposed an *hedonic model* for determining the willingness of house buyers to pay for clean air. An hedonic model is a model that decomposes the price of an item into separate components that determine its price. For example, an hedonic model for the price of a house may decompose its price into the house characteristics, the kind of neighborhood, and the location. The study of @Harrison1978 employed data from the Boston metropolitan area, containing 560 suburbs and 14 variables. The `Boston` dataset is available through the file `Boston.xlsx` file ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/Boston.xlsx)) and through the dataset `Boston` in the `MASS` package.
 
@@ -187,7 +187,7 @@ confint(modBIC)
 ```
 Note how the $R^2_\text{Adj}$ has slightly increased with respect to the full model and how all the predictors are significant. Note also that `modBIC` and `modAIC` are the same.
 
-We have quantified the influence of the predictor variables in the housing prices (Q1) and we can conclude that, in the final model and with confidence level $\alpha=0.05$:
+We have quantified the influence of the predictor variables in the housing prices (Q1) and we can conclude that, in the final model (Q2) and with confidence level $\alpha=0.05$:
 
 - `chas`, `age`, `rad`, and `black` have a **significantly positive** influence on `medv`.
 - `nox`, `dis`, `tax`, `pratio`, and `lstat` have a **significantly negative** influence on `medv`.

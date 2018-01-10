@@ -1,5 +1,5 @@
 
-# Linear models III: shrinkage and Big Data {#lm-iii}
+# Linear models III: shrinkage and big data {#lm-iii}
 
 <!-- ## Case study: Credit scoring {#lm-lab-iii-credit} -->
 
@@ -408,26 +408,198 @@ boxplot(pvalues3, names = expression(beta[1], beta[3], beta[3], beta[4]),
         ylim = c(0, 1))
 ```
 
-<!-- ## Big Data considerations {#lm-iii-bigdata} -->
+## Big data considerations {#lm-iii-bigdata}
 
-<!-- This allows linear regression on data sets larger than memory. -->
+The computation of the least squares estimator 
+\begin{align}
+\hat{\boldsymbol{\beta}}=(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}(\#eq:bd)
+\end{align}
+involves inverting the $(p+1)\times(p+1)$ matrix $\mathbf{X}'\mathbf{X}$, where $\mathbf{X}$ is an $n\times(p+1)$ matrix. The vector to be obtained, $\hat{\boldsymbol{\beta}}$, is of size $p+1$. However, computing it directly from \@ref(eq:bd) needs from allocating $\mathcal{O}(np + p^2)$ elements in memory. When $n$ is very large, this can be prohibitive. In addition, for convenience of the statistical analysis, `R`'s `lm` returns several objects of the same size as $\mathbf{X}$ and $\mathbf{Y}$, thus increasing notably the memory usage. For these reasons, alternative approaches for computing $\hat{\boldsymbol{\beta}}$ with big data are required.
 
-<!-- ```{r, biglm, echo = TRUE, collapse = TRUE, cache = TRUE} -->
-<!-- library(biglm) -->
-<!-- # Not really "Big Data"" but for the sake of illustration -->
-<!-- set.seed(12345) -->
-<!-- x <- matrix(rnorm(1e7), nrow = 1e5, ncol = 1e2) -->
-<!-- y <- 1 + x %*% c(1, -1, rep(0, 98)) + rnorm(1e5) -->
-<!-- bigData <- data.frame("resp" = y, "pred" = x) -->
+An alternative for computing \@ref(eq:bd) in a memory-friendly way is to split the computation of $(\mathbf{X}'\mathbf{X})^{-1}$ and $\mathbf{X}'\mathbf{Y}$ by *blocks* that are storable in memory. A possibility is to *update* sequentially the estimation of the vector of coefficients. This can be done with the following expression, which relates $\hat{\boldsymbol{\beta}}$ with $\hat{\boldsymbol{\beta}}_{-i}$, the vector of estimated coefficients *without* the $i$-th datum:
+\begin{align}
+\hat{\boldsymbol{\beta}}=\hat{\boldsymbol{\beta}}_{-i}+(\mathbf{X}'\mathbf{X})^{-1}\mathbf{x}_{i}\left(Y_{i}-\mathbf{x}_{i}'\hat{\boldsymbol{\beta}}_{-i}\right).(\#eq:rec)
+\end{align}
+In \@ref(eq;rec) above, $\mathbf{x}_{i}'$ is the $i$-th row of the design matrix $\mathbf{X}$ and $\mathbf{X}_{-i}$ is $\mathbf{X}$ but with the $i$-th row removed. The expression follows from the Sherman--Morrison formula for an invertible matrix $\mathbf{A}$ and a vector $\mathbf{b}$,
+\[
+(\mathbf{A}+\mathbf{b}\mathbf{b}')^{-1}=\mathbf{A}^{-1}-\frac{\mathbf{A}^{-1}\mathbf{b}\mathbf{b}'\mathbf{A}^{-1}}{1+\mathbf{b}'\mathbf{A}^{-1}\mathbf{b}},
+\]
+and from the equalities
+\begin{align*}
+\mathbf{X}'\mathbf{X}&=\mathbf{X}_{-i}'\mathbf{X}_{-i}+\mathbf{x}_{i}\mathbf{x}'_{i},\\
+\mathbf{X}'\mathbf{Y}&=\mathbf{X}_{-i}'\mathbf{Y}_{-i}+\mathbf{x}_{i}Y'_{i}.
+\end{align*}
+In \@ref(eq:rec), using again the Sherman-Morrison formula we can update $(\mathbf{X}'\mathbf{X})^{-1}$ easily from $\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}$:
+\begin{align}
+(\mathbf{X}'\mathbf{X})^{-1}=\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}-\frac{\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}\mathbf{x}_{-i}\mathbf{x}_{-i}'\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}}{1+\mathbf{x}_{-i}'\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}\mathbf{x}_{-i}}.(\#eq:recmat)
+\end{align}
+This has the advantage of not requiring to compute $\mathbf{X}'\mathbf{X}$ and then to invert it. Instead of that, we work directly with $\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}$, which ws already computed and is of size $(p + 1)\times(p+1)$.
 
-<!-- # biglm has a very similar syntaxis to lm -->
-<!-- bigMod <- biglm(formula = y ~ x, data = bigData) -->
+This idea can be iterated and we can compute $\hat{\boldsymbol{\beta}}$ by the following iterative procedure:
 
-<!-- bigMod <- lm(formula = resp ~ ., data = bigData) -->
+1. Start from a reduced dataset $\mathbf{X}_\mathrm{old}\equiv \mathbf{X}_{-i}$ and $\mathbf{Y}_\mathrm{old}\equiv \mathbf{Y}_{-i}$ for which the least squares estimate can be computed. Denote it by $\hat{\boldsymbol{\beta}}_\mathrm{old}\equiv\hat{\boldsymbol{\beta}}_{-i}$.
+2. Add one of the remaining data points to get $\hat{\boldsymbol{\beta}}_\mathrm{new}$ from \@ref(eq:rec) and \@ref(eq:recmat).
+3. Store $\hat{\boldsymbol{\beta}}_\mathrm{new}$ and $\mathbf{X}_\mathrm{new}$ in $\hat{\boldsymbol{\beta}}_\mathrm{old}$ and $\mathbf{X}_\mathrm{old}$, respectively.
+4. Repeat steps 2--3 until there are no remaining data points left.
+5. Return $\hat{\boldsymbol{\beta}}_\mathrm{new}$ as $\hat{\boldsymbol{\beta}}$.
 
-<!-- # Online update -->
-<!-- biglm(y~x,data=Hitters) -->
+The main advantage of this iterative procedure is clear: **we do not need to store any vector or matrix with $n$ in the dimension** -- only matrices of size $p$. As a consequence, we do not need to store the data in memory.
 
-<!-- ``` -->
+A similar iterative approach (yet more sophisticated) is followed by the `biglm` package. We omit the details here (see @Miller1992) and just comment the main idea: for computing \@ref(eq:bd), `biglm` performs a QR decomposition^[The QR decomposition of the matrix $\mathbf{X}$ of size $n\times m$ is $\mathbf{X}=\mathbf{Q}\mathbf{R}$ such that $\mathbf{Q}$ is an $n\times n$ orthogonal matrix and $\mathbf{R}$ is an $n\times m$ upper triangular matrix. This factorization is commonly used in numerical analysis for solving linear systems.] of $\mathbf{X}$ that is computed iteratively. Then, instead of computing \@ref(eq:bd), solves the triangular system
+\begin{align*}
+\mathbf{R}\hat{\boldsymbol{\beta}}=\mathbf{Q}^T\mathbf{Y}.
+\end{align*}
 
-<!-- ### Case study {#lm-iii-bigdata-case} -->
+Let's see how `biglm` works in practice.
+```{r, biglm-1, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Not really "big data", but for the sake of illustration
+set.seed(12345)
+n <- 1e6
+p <- 10
+x1 <- matrix(rnorm(n * p), nrow = n, ncol = p)
+y1 <- 1 + x1 %*% c(1, -1, rep(0, p - 2)) + rnorm(n)
+x2 <- matrix(rnorm(100 * p), nrow = 100, ncol = p)
+y2 <- 1 + x2 %*% c(1, -1, rep(0, p - 2)) + rnorm(100)
+bigData1 <- data.frame("resp" = y1, "pred" = x1)
+bigData2 <- data.frame("resp" = y2, "pred" = x2)
+
+# biglm has a very similar syntaxis to lm - but the formula interface is 
+# somehow sloppy
+library(biglm)
+# biglm(formula = resp ~ ., data = bigData1) # Does not work
+# biglm(formula = y ~ x) # Does not work
+# biglm(formula = resp ~ pred.1 + pred.2, data = bigData1) # Does work, but 
+# not very convenient for a large number of predictors
+# Hack for automated inclusion of all the predictors
+f <- formula(paste("resp ~", paste(names(bigData1)[-1], collapse = " + ")))
+biglmMod <- biglm(formula = f, data = bigData1)
+ 
+# lm's call
+lmMod <- lm(formula = resp ~ ., data = bigData1)
+
+# However, the reduction in size of the resulting object is more than notable
+print(object.size(biglmMod), units = "Kb")
+print(object.size(lmMod), units = "Mb")
+
+# Summaries
+s1 <- summary(biglmMod)
+s1
+s2 <- summary(lmMod)
+s2
+
+# Also
+s1$mat # Coefficients and their inferences
+s1$rsq # R^2
+s1$nullrss # SST (as in Section 2.6)
+
+# Extract coefficients
+coef(biglmMod)
+
+# Prediction works as usual
+predict(biglmMod, newdata = bigData2[1:5, ])
+
+# Must contain a column for the response - even if empty
+# predict(lmMod, newdata = bigData2[1:5, -1]) # Error
+predict(lmMod, newdata = cbind(0, bigData2[1:5, -1]))
+
+# Update the model with training data
+update(biglmMod, moredata = bigData2)
+
+# AIC and BIC
+AIC(biglmMod, k = 2)
+AIC(biglmMod, k = log(n))
+
+# Features not inmediately available for biglm objects: stepwise selection by 
+# stepAIC, residuals, variance of the error, model diagnostics, and vifs
+
+# Workaround for obtaining hat(sigma)^2 = SSE / (n - p - 1), SSE = SST * (1 - R^2)
+(s1$nullrss * (1 - s1$rsq)) / s1$obj$df.resid
+s2$sigma^2
+```
+
+Model selection of `biglm` models can be done, not by `stepAIC`, but with the more advanced `leaps` package. This is achieved by the `regsubsets` function, which returns the *best subset* of up to (by default) `nvmax = 8` predictors among the $p$ possible predictors to be included in the model. The function requires the *full* `biglm` model to begin the *exhaustive*^[Not really exhaustive, the method behind, due to @Furnival1974, employs an ingenious branch-and-bound algorithm to remove most of the non-interesting models.] search (by default). The kind of search can be changed using the `method` argument and `forward` or `backward` selection.
+
+```{r, biglm-2, echo = TRUE, out.width = '70%', fig.pos = 'h!', fig.asp = 1, collapse = TRUE, cache = TRUE}
+# Model selection adapted to big data models
+library(leaps)
+reg <- regsubsets(biglmMod, nvmax = p, method = "exhaustive")
+plot(reg) # Plot best model (top row) to worst model (bottom row)
+
+# Summarize (otherwise regsubsets's outptut is hard to decypher)
+subs <- summary(reg)
+subs
+
+# Lots of useful information
+str(subs, 1)
+
+# Get the model with lowest BIC
+subs$which
+subs$bic
+subs$which[which.min(subs$bic), ]
+
+# It also works with ordinary linear models and it is much faster and 
+# informative than stepAIC
+reg <- regsubsets(resp ~ ., data = bigData1, nvmax = p, 
+                  method = "backward")
+subs$bic
+subs$which[which.min(subs$bic), ]
+
+# Compare it with stepAIC
+stepAIC(lm(resp ~ ., data = bigData1), trace = 0, 
+        direction = "backward", k = log(n))
+```
+
+Finally, let's see an example on how to fit a linear model to a large dataset that does not fit in the RAM of most regular laptops. Imagine that you want to regress a response $Y$ into a set of $p=10$ predictors and the sample size is $n=10^8$. Merely storing the response and the predictors will take up to $8.2$ Gb in RAM:
+```{r, biglm-3, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Size of the response
+print(object.size(rnorm(1e6)) * 1e2, units = "Gb")
+
+# Size of the predictors
+print(object.size(rnorm(1e6)) * 1e2 * 10, units = "Gb")
+```
+In addition to this, if `lm` was called, it will return the `residuals`, `effects`, and `fitted.values` slots (all vectors of length $n$, hence $0.7 \times 3=2.1$ Gb more). It will also return the `qr` decomposition of the design matrix and the model matrix (both are $n\times (p + 1)$ matrices, so another $8.2\times 2=14.4$ Gb more). The final `lm` object will be thus at the very least of size $16.5$ Gb. Clearly, this is not a very memory-friendly way of proceeding.
+
+The appropriate approach is to split the dataset and perform updates of the model in chunks of reasonable size. The next code provides a template for such approach using `biglm` and `update`.
+```{r, biglm-4, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Linear regression with n = 10^8 and p = 10
+n <- 10^8
+p <- 10
+beta <- c(1, -1, rep(0, p - 2))
+
+# Number of chunks for splitting the dataset
+nChunks <- 1e3
+nSmall <- n / nChunks
+
+# Simulates reading the first chunk of data
+set.seed(12345)
+x <- matrix(rnorm(nSmall * p), nrow = nSmall, ncol = p)
+y <- 1 + x %*% beta + rnorm(nSmall)
+
+# First fit
+bigMod <- biglm(y ~ x, data = data.frame(y, x))
+
+# Update fit
+# pb <- txtProgressBar(style = 3)
+for (i in 2:nChunks) {
+  
+  # Simulates reading the i-th chunk of data
+  set.seed(12345 + i)
+  x <- matrix(rnorm(nSmall * p), nrow = nSmall, ncol = p)
+  y <- 1 + x %*% beta + rnorm(nSmall)
+  
+  # Update the fit
+  bigMod <- update(bigMod, moredata = data.frame(y, x))
+  
+  # Progress
+  # setTxtProgressBar(pb = pb, value = i / nChunks)
+
+}
+
+# Final model
+summary(bigMod)
+print(object.size(bigMod), units = "Kb")
+```
+
+```{block2, caubiglm, type = 'rmdcaution', cache = TRUE}
+The `summary` of a `biglm` object yields slightly different significances for the coefficients than for `lm`. The reason is that `biglm` employs $\mathcal{N}(0,1)$ approximations for the distributions of the $t$-tests instead of the *exact* $t_{n-1}$ distribution. Obviously, if $n$ is large, the differences are inappreciable.
+```
