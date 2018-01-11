@@ -114,7 +114,7 @@ where:
 There are some important points hidden behind the election of RSS as the error criterion for obtaining $(\hat\beta_0,\hat\beta_1)$:
 
 - *Why the vertical distances and not horizontal or perpendicular?* Because we want to minimize the error in the *prediction* of $Y$! Note that the treatment of the variables is *not symmetrical*.
-- *Why the squares in the distances and not the absolute value?* Due to mathematical convenience. Squares are nice to differentiate and are closely related with maximum likelihood estimation under the normal distribution.
+- *Why the squares in the distances and not the absolute value?* Due to mathematical convenience. Squares are nice to differentiate and are closely related with maximum likelihood estimation under the normal distribution (see Appendix \@ref(app-mle)).
 
 Let's see how to obtain automatically the minimizers of the error in Figure \@ref(fig:leastsquares) by the `lm` (**l**inear **m**odel) function. The data of the figure has been generated with the following code:
 ```{r, lscheck-1, collapse = TRUE, cache = TRUE}
@@ -548,7 +548,7 @@ This result can be obtained from the form of $\hat{\boldsymbol{\beta}}$ given in
 \begin{align}
 \hat{\beta}_j\sim\mathcal{N}\left(\beta_j,\mathrm{SE}(\hat\beta_j)^2\right),(\#eq:normp1b)
 \end{align}
-where $\mathrm{SE}(\hat\beta_j)$ is the *standard error*, $\mathrm{SE}(\hat\beta_j)^2=\sigma^2v_j$, and
+where $\mathrm{SE}(\hat\beta_j)$ is the *standard error*, $\mathrm{SE}(\hat\beta_j)^2:=\sigma^2v_j$, and
 \[
 v_j\text{ is the }j\text{-th element of the diagonal of }(\mathbf{X}'\mathbf{X})^{-1}.
 \]
@@ -600,7 +600,7 @@ Note the $n-p-1$ in the denominator. Now $n-p-1$ are the *degrees of freedom*, t
 
 If we use the estimate $\hat\sigma^2$ instead of $\sigma^2$, we get more useful distributions than \@ref(eq:normp1b)
 \begin{align}
-\frac{\hat\beta_j-\beta_j}{\hat{\mathrm{SE}}(\hat\beta_j)}\sim t_{n-p-1},\quad\hat{\mathrm{SE}}(\hat\beta_j)^2=\hat\sigma^2v_j^2(\#eq:normp2)
+\frac{\hat\beta_j-\beta_j}{\hat{\mathrm{SE}}(\hat\beta_j)}\sim t_{n-p-1},\quad\hat{\mathrm{SE}}(\hat\beta_j)^2:=\hat\sigma^2v_j^2(\#eq:normp2)
 \end{align}
 where $t_{n-p-1}$ represents the Student's $t$ distribution with $n-p-1$ degrees of freedom. 
 
@@ -624,11 +624,11 @@ knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/ci
 
 ### Testing on the coefficients {#lm-i-inference-tests}
 
-The distributions in \@ref(eq:normp2) also allow to conduct a formal *hypothesis test* on the coefficients $\beta_j$, $j=0,\ldots,p$. For example the test for *significance* (shortcut for *significantly difference from zero*) is specially important, that is, the test of the hypotheses
+The distributions in \@ref(eq:normp2) also allow to conduct a formal *hypothesis test* on the coefficients $\beta_j$, $j=0,\ldots,p$. For example the test for *significance* (shortcut for *significantly difference from zero*) is especially important, that is, the test of the hypotheses
 \begin{align*}
 H_0:\beta_j=0
 \end{align*}
-for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is specially interesting, since it allows to answer whether *the variable $X_j$ has a significant linear effect on $Y$*. The statistic used for testing for significance is the $t$-statistic
+for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is especially interesting, since it allows to answer whether *the variable $X_j$ has a significant linear effect on $Y$*. The statistic used for testing for significance is the $t$-statistic
 \begin{align*}
 \frac{\hat\beta_j-0}{\hat{\mathrm{SE}}(\hat\beta_j)},
 \end{align*}
@@ -780,7 +780,7 @@ The inspection of the CIs for the conditional mean and conditional response in t
 
 Notice the dependence of both CIs in $x$, $n$, and $\sigma^2$, each of them with a clear effect on the resulting length of the interval. Figure \@ref(fig:cipred) helps visualizing these concepts interactively and the difference between CIs.
 
-(ref:cipredtitle) Illustration of the CIs for the conditional mean and response. Note how the width of the CIs is influenced by $x$, specially for the conditional mean (the conditional response has a constant term affecting the width). Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/ci-prediction/).
+(ref:cipredtitle) Illustration of the CIs for the conditional mean and response. Note how the width of the CIs is influenced by $x$, especially for the conditional mean (the conditional response has a constant term affecting the width). Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/ci-prediction/).
 
 ```{r, cipred, echo = FALSE, fig.cap = '(ref:cipredtitle)', screenshot.alt = "images/screenshots/ci-prediction.png", dev = 'png', cache = TRUE, fig.pos = 'h!', out.width = '90%'}
 knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/ci-prediction/', height = '1000px')

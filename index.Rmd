@@ -2,7 +2,7 @@
 title: "Notes for Predictive Modeling"
 subtitle: "MSc in Big Data Analytics at Carlos III University of Madrid"
 author: "Eduardo García Portugués"
-date: "`r Sys.Date()`, v4.3"
+date: "`r Sys.Date()`, v5.0"
 knit: "bookdown::render_book"
 documentclass: book
 bibliography: PM-UC3M.bib
@@ -42,9 +42,9 @@ We will employ several packages that are not contained in `R` (*note: list to be
 ```{r, install, echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, eval = FALSE}
 # Installation of required packages
 install.packages(c("car", "readxl", "rgl", "nortest", "pca3d", "ISLR", "pls", 
-                   "glmnet", "biglm", "leaps", "KernSmooth", "mice", "VIM", 
-                   "nnet"))
-#, "caret", "locfit"))
+                   "glmnet", "biglm", "leaps", "viridis", "ffbase",
+                   "KernSmooth", "mice", "VIM", "nnet"))
+#, "locfit"))
 ```
 
 The codes in the notes may assume that the packages have been loaded, so it is better to do it now (*note: list to be updated*):
@@ -61,7 +61,8 @@ library(pls)
 library(glmnet)
 library(biglm)
 library(leaps)
-# library(caret)
+library(viridis)
+library(ffbase)
 library(KernSmooth)
 # library(locfit)
 library(mice)
@@ -153,14 +154,14 @@ f_{X_j}(x_j)&:=\frac{\partial}{\partial x_j}F_{X_j}(x_j)=\int_{\mathbb{R}^{p-1}}
 \end{align*}
 where $\mathbf{x}_{-i}:=(x_1,\ldots,x_{i-1},x_{i+1},x_p)$. The definitions can be extended analogously to the marginals of the cdf and pdf of different subsets of $\mathbf{X}$.
 
-The *conditional* cdf and pdf of $X_1\vert(X_2,\ldots,X_p)$ are defined, respectively, as
+The *conditional* cdf and pdf of $X_1|(X_2,\ldots,X_p)$ are defined, respectively, as
 \begin{align*}
-F_{X_1\vert \mathbf{X}_{-1}=\mathbf{x}_{-1}}(x_1)&:=\mathbb{P}[X_1\leq x_1\vert \mathbf{X}_{-1}=\mathbf{x}_{-1}],\\
-f_{X_1\vert \mathbf{X}_{-1}=\mathbf{x}_{-1}}(x_1)&:=\frac{f(\mathbf{x})}{f_{\mathbf{X}_{-1}}(\mathbf{x}_{-1})}.
+F_{X_1| \mathbf{X}_{-1}=\mathbf{x}_{-1}}(x_1)&:=\mathbb{P}[X_1\leq x_1| \mathbf{X}_{-1}=\mathbf{x}_{-1}],\\
+f_{X_1| \mathbf{X}_{-1}=\mathbf{x}_{-1}}(x_1)&:=\frac{f(\mathbf{x})}{f_{\mathbf{X}_{-1}}(\mathbf{x}_{-1})}.
 \end{align*}
-The *conditional expectation* of $Y\vert X$ is the following random variable^[Recall that the $X$-part is random!]
+The *conditional expectation* of $Y| X$ is the following random variable^[Recall that the $X$-part is random!]
 $$
-\mathbb{E}[Y\vert X]:=\int y \mathrm{d}F_{Y\vert X}(y\vert X).
+\mathbb{E}[Y| X]:=\int y \mathrm{d}F_{Y| X}(y| X).
 $$
 
 For two random variables $X_1$ and $X_2$, the *covariance* between them is defined as
@@ -199,17 +200,17 @@ The surface defined by \@ref(eq:norm2) that can be regarded as a bell (in three 
 
 - Joint pdf: $f(x_1,x_2)=\phi(x_1,x_2;\mu_1,\mu_2,\sigma_1,\sigma_2,\rho)$.
 - Marginal pdfs: $f_{X_1}(x_1)=\int \phi(x_1,t_2;\mu_1,\mu_2,\sigma_1,\sigma_2,\rho)\mathrm{d}t_2=\phi(x_1;\mu_1,\sigma_1)$ and $\phi(x_2;\mu_2,\sigma_2)$. Hence $X_1\sim\mathcal{N}(\mu_1,\sigma_1)$ and $X_2\sim\mathcal{N}(\mu_2,\sigma_2)$.
-- Conditional pdfs: $f_{X_1\vert X_2=x_2}(x_1)=\frac{f(x_1,x_2)}{f_{X_2}(x_2)}=\phi\left(x_1;\mu_1+\rho\frac{\sigma_1}{\sigma_2}(x_2-\mu_2),(1-\rho^2)\sigma_1^2\right)$ and $\phi\left(x_2;\mu_2+\rho\frac{\sigma_2}{\sigma_1}(x_1-\mu_1),(1-\rho^2)\sigma_2^2\right)$. Hence 
+- Conditional pdfs: $f_{X_1| X_2=x_2}(x_1)=\frac{f(x_1,x_2)}{f_{X_2}(x_2)}=\phi\left(x_1;\mu_1+\rho\frac{\sigma_1}{\sigma_2}(x_2-\mu_2),(1-\rho^2)\sigma_1^2\right)$ and $\phi\left(x_2;\mu_2+\rho\frac{\sigma_2}{\sigma_1}(x_1-\mu_1),(1-\rho^2)\sigma_2^2\right)$. Hence 
 \begin{align*}
-X_1&\vert X_2=x_2\sim\mathcal{N}\left(\mu_1+\rho\frac{\sigma_1}{\sigma_2}(x_2-\mu_2),(1-\rho^2)\sigma_1^2\right),\\
-X_2&\vert X_1=x_1\sim\mathcal{N}\left(\mu_2+\rho\frac{\sigma_2}{\sigma_1}(x_1-\mu_1),(1-\rho^2)\sigma_2^2\right).
+X_1&| X_2=x_2\sim\mathcal{N}\left(\mu_1+\rho\frac{\sigma_1}{\sigma_2}(x_2-\mu_2),(1-\rho^2)\sigma_1^2\right),\\
+X_2&| X_1=x_1\sim\mathcal{N}\left(\mu_2+\rho\frac{\sigma_2}{\sigma_1}(x_1-\mu_1),(1-\rho^2)\sigma_2^2\right).
 \end{align*}
 - Conditional expectations: $\mathbb{E}[X_1|X_2=x_2]=\mu_1+\rho\frac{\sigma_1}{\sigma_2}(x_2-\mu_2)$ and $\mathbb{E}[X_2|X_1=x_1]=\mu_2+\rho\frac{\sigma_2}{\sigma_1}(x_1-\mu_1)$.
 - Joint cdf: $\int_{-\infty}^{x_2}\int_{-\infty}^{x_1}\phi(t_1,t_2;\mu_1,\mu_2,\sigma_1,\sigma_2,\rho)\mathrm{d}t_1\mathrm{d}t_2$.
 - Marginal cdfs: $\int_{-\infty}^{x_1}\phi(t;\mu_1,\sigma_1)\mathrm{d}t=:\Phi(x_1;\mu_1,\sigma_1)$ and $\Phi(x_2;\mu_2,\sigma_2)$.
 - Conditional cdfs: $\int_{-\infty}^{x_1}\phi(t;\mu_1,\sigma_1)\mathrm{d}t=\Phi\left(x_1;\mu_1+\rho\frac{\sigma_1}{\sigma_2}(x_2-\mu_2),(1-\rho^2)\sigma_1^2\right)$ and $\Phi\left(x_2;\mu_2+\rho\frac{\sigma_2}{\sigma_1}(x_1-\mu_1),(1-\rho^2)\sigma_2^2\right)$.
 
-(ref:norm2title) Visualization of the joint pdf (in blue), marginal pdfs (green), conditional pdf of $X_2\vert X_1=x_1$ (orange), expectation (red point), and conditional expectation $\mathbb{E}[X_2\vert X_1=x_1]$ (orange point) of a $2$-dimensional normal. The conditioning point of $X_1$ is $x_1=-2$. Note the different scales of the densities, as they have to integrate one over different supports. Note how the conditional density (upper orange curve) is *not* the joint pdf $f(2,x_2)$ (lower orange curve) but a rescaling of this curve by $\frac{1}{f_{X_1}(x_1)}$. The parameters of the $2$-dimensional normal are $\mu_1=\mu_2=0$, $\sigma_1=\sigma_2=1$ and $\rho=0.75$. $500$ observations sampled from the distribution are shown in black.
+(ref:norm2title) Visualization of the joint pdf (in blue), marginal pdfs (green), conditional pdf of $X_2| X_1=x_1$ (orange), expectation (red point), and conditional expectation $\mathbb{E}[X_2| X_1=x_1]$ (orange point) of a $2$-dimensional normal. The conditioning point of $X_1$ is $x_1=-2$. Note the different scales of the densities, as they have to integrate one over different supports. Note how the conditional density (upper orange curve) is *not* the joint pdf $f(2,x_2)$ (lower orange curve) but a rescaling of this curve by $\frac{1}{f_{X_1}(x_1)}$. The parameters of the $2$-dimensional normal are $\mu_1=\mu_2=0$, $\sigma_1=\sigma_2=1$ and $\rho=0.75$. $500$ observations sampled from the distribution are shown in black.
 
 ```{r, norm2, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:norm2title)', cache = TRUE}
 knitr::include_graphics("images/R/norm2.png")
@@ -237,7 +238,9 @@ This is a (constantly updated) handy list of all the relevant datasets used in t
 
 - `la-liga-2015-2016.xlsx` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx)). Contains 19 performance metrics for the 20 football teams in La Liga 2015/2016.
 
-- `challenger.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/challenger.txt)). Contains data for 23 Space-Shuttle launches. The data consists of 23 shuttle flights. There are 8 variables. Among them: `temp` (the temperature in Celsius degrees at the time of launch), and `fail.field` and `fail.nozzle` (indicators of whether there were an incidents in the O-rings of the field joints and nozzles of the solid rocket boosters).
+- `challenger.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/challenger.txt)). Contains data for 23 space-shuttle launches. There are 8 variables. Among them: `temp` (the temperature in Celsius degrees at the time of launch), and `fail.field` and `fail.nozzle` (indicators of whether there were an incidents in the O-rings of the field joints and nozzles of the solid rocket boosters).
+
+- `species.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/species.txt)). Contains data for 90 country parcels in which the `Biomass`, `pH` of the terrain (categorical variable), and number of `Species` were measured.
 
 - `Chile.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/Chile.txt)). Contains data for 2700 respondents on a survey for the voting intentions in the 1988 Chilean national plebiscite. There are 8 variables: `region`, `population`, `sex`, `age`, `education`, `income`, `statusquo` (scale of support for the status quo), and `vote`. `vote` is a factor with levels `A` (abstention), `N` (against Pinochet), `U` (undecided), and `Y` (for Pinochet). Available in `R` through the package `car` and `data(Chile)`.
 
@@ -245,11 +248,14 @@ This is a (constantly updated) handy list of all the relevant datasets used in t
 
 Several great reference books have been used for preparing these notes. The following list details the sections in which each of them has been consulted (*note: list to be updated and to be more detailed*):
 
+- @Durban2017 <!-- (Section \@ref(glm-model-general)) -->
 - @Kuhn2013 <!-- (Sections \@ref(intro-what-is)) -->
 - @James2013 <!-- (Sections \@ref(lm-i-model) - \@ref(lm-i-modfit), \@ref(lm-ii-lab-boston)) -->
 - @Fan1996 <!-- (Sections \@ref(npreg-kre), \@ref(npreg-asymp), \@ref(npreg-bwd)). -->
+- @McCullagh1983
 - @Pena2002 <!--(Sections \@ref(lm-i-model) - \@ref(lm-i-modfit)) -->
 - @Loader1999 <!-- (Section \@ref(npreg-loclik)). -->
+- @Wood2006 <!-- (Section \@ref(glm-model-general)) -->
 - @Wand1995 <!-- (Sections \@ref(npreg-loclik)). -->
 - @Wasserman2004 <!-- (Sections \@ref(npreg-param), \@ref(npreg-loclik)). -->
 - @Wasserman2006 <!-- (Sections \@ref(npreg-bwd)). -->

@@ -32,7 +32,7 @@ The way they enforce sparsity in the estimates is by minimizing the RSS plus a p
 \begin{align}
 \text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(2-\alpha)}.(\#eq:pen1)
 \end{align}
-**Ridge regression corresponds to $\alpha=1$** (quadratic penalty), **and lasso to consider $\alpha=0$** (linear penalty). Obviously, if $\lambda=0$, we are back to the least squares problem and theory. The optimization of \@ref(eq:pen1) gives
+**Ridge regression corresponds to $\alpha=1$** (quadratic penalty) and **lasso to $\alpha=0$** (linear penalty). Obviously, if $\lambda=0$, we are back to the least squares problem and theory. The optimization of \@ref(eq:pen1) gives
 \begin{align}
 \hat{\boldsymbol{\beta}}_\lambda:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\left\{ \text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\right\},(\#eq:pen2)
 \end{align}
@@ -328,6 +328,8 @@ Consider [`la-liga-2015-2016.xlsx`](https://raw.githubusercontent.com/egarpor/PM
 
 ```
 
+## A note of caution with inference after model-selection {#lm-iii-infmodsel}
+
 ```{block, caulassovarsel, type = 'rmdcaution', cache = TRUE}
 Inferences from models that result from model-selection procedures, such as stepwise regression, ridge, or lasso, have to analysed with caution. The reason is because *we are using the sample twice*: one for selecting the most significant / informative predictors in order to be included in the model, and other for making inference using the same sample. While making this, we are biasing the significance tests, and thus obtaining **unrealistically small $p$-values**. In other words, when included in the model, some selected predictors will be shown as significant when in reality they are not.
 
@@ -456,10 +458,11 @@ Let's see how `biglm` works in practice.
 set.seed(12345)
 n <- 1e6
 p <- 10
+beta <- c(1, -1, 0.01, rep(0, p - 3))
 x1 <- matrix(rnorm(n * p), nrow = n, ncol = p)
-y1 <- 1 + x1 %*% c(1, -1, rep(0, p - 2)) + rnorm(n)
+y1 <- 1 + x1 %*% beta + rnorm(n)
 x2 <- matrix(rnorm(100 * p), nrow = 100, ncol = p)
-y2 <- 1 + x2 %*% c(1, -1, rep(0, p - 2)) + rnorm(100)
+y2 <- 1 + x2 %*% beta + rnorm(100)
 bigData1 <- data.frame("resp" = y1, "pred" = x1)
 bigData2 <- data.frame("resp" = y2, "pred" = x2)
 
@@ -470,14 +473,14 @@ library(biglm)
 # biglm(formula = y ~ x) # Does not work
 # biglm(formula = resp ~ pred.1 + pred.2, data = bigData1) # Does work, but 
 # not very convenient for a large number of predictors
-# Hack for automated inclusion of all the predictors
+# Hack for automatic inclusion of all the predictors
 f <- formula(paste("resp ~", paste(names(bigData1)[-1], collapse = " + ")))
 biglmMod <- biglm(formula = f, data = bigData1)
  
 # lm's call
 lmMod <- lm(formula = resp ~ ., data = bigData1)
 
-# However, the reduction in size of the resulting object is more than notable
+# The reduction in size of the resulting object is more than notable
 print(object.size(biglmMod), units = "Kb")
 print(object.size(lmMod), units = "Mb")
 
@@ -487,7 +490,7 @@ s1
 s2 <- summary(lmMod)
 s2
 
-# Also
+# Further information
 s1$mat # Coefficients and their inferences
 s1$rsq # R^2
 s1$nullrss # SST (as in Section 2.6)
@@ -498,9 +501,8 @@ coef(biglmMod)
 # Prediction works as usual
 predict(biglmMod, newdata = bigData2[1:5, ])
 
-# Must contain a column for the response - even if empty
-# predict(lmMod, newdata = bigData2[1:5, -1]) # Error
-predict(lmMod, newdata = cbind(0, bigData2[1:5, -1]))
+# Must contain a column for the response
+# predict(biglmMod, newdata = bigData2[1:5, -1]) # Error
 
 # Update the model with training data
 update(biglmMod, moredata = bigData2)
@@ -559,12 +561,12 @@ print(object.size(rnorm(1e6)) * 1e2 * 10, units = "Gb")
 ```
 In addition to this, if `lm` was called, it will return the `residuals`, `effects`, and `fitted.values` slots (all vectors of length $n$, hence $0.7 \times 3=2.1$ Gb more). It will also return the `qr` decomposition of the design matrix and the model matrix (both are $n\times (p + 1)$ matrices, so another $8.2\times 2=14.4$ Gb more). The final `lm` object will be thus at the very least of size $16.5$ Gb. Clearly, this is not a very memory-friendly way of proceeding.
 
-The appropriate approach is to split the dataset and perform updates of the model in chunks of reasonable size. The next code provides a template for such approach using `biglm` and `update`.
+A possible approach is to split the dataset and perform updates of the model in chunks of reasonable size. The next code provides a template for such approach using `biglm` and `update`.
 ```{r, biglm-4, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Linear regression with n = 10^8 and p = 10
 n <- 10^8
 p <- 10
-beta <- c(1, -1, rep(0, p - 2))
+beta <- c(1, -1, 0.01, rep(0, p - 3))
 
 # Number of chunks for splitting the dataset
 nChunks <- 1e3

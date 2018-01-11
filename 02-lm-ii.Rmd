@@ -84,9 +84,9 @@ Now that we have added more light into the problem of having an excess of predic
 
 Before introducing the method, we need to understand what is an **information criterion**. An information criterion balances the fitness of a model with the number of predictors employed. Hence, it determines objectively the best model as the one that *minimizes the information criterion*. Two common criteria are the *Bayesian Information Criterion* (BIC) and the *Akaike Information Criterion* (AIC). Both are based on a **balance between the model fitness and its complexity**:
 \begin{align}
-\text{BIC}(\text{model}) = \underbrace{-2\log\ell(\text{model})}_{\text{Model fitness}} + \underbrace{\text{npar(model)}\times\log n}_{\text{Complexity}}, (\#eq:bic)
+\text{BIC}(\text{model}) = \underbrace{-2\ell(\text{model})}_{\text{Model fitness}} + \underbrace{\text{npar(model)}\times\log n}_{\text{Complexity}}, (\#eq:bic)
 \end{align}
-where $\ell(\text{model})$ is the *likelihood of the model* (how well the model fits the data) and $\text{npar(model)}$ is the number of parameters of the model, $p+2$ in the case of a multiple linear regression model with $p$ predictors. The AIC replaces $\log n$ by $2$ in \@ref(eq:bic) so, compared with BIC, it **penalizes less the more complex models** (recall that $\log n>2$ if $n\geq8$). This is one of the reasons why BIC is preferred by some practitioners for model comparison. Also, because is *consistent* in selecting the true model: if enough data is provided, the BIC is guaranteed to select the data-generating model among a list of candidate models.
+where $\ell(\text{model})$ is the *log-likelihood of the model* (how well the model fits the data) and $\text{npar(model)}$ is the number of parameters of the model, $p+2$ in the case of a multiple linear regression model with $p$ predictors. The AIC replaces $\log n$ by $2$ in \@ref(eq:bic) so, compared with BIC, it **penalizes less the more complex models** (recall that $\log n>2$ if $n\geq8$). This is one of the reasons why BIC is preferred by some practitioners for model comparison. Also, because is *consistent* in selecting the true model: if enough data is provided, the BIC is guaranteed to select the data-generating model among a list of candidate models.
 
 The BIC and AIC can be computed in `R` through the functions `BIC` and `AIC`. They take a model as the input.
 ```{r, case2-4, collapse = TRUE, cache = TRUE}
@@ -1104,7 +1104,7 @@ The dataset `cpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-
 - Summarize the fit. What are the estimates $\hat\beta_0$ and $\hat\beta_1$? Is $\hat\beta_1$ close to $\frac{\log(2)}{2}$?
 - Compute the CI for $\beta_1$ at $\alpha=0.05$. Is $\frac{\log(2)}{2}$ inside it? What happens at levels $\alpha=0.10,0.01$?
 - We want to forecast the average log-number of transistors for the CPUs to be released in 2017. Compute the adequate prediction and CI.
-- A new CPU design is expected for 2017. What is the range of log-number of transistors expected for it, at a 95% level of confidence?
+- A new CPU design is expected for 2017. What is the range of log-number of transistors expected for it, at a $95\%$ level of confidence?
 - Compute the ANOVA table for `Log.Transistor.count ~ Date.of.introduction`. Is $\beta_1$ significant?
 
 ```
