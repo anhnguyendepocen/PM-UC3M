@@ -9,11 +9,7 @@ and hence
 \[
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=\beta_0+\beta_1x_1+\ldots+\beta_px_p.
 \]
-This, in particular, implies that $Y$ is *continuous*. In this chapter we will see how *generalized linear models* can deal with other kind of distributions for $Y|(X_1=x_1,\ldots,X_p=x_p)$, particularly with *discrete* responses, by modelling the *transformed* conditional expectation by a linear combination:
-\[
-g(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p])=\beta_0+\beta_1x_1+\ldots+\beta_px_p.
-\]
-The simplest generalized linear model is *logistic regression*, which is arises when $Y$ is a *binary* response, that is, a variable encoding two categories with $0$ and $1$. This model would be useful, for example, to predict $Y$ given $X$ from a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$ such that its scatterplot is the one in Figure \@ref(fig:logrel).
+This, in particular, implies that $Y$ is *continuous*. In this chapter we will see how *generalized linear models* can deal with other kind of distributions for $Y|(X_1=x_1,\ldots,X_p=x_p)$, particularly with *discrete* responses, by modelling the *transformed* conditional expectation. The simplest generalized linear model is *logistic regression*, which is arises when $Y$ is a *binary* response, that is, a variable encoding two categories with $0$ and $1$. This model would be useful, for example, to predict $Y$ given $X$ from a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$ like the one in Figure \@ref(fig:logrel).
 
 (ref:logreltitle) Scatterplot of a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$ sampled from a logistic regression.
 
@@ -92,7 +88,7 @@ Albeit linear regression is not the adequate tool for this data, it is able to d
 1. **The trend for launches with incidents is flat, hence suggesting there is no dependence on the temperature** (Figure \@ref(fig:rogerts)a). This was one of the arguments behind NASA's decision of launching the rocket at a temperature of $-0.6$ Celsius degrees.
 2. However, **the trend for *all* launches indicates a clear negative dependence between temperature and number of incidents!** (Figure \@ref(fig:rogerts)b). Think about it in this way: the minimum temperature for a launch without incidents ever recorded was above $18$ Celsius degrees, and the Challenger was launched at $-0.6$ without clearly knowing the effects of such low temperatures.
 
-## Model formulation and estimation by maximum likelihood {#glm-model}
+## Model formulation and estimation {#glm-model}
 
 For simplicity, we study first the logistic regression and then study the general case of a generalized linear model.
 
@@ -179,7 +175,7 @@ or as
 \begin{align}
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]&=\mathrm{logistic}(\eta)=\frac{1}{1+e^{\eta}}(\#eq:eq-log-2),
 \end{align}
-where $\eta=\beta_0+\beta_1x_1+\ldots+\beta_px_p$ and we have a clear interpretation of its role in \@ref(eq:eq-log-2):
+where $\eta:=\beta_0+\beta_1x_1+\ldots+\beta_px_p$ and we have a clear interpretation of its role in \@ref(eq:eq-log-2):
 
 - If $\eta=0$, then $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]=\frac{1}{2}$ ($Y=1$ and $Y=0$ are equally likely).
 - If $\eta<0$, then $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]<\frac{1}{2}$ ($Y=1$ less likely).
@@ -200,6 +196,7 @@ For example, if the odds of the horse were $5$, that would correspond to a proba
 ```{block, insodds, type = 'rmdinsight', cache = TRUE}
 Recall that the odds is a number in $[0,+\infty]$. The $0$ and $+\infty$ values are attained for $p=0$ and $p=1$, respectively. The log-odds (or logit) is a number in $[-\infty,+\infty]$.
 ```
+
 We can rewrite \@ref(eq:eq-log-2) (since $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]=\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$) in terms of the odds \@ref(eq:eq-odds). If we do so, we have:
 \begin{align}
 \mathrm{odds}(Y|X_1=x_1,\ldots,X_p=x_p)&=e^{\beta_0+\beta_1x_1+\ldots+\beta_px_p}\nonumber\\
@@ -223,6 +220,42 @@ As a consequence of this last interpretation, we have:
 ```{block2, insbeta, type = 'rmdinsight', cache = TRUE}
 If $\beta_j>0$ (respectively, $\beta_j<0$) then $e^{\beta_j}>1$ ($e^{\beta_j}<1$) in \@ref(eq:eq-odds-log1). Therefore, an increment of one unit in $X_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ do not change, results in an increment (decrement) of the odds, this is, in an increment (decrement) of $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]$.
 ```
+
+#### Case study application {#glm-model-log-case}
+
+In the Challenger case study we used `fail.field` as an *indicator* of whether "there was at least an incident with the O-rings" (`1` = yes, `0` = no). Let's see if the temperature was associated with O-ring incidents (Q1). For that, we compute the logistic regression of `fail.field` on `temp` and we plot the fitted logistic curve.
+```{r, logcurve, echo = TRUE, out.width = '70%', fig.asp = 1, fig.pos = 'h!', collapse = TRUE, cache = TRUE}
+# Logistic regression
+nasa <- glm(fail.field ~ temp, family = "binomial", data = challenger)
+
+# Plot data
+plot(challenger$temp, challenger$fail.field, xlim = c(-1, 30), 
+     xlab = "Temperature", ylab = "Incident probability")
+
+# Draw the fitted logistic curve
+x <- seq(-1, 30, l = 200)
+y <- exp(-(nasa$coefficients[1] + nasa$coefficients[2] * x))
+y <- 1 / (1 + y)
+lines(x, y, col = 2, lwd = 2)
+
+# The Challenger
+points(-0.6, 1, pch = 16)
+text(-0.6, 1, labels = "Challenger", pos = 4)
+```
+
+At the sight of this curve and the summary it seems that the temperature was affecting the probability of an O-ring incident (Q1). Let's quantify this statement and answer Q2 by looking to the coefficients of the model:
+```{r, logsummary, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Exponentiated coefficients ("odds ratios")
+exp(coef(nasa))
+```
+The exponentials of the estimated coefficients are:
+
+- $e^{\hat\beta_0}=1965.974$. This means that, *when the temperature is zero*, the fitted odds is $1965.974$, so the probability of having an incident ($Y=1$) is $1965.974$ times larger than the probability of not having an incident ($Y=0$). In other words, the probability of having an incident at temperature zero is $\frac{1965.974}{1965.974+1}=0.999$.
+- $e^{\hat\beta_1}=0.659$. This means that each Celsius degree increment in the temperature multiplies the fitted odds by a factor of $0.659\approx\frac{2}{3}$, hence reducing it.
+
+However, for the moment we can not say whether these findings are significant, since we do not have information on the variability of the estimates of $\boldsymbol{\beta}$. We will need inference for that.
+
+#### Estimation by maximum likelihood #{glm-model-log-mle}
 
 The estimation of $\boldsymbol{\beta}$ from a sample $(\mathbf{X}_{1},Y_1),\ldots,(\mathbf{X}_{n},Y_n)$ is done by *Maximum Likelihood Estimation* (MLE). As it can be seen in Appendix \@ref(app-mle), MLE is equivalent to least squares in the linear model under the assumptions mentioned in Section \@ref(lm-i-assumps), particularly, normality and independence. In the logistic model, we assume that 
 \[
@@ -307,40 +340,6 @@ For the regressions `y ~ x2` and `y ~ x3`, do the following:
 The extension of the logistic model to the case of a *categorical response with more than two levels* is sketched in Appendix \@ref(app-multinomialreg).
 ```
 
-#### Case study application {#glm-model-log-case}
-
-In the Challenger case study we used `fail.field` as an *indicator* of whether "there was at least an incident with the O-rings" (`1` = yes, `0` = no). Let's see if the temperature was associated with O-ring incidents (Q1). For that, we compute the logistic regression of `fail.field` on `temp` and we plot the fitted logistic curve.
-```{r, logcurve, echo = TRUE, out.width = '70%', fig.asp = 1, fig.pos = 'h!', collapse = TRUE, cache = TRUE}
-# Logistic regression
-nasa <- glm(fail.field ~ temp, family = "binomial", data = challenger)
-
-# Plot data
-plot(challenger$temp, challenger$fail.field, xlim = c(-1, 30), 
-     xlab = "Temperature", ylab = "Incident probability")
-
-# Draw the fitted logistic curve
-x <- seq(-1, 30, l = 200)
-y <- exp(-(nasa$coefficients[1] + nasa$coefficients[2] * x))
-y <- 1 / (1 + y)
-lines(x, y, col = 2, lwd = 2)
-
-# The Challenger
-points(-0.6, 1, pch = 16)
-text(-0.6, 1, labels = "Challenger", pos = 4)
-```
-
-At the sight of this curve and the summary it seems that the temperature was affecting the probability of an O-ring incident (Q1). Let's quantify this statement and answer Q2 by looking to the coefficients of the model:
-```{r, logsummary, echo = TRUE, collapse = TRUE, cache = TRUE}
-# Exponentiated coefficients ("odds ratios")
-exp(coef(nasa))
-```
-The exponentials of the estimated coefficients are:
-
-- $e^{\hat\beta_0}=1965.974$. This means that, *when the temperature is zero*, the fitted odds is $1965.974$, so the probability of having an incident ($Y=1$) is $1965.974$ times larger than the probability of not having an incident ($Y=0$). In other words, the probability of having an incident at temperature zero is $\frac{1965.974}{1965.974+1}=0.999$.
-- $e^{\hat\beta_1}=0.659$. This means that each Celsius degree increment in the temperature multiplies the fitted odds by a factor of $0.659\approx\frac{2}{3}$, hence reducing it.
-
-However, for the moment we can not say whether these findings are significant, since we do not have information on the variability of the estimates of $\boldsymbol{\beta}$. We will need inference for that.
-
 ### General case {#glm-model-general}
 
 The same idea we used in logistic regression, namely transforming the conditional expectation of $Y$ into something that can be modeled by a linear model (this is, a quantity that lives in $\mathbb{R}$), can be generalized. This raises the family of *generalized linear models*, which extend the linear model to different kinds of response variables and provides a convenient parametric framework. The first ingredient is a link function $g$, that is monotonic and differentiable, which is going to produce a *transformed* expectation to be modeled by a linear combination of the predictors:
@@ -356,11 +355,11 @@ The second ingredient of generalized linear models is a distribution for $Y|(X_1
 1. The conditional mean may be modeled by a transformation $g^{-1}$ of the *linear predictor* $\eta:=\beta_0+\beta_1x_1+\ldots+\beta_px_p$.
 2. The distribution of $Y|(X_1,\ldots,X_p)$ may be different from the Normal.
 
-Generalized linear models are intimately related with the **exponential family**, which is the family of distributions with pdf expressable as
+Generalized linear models are intimately related with the **exponential family**^[Not to be confused with the *exponential distribution* $\mathrm{Exp}(\lambda)$, which is a *member* of the exponential family.], which is the family of distributions with pdf expressable as
 \begin{align}
 f(y;\theta,\phi)=\exp\left\{\frac{y\theta-b(\theta)}{a(\phi)}+c(y,\phi)\right\},(\#eq:expd)
 \end{align}
-where $a(\cdot)$, $b(\cdot)$, and $c(\cdot,\cdot)$ are specific functions. If $Y$ has the pdf \@ref(eq:expd), then we write $Y\sim\mathrm{E}(\theta,\phi)$. If  $\phi$ is known, this is an exponential family with *canonical localization parameter* $\theta$ (if $\phi$ is unknown, then it may or not may be a two-parameter exponential family). Distributions from the exponential family have some nice properties. If $Y\sim\mathrm{E}(\theta,\phi)$, then
+where $a(\cdot)$, $b(\cdot)$, and $c(\cdot,\cdot)$ are specific functions. If $Y$ has the pdf \@ref(eq:expd), then we write $Y\sim\mathrm{E}(\theta,\phi,a,b,c)$. If  $\phi$ is known, this is an exponential family with *canonical localization parameter* $\theta$ (if $\phi$ is unknown, then it may or not may be a two-parameter exponential family). Distributions from the exponential family have some nice properties. If $Y\sim\mathrm{E}(\theta,\phi,a,b,c)$, then
 \[
 \mu:=\mathbb{E}[Y]=b'(\theta),\quad \sigma^2:=\mathbb{V}\mathrm{ar}[Y]=b''(\theta)a(\phi).
 \]
@@ -368,13 +367,13 @@ The *canonical link function* is the one that transforms $\mu$ into the canonica
 \[
 g\text{ is a canonical link function}:\iff \eta=g(\mu)=\theta.
 \]
-In the case of canonical link function, the one-line summary of the generalized model is (independence is implicit)
+In the case of canonical link function, the one-line summary of the generalized linear model is (independence is implicit)
 \begin{align}
-Y|(X_1=x_1,\ldots,X_p=x_p)\sim\mathrm{E}(g(\beta_0+\beta_1x_1+\ldots+\beta_px_p),\phi).(\#eq:expglm)
+Y|(X_1=x_1,\ldots,X_p=x_p)\sim\mathrm{E}(g(\beta_0+\beta_1x_1+\ldots+\beta_px_p),\phi,a,b,c).(\#eq:expglm)
 \end{align}
 
 ```{block2, exexpfam, type = 'rmdexercise', cache = TRUE}
-Show that the Normal, Bernouilli, and Poisson distributions are members of the exponential family. For that, express their pdfs in terms of \@ref(eq:expd) and identify who is $\theta$ and $\phi$.
+Show that the Normal, Binomial, Gamma (includes Exponential and Chi-squared), and Poisson distributions are members of the exponential family. For that, express their pdfs in terms of \@ref(eq:expd) and identify who is $\theta$ and $\phi$.
 ```
 
 The following table lists some useful generalized linear models. Recall that the linear and logistic models of Sections \@ref(lm-i-model-mult) and \@ref(glm-model-log) are obtained from the first and second rows, respectively.
@@ -385,7 +384,7 @@ The following table lists some useful generalized linear models. Recall that the
 | $0,1$ | $\mathrm{B}(1,q)$ | $\mathrm{logit}(\eta)$ | $\mathrm{logistic}(\theta)$ | $\mathrm{B}\left(1,\mathrm{logistic}(\eta)\right)$ |
 | $0,1,2,\ldots$ | $\mathrm{Pois}(\lambda)$ | $\log(\eta)$ | $e^\theta$ | $\mathrm{Pois}(e^{\eta})$ |
 
-The third model is known as *Poisson regression* and is usually employed for modelling *count data* that arises from the recording of the frequencies of a certain phenomenon. It considers that
+The third model is known as **Poisson regression** and is usually employed for modelling **count data** that arises from the recording of the frequencies of a certain phenomenon. It considers that
 \[
 Y|(X_1=x_1,\ldots,X_p=x_p)\sim\mathrm{Pois}(e^{\beta_0+\beta_1x_1+\ldots+\beta_px_p}),
 \]
@@ -399,65 +398,6 @@ Notice that, since in the Poisson distribution the mean and variance equal, this
 - $e^{\beta_0}$: is the expected value of $Y$ when $X_1=\ldots=X_p=0$.
 - $e^{\beta_j}$, $1\leq j\leq p$: is the *multiplicative* increment of the expectation for an increment of one unit in $X_j=x_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ *do not change*. 
 
-The estimation of $\boldsymbol{\beta}$ by MLE can be done in a unified framework for all for a generalized linear models thanks to \@ref(eq:expd). Given $(\mathbf{X}_{1},Y_1),\ldots,(\mathbf{X}_{n},Y_n)$ and employing a canonical link function \@ref(eq:expglm), we have that
-\[
-Y_i|(X_1=x_{i1},\ldots,X_p=x_{ip})\sim\mathrm{E}(\theta_i,\phi),\quad i=1,\ldots,n,
-\]
-where $\theta_i=g(\eta_i)=g(\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip})$. Then, the log-likelihood is
-\[
-\ell(\boldsymbol{\beta})=\sum_{i=1}^n\left(\frac{Y_i\theta_i-b(\theta_i)}{a(\phi)}+c(y_i,\phi)\right).
-\]
-Differentiating with respect to $\boldsymbol{\beta}$ gives
-\begin{align*}
-\frac{\partial \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta}}=\sum_{i=1}^{n}\frac{\left(Y_i-b'(\theta_i)\right)}{a(\phi)}\frac{\partial \theta_i}{\partial \boldsymbol{\beta}}
-\end{align*}
-which exploiting the properties of the exponential family can be reduced to
-\begin{align*}
-\frac{\partial \ell(\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\sum_{i=1}^{n}\frac{(Y_i-\mu_i)}{g'(\mu_i)V_i}\mathbf{x}_i,
-\end{align*}
-where $\mathbf{x}_i$ is the $i$-th row of the design matrix $\mathbf{X}$ and
-$V_i:=\mathbb{V}\mathrm{ar}[Y_i]=a(\phi)b''(\theta_i)$. Solving explicitly the system of equations $\frac{\partial \ell(\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\mathbf{0}$ is not possible in general and a numerical procedure is required. Newton-Raphson is usually employed, which is based in obtaining $\boldsymbol{\beta}_\mathrm{new}$ from the linear system
-\begin{align}
-\left.\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta} \boldsymbol{\beta}'}\right |_{\boldsymbol{\beta}_\mathrm{old}}(\boldsymbol{\beta}_\mathrm{new} -\boldsymbol{\beta}_\mathrm{old})=-\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}_\mathrm{old}}.(\#eq:newrap)
-\end{align}
-A simplifying trick is to consider the *expectation* of $\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}_\mathrm{old}}$ in \@ref(eq:newrap) rather than its actual value. By doing so, we can arrive to a neat iterative algorithm called *Iterative Reweighted Least Squares* (IRLS). To that aim, we use that
-\[
-\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}\right]=-\mathbb{E}\left[\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\right]^2.
-\]
-Then, it can be seen that
-\begin{align}
-\mathbb{E}\left[\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}_\mathrm{old}} \right]= -\sum_{i=1}^{n} w_i \mathbf{x}_i \mathbf{x}_i'=-\mathbf{X}' \mathbf{W} \mathbf{X},(\#eq:newrap2)
-\end{align}
-where $w_i:=\left(V_i(g'(\mu_i))^2\right)^{-1}$ and $\mathbf{W}:=\mathrm{diag}(w_1,\ldots,w_n)$. Using this notation,
-\begin{align}
-\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}_\mathrm{old}}= \mathbf{X}'\mathbf{W}(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old}),(\#eq:newrap3)
-\end{align}
-Substituting \@ref(eq:newrap2) and \@ref(eq:newrap3) in \@ref(eq:newrap), we have:
-\begin{align}
-  \boldsymbol{\beta}_\mathrm{new}&=\boldsymbol{\beta}_\mathrm{old}-\mathbb{E}\left [\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}_\mathrm{old}} \right]^{-1}\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}_\mathrm{old}}\nonumber\\
-&=\boldsymbol{\beta}_\mathrm{old}+(\mathbf{X}' \mathbf{W}
-  \mathbf{X})^{-1}\mathbf{X}'\mathbf{W}(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old})\nonumber\\
-&=(\mathbf{X}' \mathbf{W}
-  \mathbf{X})^{-1}\mathbf{X}'\mathbf{W} \mathbf{z},(\#eq:irls)
-\end{align}
-where $\mathbf{z}:=\mathbf{X}\boldsymbol{\beta}_{old}+(\mathbf{Y}-\boldsymbol{\mu}_{old})\mathbf{g}'(\boldsymbol{\mu}_{old})$ is the *working vector*.
- 
-As a consequence, **fitting a generalized linear model** by IRLS amounts to performing a **series of weighted linear models** with changing weights and responses given by the working vector. IRLS can be summarized as:
-
-1. Set $\boldsymbol{\beta}_\mathrm{old}$ with some initial estimation.
-2. Compute $\boldsymbol{\mu}_\mathrm{old}$, $\mathbf{W}$, and $\mathbf{z}_\mathrm{old}$.
-3. Compute $\boldsymbol{\beta}_\mathrm{new}$ using \@ref(eq:irls).
-4. Iterate steps 2--3 until convergence.
-
-```{block, inscanon, type = 'rmdinsight', cache = TRUE}
-In general, $\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}\right]\neq \frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}$. Thus, IRLS in general departures from the standard Newton-Raphson. However, if the **canonical link** is used, **the equality of the matrices is guaranteed** and IRLS is exactly the same as Newton-Raphson. In this case, $w_i=(g'(\mu_i)^{-1})$.
-```
-
 #### Case study application {#glm-model-general-case}
 
 Let's see how to apply a Poisson regression. For that aim we consider the `species` ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/species.txt)) dataset. The goal is to analyse whether the `Biomass` and `pH` (a factor) of the terrain are influential on the number of `Species`. Incidentally, it will serve to illustrate that the use of factors within `glm` is completely analogous to what we did with `lm`.
@@ -469,7 +409,8 @@ species <- read.table("datasets/species.txt", header = TRUE)
 ```{r, poiscurve, echo = TRUE, out.width = '70%', fig.asp = 1, fig.pos = 'h!', collapse = TRUE, cache = TRUE}
 # Data
 plot(Species ~ Biomass, data = species, col = pH)
-legend("topright", legend = c("Low pH", "Medium pH", "High pH"), col = 1:3)
+legend("topright", legend = c("Low pH", "Medium pH", "High pH"), 
+       col = 1:3, lwd = 2)
 
 # Fit Poisson regression
 species1 <- glm(Species ~ ., data = species, family = poisson)
@@ -504,7 +445,7 @@ lines(bio, exp(z), col = 1)
 lines(bio, exp(species1$coefficients[2] + z), col = 2)
 lines(bio, exp(species1$coefficients[3] + z), col = 3)
 
-# With interactions
+# With interactions seems to provide a significant improvement
 bio <- seq(0, 10, l = 100)
 z <- species2$coefficients[1] + species2$coefficients[2] * bio
 lines(bio, exp(z), col = 1, lty = 2)
@@ -512,7 +453,6 @@ lines(bio, exp(species2$coefficients[3] + species2$coefficients[5] * bio + z),
       col = 2, lty = 2)
 lines(bio, exp(species2$coefficients[4] + species2$coefficients[6] * bio  + z),
       col = 3, lty = 2)
-# Seems to provide a significant improvement
 ```
 
 <!-- ## Assumptions and model diagnostics {#glm-assumps} -->
@@ -591,6 +531,67 @@ lines(bio, exp(species2$coefficients[4] + species2$coefficients[6] * bio  + z),
 <!-- vif(modClean) -->
 <!-- ``` -->
 
+#### Estimation by maximum likelihood #{glm-model-general-mle}
+
+The estimation of $\boldsymbol{\beta}$ by MLE can be done in a unified framework for all for a generalized linear models thanks to \@ref(eq:expd). Given $(\mathbf{X}_{1},Y_1),\ldots,(\mathbf{X}_{n},Y_n)$ and employing a canonical link function \@ref(eq:expglm), we have that
+\[
+Y_i|(X_1=x_{i1},\ldots,X_p=x_{ip})\sim\mathrm{E}(\theta_i,\phi,a,b,c),\quad i=1,\ldots,n,
+\]
+where $\theta_i=g(\eta_i)=g(\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip})$. Then, the log-likelihood is
+\[
+\ell(\boldsymbol{\beta})=\sum_{i=1}^n\left(\frac{Y_i\theta_i-b(\theta_i)}{a(\phi)}+c(y_i,\phi)\right).
+\]
+Differentiating with respect to $\boldsymbol{\beta}$ gives
+\begin{align*}
+\frac{\partial \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta}}=\sum_{i=1}^{n}\frac{\left(Y_i-b'(\theta_i)\right)}{a(\phi)}\frac{\partial \theta_i}{\partial \boldsymbol{\beta}}
+\end{align*}
+which exploiting the properties of the exponential family can be reduced to
+\begin{align*}
+\frac{\partial \ell(\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\sum_{i=1}^{n}\frac{(Y_i-\mu_i)}{g'(\mu_i)V_i}\mathbf{x}_i,
+\end{align*}
+where $\mathbf{x}_i$ is the $i$-th row of the design matrix $\mathbf{X}$ and
+$V_i:=\mathbb{V}\mathrm{ar}[Y_i]=a(\phi)b''(\theta_i)$. Solving explicitly the system of equations $\frac{\partial \ell(\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\mathbf{0}$ is not possible in general and a numerical procedure is required. Newton-Raphson is usually employed, which is based in obtaining $\boldsymbol{\beta}_\mathrm{new}$ from the linear system
+\begin{align}
+\left.\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta} \boldsymbol{\beta}'}\right |_{\boldsymbol{\beta}_\mathrm{old}}(\boldsymbol{\beta}_\mathrm{new} -\boldsymbol{\beta}_\mathrm{old})=-\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}_\mathrm{old}}.(\#eq:newrap)
+\end{align}
+A simplifying trick is to consider the *expectation* of $\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}_\mathrm{old}}$ in \@ref(eq:newrap) rather than its actual value. By doing so, we can arrive to a neat iterative algorithm called *Iterative Reweighted Least Squares* (IRLS). To that aim, we use that
+\[
+\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}\right]=-\mathbb{E}\left[\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\right]^2.
+\]
+Then, it can be seen that
+\begin{align}
+\mathbb{E}\left[\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}_\mathrm{old}} \right]= -\sum_{i=1}^{n} w_i \mathbf{x}_i \mathbf{x}_i'=-\mathbf{X}' \mathbf{W} \mathbf{X},(\#eq:newrap2)
+\end{align}
+where $w_i:=\left(V_i(g'(\mu_i))^2\right)^{-1}$ and $\mathbf{W}:=\mathrm{diag}(w_1,\ldots,w_n)$. Using this notation,
+\begin{align}
+\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}_\mathrm{old}}= \mathbf{X}'\mathbf{W}(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old}),(\#eq:newrap3)
+\end{align}
+Substituting \@ref(eq:newrap2) and \@ref(eq:newrap3) in \@ref(eq:newrap), we have:
+\begin{align}
+  \boldsymbol{\beta}_\mathrm{new}&=\boldsymbol{\beta}_\mathrm{old}-\mathbb{E}\left [\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}_\mathrm{old}} \right]^{-1}\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}_\mathrm{old}}\nonumber\\
+&=\boldsymbol{\beta}_\mathrm{old}+(\mathbf{X}' \mathbf{W}
+  \mathbf{X})^{-1}\mathbf{X}'\mathbf{W}(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old})\nonumber\\
+&=(\mathbf{X}' \mathbf{W}
+  \mathbf{X})^{-1}\mathbf{X}'\mathbf{W} \mathbf{z},(\#eq:irls)
+\end{align}
+where $\mathbf{z}:=\mathbf{X}\boldsymbol{\beta}_{old}+(\mathbf{Y}-\boldsymbol{\mu}_{old})\mathbf{g}'(\boldsymbol{\mu}_{old})$ is the *working vector*.
+ 
+As a consequence, **fitting a generalized linear model** by IRLS amounts to performing a **series of weighted linear models** with changing weights and responses given by the working vector. IRLS can be summarized as:
+
+1. Set $\boldsymbol{\beta}_\mathrm{old}$ with some initial estimation.
+2. Compute $\boldsymbol{\mu}_\mathrm{old}$, $\mathbf{W}$, and $\mathbf{z}_\mathrm{old}$.
+3. Compute $\boldsymbol{\beta}_\mathrm{new}$ using \@ref(eq:irls).
+4. Iterate steps 2--3 until convergence.
+
+```{block, inscanon, type = 'rmdinsight', cache = TRUE}
+In general, $\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}\right]\neq \frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}$. Thus, IRLS in general departures from the standard Newton-Raphson. However, if the **canonical link** is used, **the equality of the matrices is guaranteed** and IRLS is exactly the same as Newton-Raphson. In this case, $w_i=(g'(\mu_i)^{-1})$.
+```
+
 ## Inference for model parameters {#glm-inference}
 
 The assumptions on which a generalized linear model is constructed allow to specify what is the *asymptotic* distribution of the *random vector* $\hat{\boldsymbol{\beta}}$ through the theory of MLE. Again, the distribution is derived conditionally on the sample predictors $\mathbf{X}_1,\ldots,\mathbf{X}_n$. In other words, we assume that the randomness of $Y$ comes only from $Y|(X_1=x_1,\ldots,X_p=x_p)$ and not from the predictors. 
@@ -609,20 +610,26 @@ The distribution of $\hat{\boldsymbol{\beta}}$ is given by the asymptotic theory
 \hat{\boldsymbol{\beta}}\sim\mathcal{N}_{p+1}\left(\boldsymbol{\beta},I(\hat{\boldsymbol{\beta}})^{-1}\right)
 (\#eq:mle1)
 \end{align}
-where $\sim$ must be understood as *approximately distributed as [...] when $n\to\infty$* for the rest of the chapter. $I(\boldsymbol{\beta})$ is the *Fisher information matrix*, and receives that name because *it measures the information available in the sample for estimating $\boldsymbol{\beta}$*. Therefore, the "larger" (large eigenvalues) the matrix is, the more precise the estimation of $\boldsymbol{\beta}$ is, because that results in smaller variances in \@ref(eq:mle1). The inverse of the Fisher information matrix is
+where $\sim$ must be understood as *approximately distributed as [...] when $n\to\infty$* for the rest of the chapter and
+\[
+I(\boldsymbol{\beta})=-\mathbb{E}\left[\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\right]
+\]
+is the *Fisher information matrix*. The name comes from the fact that *it measures the information available in the sample for estimating $\boldsymbol{\beta}$*. The "larger" (large eigenvalues) the matrix is, the more precise the estimation of $\boldsymbol{\beta}$ is, because that results in smaller variances in \@ref(eq:mle1). 
+
+The inverse of the Fisher information matrix is
 \begin{align}
-I(\hat{\boldsymbol{\beta}})^{-1}=(\mathbf{X}^T\mathbf{V}\mathbf{X})^{-1},
+I(\hat{\boldsymbol{\beta}})^{-1}=(\mathbf{X}'\mathbf{V}\mathbf{X})^{-1},
 (\#eq:mle2)
 \end{align}
-where $\mathbf{V}=\mathrm{diag}(V_1,\ldots,V_n)$ and $V_i=\mathbb{V}\mathrm{ar}[Y_i]$. For the logistic model, $V_i=\mathrm{logistic}(\eta_i)(1-\mathrm{logistic}(\eta_i))$, $\eta_i=\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip}$. In the case of the multiple linear regression, $I(\hat{\boldsymbol{\beta}})^{-1}=\sigma^2(\mathbf{X}^T\mathbf{X})^{-1}$ (see \@ref(eq:normp)), so the presence of $\mathbf{V}$ here is a consequence of the heteroskedasticity of the model.
+where $\mathbf{V}=\mathrm{diag}(V_1,\ldots,V_n)$ and $V_i=\mathbb{V}\mathrm{ar}[Y_i]$. For the logistic model, $V_i=\mathrm{logistic}(\eta_i)(1-\mathrm{logistic}(\eta_i))$, $\eta_i=\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip}$. In the case of the multiple linear regression, $I(\hat{\boldsymbol{\beta}})^{-1}=\sigma^2(\mathbf{X}'\mathbf{X})^{-1}$ (see \@ref(eq:normp)), so the presence of $\mathbf{V}$ here is a consequence of the heteroskedasticity of the model.
 
 The interpretation of \@ref(eq:mle1) and \@ref(eq:mle2) gives some useful insights on what concepts affect the quality of the estimation:
 
 - **Bias**. The estimates are *asymptotically* unbiased.
 - **Variance**. It depends on:
 
-    - *Sample size $n$*. Hidden inside $\mathbf{X}^T\mathbf{V}\mathbf{X}$. As $n$ grows, the precision of the estimators increases.
-    - *Weighted predictor sparsity $(\mathbf{X}^T\mathbf{V}\mathbf{X})^{-1}$*. The more *sparse* the predictor is (small eigenvalues of $(\mathbf{X}^T\mathbf{V}\mathbf{X})^{-1}$), the more precise $\hat{\boldsymbol{\beta}}$ is.
+    - *Sample size $n$*. Hidden inside $\mathbf{X}'\mathbf{V}\mathbf{X}$. As $n$ grows, the precision of the estimators increases.
+    - *Weighted predictor sparsity $(\mathbf{X}'\mathbf{V}\mathbf{X})^{-1}$*. The more *sparse* the predictor is (small eigenvalues of $(\mathbf{X}'\mathbf{V}\mathbf{X})^{-1}$), the more precise $\hat{\boldsymbol{\beta}}$ is.
 
 ```{block2, insbetav, type = 'rmdinsight', cache = TRUE}
 **The precision of $\hat{\boldsymbol{\beta}}$ is affected by the value of $\boldsymbol{\beta}$**, which is hidden inside $\mathbf{V}$. This contrasts sharply with the linear model, where the precision of the least squares estimator was *not* affected by the value of the unknown coefficients (see \@ref(eq:normp)). The reason is partially due to the **heteroskedasticity** of logistic regression, which implies a dependence of the variance of $Y$ in the logistic curve, hence in $\boldsymbol{\beta}$.
@@ -640,7 +647,7 @@ Similar to linear regression, the problem with \@ref(eq:mle1) and \@ref(eq:mle2)
 \end{align}
 where
 \[
-v_j\text{ is the }j\text{-th element of the diagonal of }(\mathbf{X}^T\hat{\mathbf{V}}\mathbf{X})^{-1}.
+v_j\text{ is the }j\text{-th element of the diagonal of }(\mathbf{X}'\hat{\mathbf{V}}\mathbf{X})^{-1}.
 \]
 The LHS of \@ref(eq:normp2) is the **Wald statistic** for $\beta_j$, $j=0,\ldots,p$. They are employed for building confidence intervals and hypothesis tests in an analogous way to the $t$-statistics in linear regression.
 
@@ -662,7 +669,7 @@ The distributions in \@ref(eq:mle3) also allow to conduct a formal hypothesis te
 \begin{align*}
 H_0:\beta_j=0
 \end{align*}
-for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is especially interesting, since it allows to answer whether *the variable $X_j$ has a significant effect on $\mathbb{P}[Y=1]$*. The statistic used for testing for significance is the Wald statistic
+for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is especially interesting, since it allows to answer whether *the variable $X_j$ has a significant effect on $Y$*. The statistic used for testing for significance is the Wald statistic
 \begin{align*}
 \frac{\hat\beta_j-0}{\hat{\mathrm{SE}}(\hat\beta_j)},
 \end{align*}
@@ -672,8 +679,8 @@ The tests for significance are built-in in the `summary` function. However, a no
 
 > **Is the CI for $\beta_j$ below (above) $0$ at level $\alpha$?**
 >
-> - **Yes $\rightarrow$ reject $H_0$ at level $\alpha$. 
-> - **No $\rightarrow$ the criterion is not conclusive**.
+> - **Yes $\rightarrow$ reject $H_0$ at level $\alpha$.**
+> - **No $\rightarrow$ the criterion is not conclusive.**
 
 ```{block, cauconfint, type = 'rmdcaution', cache = TRUE}
 The significances given in `summary` and the output of `confint` are *slightly* incoherent and the previous rule of thumb **does not apply**. The reason is because `MASS`'s `confint` is using a more sophisticated method (profile likelihood) to estimate the standard error of $\hat\beta_j$, $\hat{\mathrm{SE}}(\hat\beta_j)$, and not the asymptotic distribution behind Wald statistic.
@@ -721,7 +728,7 @@ confint(nasa, level = 0.99) # temp still significant
 
 ## Prediction {#glm-prediction}
 
-*Prediction* in general linear models focuses mainly on predicting the values of the **conditional mean**
+Prediction in general linear models focuses mainly on predicting the values of the **conditional mean**
 \[
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=g^{-1}(\beta_0+\beta_1x_1+\ldots+\beta_px_p),
 \]
@@ -812,17 +819,10 @@ For the `challenger` dataset, do the following:
 
 ```
 
-<!-- ```{block, exhitmat, type = 'rmdexercise', cache = TRUE} -->
-<!-- For the `Boston` dataset, do the following: -->
 
-<!-- 1. Compute the hit matrix and hit ratio for the regression `I(medv > 25) ~ .` (hint: do `table(medv > 25, ...)`). -->
-<!-- 2. Fit `I(medv > 25) ~ .` but now using only the first 300 observations of `Boston`, the *training dataset* (*Hint*: use `subset`). -->
-<!-- 3. For the previous model, predict the probability of the responses and classify them into `0` or `1` in the last 206 observations, the *testing dataset* (hint: use `predict` on that subset). -->
-<!-- 4. Compute the hit matrix and hit ratio for the new predictions. Check that the hit ratio is smaller than the one in the first point. The hit ratio on the testing dataset, and not the first hit rate, is an estimator of how well the model is going to classify future observations. -->
+## Deviance, diagnostics, and model selection {#glm-devdiagsel}
 
-<!-- ``` -->
-
-## Deviance, diagnostics, and model selection {#glm-deviance}
+<!-- ### Deviance {#glm-devdiagsel-deviance} -->
 
 <!-- The **deviance** is a key concept in generalized linear models. Intuitively, it measures the **deviance of the fitted generalized linear models with respect to a perfect model for $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$**. This perfect model, known as the *saturated model*, denotes an abstract model that fits perfectly the sample, this is, the model such that -->
 <!-- \[ -->
@@ -949,7 +949,10 @@ For the `challenger` dataset, do the following:
 
 <!-- It is important to recall that the hit matrix will be always *biased towards unrealistic good classification rates* if it is computed in the same sample used for fitting the logistic model. A familiar analogy is asking to your mother (data) whether you (model) are a good-looking human being (good predictive accuracy) -- the answer will be highly positively biased. To get a fair hit matrix, the right approach is to split randomly the sample into two: a *training dataset*, used for fitting the model, and a *test dataset*, used for evaluating the predictive accuracy. -->
 
-<!-- ## Model selection {#glm-modsel} -->
+
+<!-- ### Model diagnostics {#glm-devdiagsel-diagnostics} -->
+
+<!-- ### Model selection {#glm-devdiagsel-modsel} -->
 
 <!-- The same discussion we did in Section \@ref(lm-ii-modsel) is applicable to logistic regression with small changes: -->
 
@@ -1011,9 +1014,6 @@ For the `challenger` dataset, do the following:
 <!-- 2. Fit `I(medv > 25) ~ .` but now using only the first 300 observations of `Boston`, the *training dataset* (hint: use `subset`). -->
 <!-- 3. For the previous model, predict the probability of the responses and classify them into `0` or `1` in the last 206 observations, the *testing dataset* (hint: use `predict` on that subset). -->
 <!-- 4. Compute the hit matrix and hit ratio for the new predictions. Check that the hit ratio is smaller than the one in the first point. The hit ratio on the testing dataset, and not the first hit rate, is an estimator of how well the model is going to classify future observations. -->
-
-<!-- TODO Selection -->
-<!-- TODO Diagnostics -->
 <!-- ``` -->
 
 ## Shrinkage {#glm-shrink} 
@@ -1048,14 +1048,13 @@ x <- model.matrix(League ~ ., data = Hitters)[, -1]
 ```
 
 After preparing the data, we perform the regressions.
-```{r, glmshr-1, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1/2, out.width = '70%', fig.pos = 'h!'}
+```{r, glmshr-1, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 # Ridge and lasso regressions
 library(glmnet)
 ridgeMod <- glmnet(x = x, y = y, alpha = 0, family = "binomial")
 lassoMod <- glmnet(x = x, y = y, alpha = 1, family = "binomial")
 
 # Solution paths versus lambda
-par(mfrow = c(1, 2))
 plot(ridgeMod, label = TRUE, xvar = "lambda")
 plot(lassoMod, label = TRUE, xvar = "lambda")
 
@@ -1092,9 +1091,8 @@ predict(ncvLasso, type = "coefficients", s = ncvLasso$lambda.1se)
 # Analyse the selected model)
 fit <- glm(League ~ HmRun, data = Hitters, family = "binomial")
 summary(fit)
-r2Log(fit)
 # HmRun is significant - but it may be spurious due to the model selection
-# procedure (see Section 3.2)
+# procedure (see Section 4.2)
 
 # Let's split the dataset in two, do model-selection in one part and then 
 # inference on the selected model in the other, to have an idea of the real 
@@ -1140,7 +1138,7 @@ As we saw in Section \@ref(glm-model-general), fitting a generalized linear mode
 1. *Computing the likelihood requires reading all the data at once*. Differently from the linear model, updating of the model with a new chunk implies re-fitting with all the data due to the nonlinearity of the likelihood.
 2. The IRLS algorithm *requires reading as many times the data as iterations*.
 
-These two peculiarities are a game-changer for the approach followed in \@ref(lm-iii-bigdata): `biglm`'s fitting function for generalized linear models, `bigglm`, needs to have access to the full data while performing the fitting. This can be cumbersome. 
+These two peculiarities are a game-changer for the approach followed in Section \@ref(lm-iii-bigdata): `biglm`'s fitting function for generalized linear models, `bigglm`, needs to have access to the full data while performing the fitting. This can be cumbersome. 
 
 Hopefully, a neat solution is available using the `ff` and `ffbase` packages, which allow for efficiently *working with data stored in disk that behave (almost) as if they were in RAM*. The function that we will employ is `ffbase`'s `bigglm.ffdf`, and requires from an object of the class `ffdf` (`ff`'s data frames). 
 
@@ -1149,8 +1147,11 @@ Hopefully, a neat solution is available using the `ff` and `ffbase` packages, wh
 set.seed(12345)
 n <- 1e6
 p <- 10
-beta <- (p:1)^2 / p
+beta <- seq(-1, 1, length.out = p)^5
+
 x1 <- matrix(rnorm(n * p), nrow = n, ncol = p)
+x1[, p] <- 2 * x1[, 1] + rnorm(n, sd = 0.1) # Add some dependence to predictors
+x1[, p - 1] <- 2 - x1[, 2] + rnorm(n, sd = 0.5)
 y1 <- rbinom(n, size = 1, prob = 1 / (1 + exp(-(1 + x1 %*% beta))))
 x2 <- matrix(rnorm(100 * p), nrow = 100, ncol = p)
 y2 <- rbinom(100, size = 1, prob = 1 / (1 + exp(-(1 + x2 %*% beta))))
@@ -1162,7 +1163,7 @@ write.csv(x = bigData1, file = "bigData1.csv", row.names = FALSE)
 write.csv(x = bigData2, file = "bigData2.csv", row.names = FALSE)
 
 # Read files using ff
-library(ffbase) # (Imports ff)
+library(ffbase) # Imports ff
 bigData1ff <- read.table.ffdf(file = "bigData1.csv", header = TRUE, sep = ",")
 bigData2ff <- read.table.ffdf(file = "bigData2.csv", header = TRUE, sep = ",")
 
@@ -1189,8 +1190,8 @@ print(object.size(glmMod), units = "Mb")
 
 # Summaries
 s1 <- summary(bigglmMod)
-s1
 s2 <- summary(glmMod)
+s1
 s2
 
 # Further information
@@ -1225,8 +1226,8 @@ library(leaps)
 reg <- regsubsets(bigglmMod, nvmax = p + 1, method = "exhaustive")
 # This takes the QR decomposition, which encodes the linear model associated to
 # the last iteration of the IRLS algorithm. However, the reported BICs are *not*
-# the true BICs of the generalized models, but a sufficient approximation to
-# obtain a list of candidate models in a fast way
+# the true BICs of the generalized linear models, but a sufficient 
+# approximation to obtain a list of candidate models in a fast way
 
 # Get the model with lowest BIC
 plot(reg)
@@ -1235,7 +1236,7 @@ subs$which
 subs$bic
 subs$which[which.min(subs$bic), ]
 
-# Let's compute the true BICs for the 9 models. This implies fitting 9 bigglm's
+# Let's compute the true BICs for the p models. This implies fitting p bigglm's
 bestModels <- list()
 for (i in 1:nrow(subs$which)) {
   f <- formula(paste("resp ~", paste(names(which(subs$which[i, -1])), 
@@ -1246,12 +1247,13 @@ for (i in 1:nrow(subs$which)) {
   
 }
 
-# The approximate BICs and the true BICs
+# The approximate BICs and the true BICs are very similar (in this example)
 exactBICs <- sapply(bestModels, AIC, k = log(n))
 plot(subs$bic, exactBICs, type = "o", xlab = "Exact", ylab = "Approximate")
+cor(subs$bic, exactBICs, method = "pearson") # Correlation
 
-# Same model selection and same order
+# Both give the same model selection and same order
 subs$which[which.min(subs$bic), ] # Approximate
 subs$which[which.min(exactBICs), ] # Exact
-cor(subs$bic, exactBICs, method = "spearman")
+cor(subs$bic, exactBICs, method = "spearman") # Order correlation
 ```

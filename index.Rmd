@@ -2,7 +2,7 @@
 title: "Notes for Predictive Modeling"
 subtitle: "MSc in Big Data Analytics at Carlos III University of Madrid"
 author: "Eduardo García Portugués"
-date: "`r Sys.Date()`, v5.0"
+date: "`r Sys.Date()`, v5.1"
 knit: "bookdown::render_book"
 documentclass: book
 bibliography: PM-UC3M.bib
@@ -41,10 +41,9 @@ The **Shiny interactive apps** on the notes can be downloaded and run locally, w
 We will employ several packages that are not contained in `R` (*note: list to be updated*). These can be installed as:
 ```{r, install, echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, eval = FALSE}
 # Installation of required packages
-install.packages(c("car", "readxl", "rgl", "nortest", "pca3d", "ISLR", "pls", 
-                   "glmnet", "biglm", "leaps", "viridis", "ffbase",
-                   "KernSmooth", "mice", "VIM", "nnet"))
-#, "locfit"))
+install.packages(c("MASS", "car", "readxl", "rgl", "nortest", "pca3d", 
+                   "ISLR", "pls", "glmnet", "biglm", "leaps", "viridis",
+                   "ffbase", "KernSmooth", "mice", "VIM", "nnet"))
 ```
 
 The codes in the notes may assume that the packages have been loaded, so it is better to do it now (*note: list to be updated*):

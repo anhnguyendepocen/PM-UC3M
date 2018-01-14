@@ -346,7 +346,7 @@ where $\beta_1=\beta_2=1$, $\beta_3=\beta_4=0$, and $\varepsilon\sim\mathcal{N}(
 2. **The model with selected predictors by stepwise regression**. The inferences for the coefficients are biased: when $X_3$ and $X_4$ are included in the model is because they are highly significant for the given sample by mere chance. Therefore, the distribution of the $p$-values (`pvalues2`) is not uniform but concentrated at $0$.
 3. **The model with selected predictors by stepwise regression, but fitted in a separate dataset**. In this case, the $p$-values (`pvalues3`) are not unrealistically small if the non-significant predictors are included in the model.
 
-```{r, lasso-4, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!', message = FALSE}
+```{r, notevarsel, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!', message = FALSE}
 # Simulation setting
 n <- 2e2
 p <- 4
@@ -363,13 +363,14 @@ data2 <- data.frame("x" = x2)
 xbeta2 <- x2 %*% beta
 
 # Objects for the simulation
-M <- 5e4
+M <- 1e4
 pvalues1 <- pvalues2 <- pvalues3 <- matrix(NA, nrow = M, ncol = p)
 set.seed(12345678)
 data1$y <- xbeta1 + rnorm(n)
 nam <- names(lm(y ~ 0 + ., data = data1)$coefficients)
 
 # Simulation
+# pb <- txtProgressBar(style = 3)
 for (i in 1:M) {
   
   # Generate new data
@@ -393,7 +394,10 @@ for (i in 1:M) {
   # Significances of the coefficients by the data-driven selected model 
   s3 <- summary(lm(y ~ 0 + ., data = data2[, c(ind, p + 1)]))
   pvalues3[i, ind] <- s3$coefficients[, 4]
-  
+   
+  # Progress
+  # setTxtProgressBar(pb = pb, value = i / M)
+
 }
 
 # Percentage of NA's: NA = predictor excluded
@@ -408,6 +412,11 @@ boxplot(pvalues3, names = expression(beta[1], beta[3], beta[3], beta[4]),
         main = "p-values in the model with the predictors selected by 
         stepwise regression, and fitted in an independent sample", 
         ylim = c(0, 1))
+
+# Test uniformity of the p-values associated to the coefficients that are 0
+apply(pvalues1[, (p0 + 1):p], 2, function(x) ks.test(x, y = "punif")$p.value)
+apply(pvalues2[, (p0 + 1):p], 2, function(x) ks.test(x, y = "punif")$p.value)
+apply(pvalues3[, (p0 + 1):p], 2, function(x) ks.test(x, y = "punif")$p.value)
 ```
 
 ## Big data considerations {#lm-iii-bigdata}
@@ -435,19 +444,19 @@ In \@ref(eq:rec), using again the Sherman-Morrison formula we can update $(\math
 \begin{align}
 (\mathbf{X}'\mathbf{X})^{-1}=\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}-\frac{\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}\mathbf{x}_{-i}\mathbf{x}_{-i}'\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}}{1+\mathbf{x}_{-i}'\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}\mathbf{x}_{-i}}.(\#eq:recmat)
 \end{align}
-This has the advantage of not requiring to compute $\mathbf{X}'\mathbf{X}$ and then to invert it. Instead of that, we work directly with $\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}$, which ws already computed and is of size $(p + 1)\times(p+1)$.
+This has the advantage of not requiring to compute $\mathbf{X}'\mathbf{X}$ and then to invert it. Instead of that, we work directly with $\left(\mathbf{X}_{-i}'\mathbf{X}_{-i}\right)^{-1}$, which was already computed and has size $(p + 1)\times(p+1)$.
 
 This idea can be iterated and we can compute $\hat{\boldsymbol{\beta}}$ by the following iterative procedure:
 
 1. Start from a reduced dataset $\mathbf{X}_\mathrm{old}\equiv \mathbf{X}_{-i}$ and $\mathbf{Y}_\mathrm{old}\equiv \mathbf{Y}_{-i}$ for which the least squares estimate can be computed. Denote it by $\hat{\boldsymbol{\beta}}_\mathrm{old}\equiv\hat{\boldsymbol{\beta}}_{-i}$.
-2. Add one of the remaining data points to get $\hat{\boldsymbol{\beta}}_\mathrm{new}$ from \@ref(eq:rec) and \@ref(eq:recmat).
+2. Add one of the remaining data points to get $\hat{\boldsymbol{\beta}}_\mathrm{new}\equiv\hat{\boldsymbol{\beta}}$ from \@ref(eq:rec) and \@ref(eq:recmat).
 3. Store $\hat{\boldsymbol{\beta}}_\mathrm{new}$ and $\mathbf{X}_\mathrm{new}$ in $\hat{\boldsymbol{\beta}}_\mathrm{old}$ and $\mathbf{X}_\mathrm{old}$, respectively.
 4. Repeat steps 2--3 until there are no remaining data points left.
 5. Return $\hat{\boldsymbol{\beta}}_\mathrm{new}$ as $\hat{\boldsymbol{\beta}}$.
 
 The main advantage of this iterative procedure is clear: **we do not need to store any vector or matrix with $n$ in the dimension** -- only matrices of size $p$. As a consequence, we do not need to store the data in memory.
 
-A similar iterative approach (yet more sophisticated) is followed by the `biglm` package. We omit the details here (see @Miller1992) and just comment the main idea: for computing \@ref(eq:bd), `biglm` performs a QR decomposition^[The QR decomposition of the matrix $\mathbf{X}$ of size $n\times m$ is $\mathbf{X}=\mathbf{Q}\mathbf{R}$ such that $\mathbf{Q}$ is an $n\times n$ orthogonal matrix and $\mathbf{R}$ is an $n\times m$ upper triangular matrix. This factorization is commonly used in numerical analysis for solving linear systems.] of $\mathbf{X}$ that is computed iteratively. Then, instead of computing \@ref(eq:bd), solves the triangular system
+A similar iterative approach (yet more sophisticated) is followed by the `biglm` package. We omit the details here (see @Miller1992) and just comment the main idea: for computing \@ref(eq:bd), `biglm` performs a QR decomposition^[The QR decomposition of the matrix $\mathbf{X}$ of size $n\times m$ is $\mathbf{X}=\mathbf{Q}\mathbf{R}$ such that $\mathbf{Q}$ is an $n\times n$ orthogonal matrix and $\mathbf{R}$ is an $n\times m$ upper triangular matrix. This factorization is commonly used in numerical analysis for solving linear systems.] of $\mathbf{X}$ that is computed iteratively. Then, instead of computing \@ref(eq:bd), it solves the triangular system
 \begin{align*}
 \mathbf{R}\hat{\boldsymbol{\beta}}=\mathbf{Q}^T\mathbf{Y}.
 \end{align*}
@@ -458,16 +467,18 @@ Let's see how `biglm` works in practice.
 set.seed(12345)
 n <- 1e6
 p <- 10
-beta <- c(1, -1, 0.01, rep(0, p - 3))
+beta <- seq(-1, 1, length.out = p)^5
 x1 <- matrix(rnorm(n * p), nrow = n, ncol = p)
+x1[, p] <- 2 * x1[, 1] + rnorm(n, sd = 0.1) # Add some dependence to predictors
+x1[, p - 1] <- 2 - x1[, 2] + rnorm(n, sd = 0.5)
 y1 <- 1 + x1 %*% beta + rnorm(n)
 x2 <- matrix(rnorm(100 * p), nrow = 100, ncol = p)
 y2 <- 1 + x2 %*% beta + rnorm(100)
 bigData1 <- data.frame("resp" = y1, "pred" = x1)
 bigData2 <- data.frame("resp" = y2, "pred" = x2)
 
-# biglm has a very similar syntaxis to lm - but the formula interface is 
-# somehow sloppy
+# biglm has a very similar syntaxis to lm - but the formula interface does not
+# work always as expected
 library(biglm)
 # biglm(formula = resp ~ ., data = bigData1) # Does not work
 # biglm(formula = y ~ x) # Does not work
@@ -486,8 +497,8 @@ print(object.size(lmMod), units = "Mb")
 
 # Summaries
 s1 <- summary(biglmMod)
-s1
 s2 <- summary(lmMod)
+s1
 s2
 
 # Further information
@@ -566,7 +577,7 @@ A possible approach is to split the dataset and perform updates of the model in 
 # Linear regression with n = 10^8 and p = 10
 n <- 10^8
 p <- 10
-beta <- c(1, -1, 0.01, rep(0, p - 3))
+beta <- seq(-1, 1, length.out = p)^5
 
 # Number of chunks for splitting the dataset
 nChunks <- 1e3
@@ -575,6 +586,8 @@ nSmall <- n / nChunks
 # Simulates reading the first chunk of data
 set.seed(12345)
 x <- matrix(rnorm(nSmall * p), nrow = nSmall, ncol = p)
+x[, p] <- 2 * x[, 1] + rnorm(nSmall, sd = 0.1)
+x[, p - 1] <- 2 - x[, 2] + rnorm(nSmall, sd = 0.5)
 y <- 1 + x %*% beta + rnorm(nSmall)
 
 # First fit
@@ -587,6 +600,8 @@ for (i in 2:nChunks) {
   # Simulates reading the i-th chunk of data
   set.seed(12345 + i)
   x <- matrix(rnorm(nSmall * p), nrow = nSmall, ncol = p)
+  x[, p] <- 2 * x[, 1] + rnorm(nSmall, sd = 0.1)
+  x[, p - 1] <- 2 - x[, 2] + rnorm(nSmall, sd = 0.5)
   y <- 1 + x %*% beta + rnorm(nSmall)
   
   # Update the fit

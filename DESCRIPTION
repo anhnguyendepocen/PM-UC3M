@@ -14,7 +14,13 @@ Depends:
     ISLR,
     pls,
     glmnet,
+    biglm,
+    leaps,
+    viridis,
+    ffbase,
+    KernSmooth,
     mice,
-    VIM
+    VIM,
+    nnet
 Imports: bookdown
 Remotes: rstudio/bookdown
