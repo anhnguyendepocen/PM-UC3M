@@ -10,7 +10,7 @@ Depends:
     readxl,
     rgl,
     nortest,
-    pac3d,
+    pca3d,
     ISLR,
     pls,
     glmnet,
