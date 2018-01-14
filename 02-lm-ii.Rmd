@@ -115,7 +115,7 @@ wine <- read.csv(file = "datasets/wine.csv", header = TRUE)
 # Load data - notice that "Year" is also included
 wine <- read.csv(file = "wine.csv", header = TRUE)
 ```
-`stepAIC` takes the argument `k` as $2$ (default) or $\log n$, where $n$ is the sample size. With `k = 2` it uses the AIC criterion and with `k = log(n)` it considers the BIC. 
+`stepAIC` takes the argument `k` as $2$ (default) or $\log n$, where $n$ is the sample size. With `k = 2` it uses the AIC criterion and with `k = log(n)` it considers the BIC.
 ```{r, bic-1, collapse = TRUE, cache = TRUE}
 # Full model
 mod <- lm(Price ~ ., data = wine)
@@ -129,7 +129,7 @@ modAIC <- stepAIC(mod, k = 2)
 summary(modAIC)
 ```
 
-Note that the selected models `modBIC` and `modAIC` are equivalent to the `modWine2` we selected in Section \@ref(lm-i-modfit-case) as the best model. This is an illustration that the model selected by `stepAIC` is often a good starting point for further additions or deletions of predictors. 
+Note that the selected models `modBIC` and `modAIC` are equivalent to the `modWine2` we selected in Section \@ref(lm-i-modfit-case) as the best model. This is an illustration that the model selected by `stepAIC` is often a good starting point for further additions or deletions of predictors.
 
 ```{block, tipstep, type = 'rmdtip', cache = TRUE}
 When applying `stepAIC` for BIC/AIC, different final models might be selected depending on the choice of `direction`. This is the interpretation:
@@ -220,7 +220,7 @@ The previous interpretation translates easily to the linear model. Assume that t
 \]
 The coefficient associated to $D$ is easily interpretable. $\beta_{p+1}$ is the increment in mean of $Y$ associated to changing $D=0$ (reference) to $D=1$, while the rest of the predictors are fixed. Or in other words, $\beta_{p+1}$ is the increment in mean of $Y$ associated to changing of the level of the categorical variable from *a* to *b*.
 
-`R` does the dummification automatically (translates a categorical variable $C$ into its dummy version $D$) if it detects that a factor variable is present in the regression model. 
+`R` does the dummification automatically (translates a categorical variable $C$ into its dummy version $D$) if it detects that a factor variable is present in the regression model.
 
 Let's see now the case with **more than two levels**, for example, a categorical variable $C$ with levels *a*, *b*, and *c*. If we take *a* as the reference level, this variable can be represented by *two* dummy variables:
 \[
@@ -235,8 +235,7 @@ Then $C=a$ is represented by $D_1=D_2=0$, $C=b$ is represented by $D_1=1,D_2=0$ 
 In general, if we have a categorical variable with $J$ levels, then the number of dummy variables required is $J-1$. Again, `R` does the dummification automatically for you if it detects that a factor variable is present in the regression model. Let's see an example with the `iris` dataset.
 
 ```{r, qua, collapse = TRUE, cache = TRUE}
-# Load the iris dataset - factors in the last column
-data(iris)
+# iris dataset - factors in the last column
 summary(iris)
 
 # Summary of a linear model
@@ -271,7 +270,7 @@ contrasts(iris$Species)
 ```
 
 ```{block, insdummy, type = 'rmdinsight', cache = TRUE}
-It may happen that one dummy variable, say $D_1$ is not significant, while other dummy variables, say $D_2$, are significant. For example, this happens in the example above at level $\alpha=0.01$. 
+It may happen that one dummy variable, say $D_1$ is not significant, while other dummy variables, say $D_2$, are significant. For example, this happens in the example above at level $\alpha=0.01$.
 ```
 
 ```{block, caucateg, type = 'rmdcaution', cache = TRUE}
@@ -305,14 +304,14 @@ str(Boston)
 mod <- lm(medv ~ chas + crim, data = Boston)
 summary(mod)
 # The coefficient associated to chas is 5.57772. That means that if the suburb
-# is close to the river, the mean of medv increases in 5.57772 units for 
+# is close to the river, the mean of medv increases in 5.57772 units for
 # the same house and neighborhood conditions
 # chas is significant (the presence of the river adds a valuable information
 # for explaining medv)
 
 # Summary of the best model in terms of BIC
 summary(modBIC)
-# The coefficient associated to chas is 2.71871. If the suburb is close to 
+# The coefficient associated to chas is 2.71871. If the suburb is close to
 # the river, the mean of medv increases in 2.71871 units
 # chas is significant as well in the presence of more predictors
 ```
@@ -416,7 +415,7 @@ nonLinear$x2 <- nonLinear$x^2
 mod1 <- lm(y ~ x, data = nonLinear)
 mod2 <- lm(y ~ x2, data = nonLinear)
 summary(mod1)
-summary(mod2) 
+summary(mod2)
 # mod2 has a larger R^2. Also notice the intercept is not significative
 ```
 
@@ -497,7 +496,7 @@ lines(d, predict(mod10, new = data.frame(speed = d)), col = 5)
 # BICs - the linear model is better!
 BIC(mod1, mod2, mod3, mod10)
 
-# poly computes by default orthogonal polynomials. These are not 
+# poly computes by default orthogonal polynomials. These are not
 # X^1, X^2, ..., X^p but combinations of them such that the polynomials are
 # orthogonal. 'Raw' polynomials are possible with raw = TRUE. They give the
 # same fit, but the coefficient estimates are different.
@@ -524,7 +523,7 @@ The use of **orthogonal polynomials** is advised for a high order polynomial fit
 
 ### Interactions {#lm-ii-nonlin-ints}
 
-When two or more predictors $X_1$ and $X_2$ are present, it may be of interest to explore the **interaction** between them $X_1X_2$. This is a new variable that affects positively (negatively) the response $Y$ when both $X_1$ and $X_2$ are positive or negative at the same time (at different times): 
+When two or more predictors $X_1$ and $X_2$ are present, it may be of interest to explore the **interaction** between them $X_1X_2$. This is a new variable that affects positively (negatively) the response $Y$ when both $X_1$ and $X_2$ are positive or negative at the same time (at different times):
 \[
 Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon
 \]
@@ -534,9 +533,9 @@ The way of adding these interactions in `lm` is through `:` and `*`. The operato
 ```{r, int-1, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Interaction between lstat and age
 summary(lm(medv ~ lstat + lstat:age, data = Boston))
-# For a unit increment in age, the effect of lstat in the response 
+# For a unit increment in age, the effect of lstat in the response
 # increases positively by 0.004103 units, shifting from -1.388161 to -1.384058
-# Thus, the fact that age increases makes lstat is affecting less 
+# Thus, the fact that age increases makes lstat is affecting less
 # negatively medv. Note that the same intepretation does NOT hold if we
 # switching the roles of age and lstat because age is not present as a sole
 # predictor!
@@ -552,7 +551,7 @@ summary(lm(medv ~ lstat * age * indus, data = Boston))
 ```{r, int-2, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Include first-order interactions in the search for the best model in
 # terms of BIC, not just single predictors
-modIntBIC <- stepAIC(object = lm(medv ~ ., data = Boston), scope = medv ~ .^2, 
+modIntBIC <- stepAIC(object = lm(medv ~ ., data = Boston), scope = medv ~ .^2,
                      k = log(nobs(modBIC)), trace = 0)
 summary(modIntBIC)
 
@@ -560,15 +559,15 @@ summary(modIntBIC)
 dropterm(modIntBIC, k = log(nobs(modIntBIC)), sorted = TRUE)
 
 # Neither by including other terms interactions
-addterm(modIntBIC, scope = lm(medv ~ .^2, data = Boston), 
+addterm(modIntBIC, scope = lm(medv ~ .^2, data = Boston),
         k = log(nobs(modIntBIC)), sorted = TRUE)
 ```
 
 ```{block, tipcircum, type = 'rmdtip', cache = TRUE}
-A fast way of accounting interactions between predictors is to use the `^` operator in `lm`: 
+A fast way of accounting interactions between predictors is to use the `^` operator in `lm`:
 
-- `lm(y ~ (x1 + x2 + x3)^2)` equals `lm(y ~ x1 + x2 + x3 + x1:x2 + x1:x3 + x2:x3)`. Higher powers like `lm(y ~ (x1 + x2 + x3)^3)` serve to include up to second-order interactions like `x1:x2:x3`. 
-- It is possible to regress on all the predictors and the first order interactions using `lm(y ~ .^2)`. 
+- `lm(y ~ (x1 + x2 + x3)^2)` equals `lm(y ~ x1 + x2 + x3 + x1:x2 + x1:x3 + x2:x3)`. Higher powers like `lm(y ~ (x1 + x2 + x3)^3)` serve to include up to second-order interactions like `x1:x2:x3`.
+- It is possible to regress on all the predictors and the first order interactions using `lm(y ~ .^2)`.
 - Further flexibility in `lm` is possible, e.g. removing a particular interaction with `lm(y ~ .^2 - x1:x2)` or forcing the intercept to be zero with `lm(y ~ 0 + .^2)`.
 
 ```
@@ -607,7 +606,7 @@ Let's see the visualization of these seven possibilities.
 ```{r, int-3, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '90%', fig.pos = 'h!'}
 # 1. No dummy variable
 (mod1 <- lm(medv ~ lstat, data = Boston))
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5,
      main = "1")
 abline(coef = mod1$coefficients, col = 2, lwd = 2)
 
@@ -616,46 +615,46 @@ par(mfrow = c(2, 3))
 
 # 2. Dummy variable
 (mod2 <- lm(medv ~ lstat + chas, data = Boston))
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5,
      main = "2")
 abline(a = mod2$coefficients[1], b = mod2$coefficients[2], col = 3, lwd = 2)
-abline(a = mod2$coefficients[1] + mod2$coefficients[3], 
+abline(a = mod2$coefficients[1] + mod2$coefficients[3],
        b = mod2$coefficients[2], col = 4, lwd = 2)
 
 # 3. Dummy variable, with interaction
 (mod3 <- lm(medv ~ lstat * chas, data = Boston))
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5,
      main = "3")
 abline(a = mod3$coefficients[1], b = mod3$coefficients[2], col = 3, lwd = 2)
-abline(a = mod3$coefficients[1] + mod3$coefficients[3], 
+abline(a = mod3$coefficients[1] + mod3$coefficients[3],
        b = mod3$coefficients[2] + mod3$coefficients[4], col = 4, lwd = 2)
 
 # 4. Dummy variable only present in interaction
 (mod4 <- lm(medv ~ lstat + lstat:chas, data = Boston))
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5,
      main = "4")
 abline(a = mod4$coefficients[1], b = mod4$coefficients[2], col = 3, lwd = 2)
-abline(a = mod4$coefficients[1], 
+abline(a = mod4$coefficients[1],
        b = mod4$coefficients[2] + mod4$coefficients[3], col = 4, lwd = 2)
 
 # 5. Dummy variable and no predictor
 (mod5 <- lm(medv ~ chas, data = Boston))
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5,
      main = "5")
 abline(a = mod5$coefficients[1], b = 0, col = 3, lwd = 2)
 abline(a = mod5$coefficients[1] + mod5$coefficients[2], b = 0, col = 4, lwd = 2)
 
 # 6. Dummy variable. Interaction in the intercept and slope
 (mod6 <- lm(medv ~ chas + lstat:chas, data = Boston))
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5,
      main = "6")
 abline(a = mod6$coefficients[1], b = 0, col = 3, lwd = 2)
-abline(a = mod6$coefficients[1] + mod6$coefficients[2], 
+abline(a = mod6$coefficients[1] + mod6$coefficients[2],
        b = mod6$coefficients[3], col = 4, lwd = 2)
 
 # 7. Dummy variable. Interaction in the intercept and slope
 (mod7 <- lm(medv ~ lstat:chas, data = Boston))
-plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5, 
+plot(medv ~ lstat, data = Boston, col = chas + 3, pch = 16, cex = 0.5,
      main = "7")
 abline(a = mod7$coefficients[1], b = 0, col = 3, lwd = 2)
 abline(a = mod7$coefficients[1], b = mod7$coefficients[2], col = 4, lwd = 2)
@@ -672,7 +671,7 @@ lm(medv ~ lstat, data = Boston, subset = chas == 0)
 
 # Individual model for the group with chas == 1
 lm(medv ~ lstat, data = Boston, subset = chas == 1)
-# Notice that the intecept and lstat coeffient equal the ones from the 
+# Notice that the intecept and lstat coeffient equal the ones from the
 # joint model, plus the specific terms associated to chas
 ```
 
@@ -686,16 +685,16 @@ This discussion can be extended to the situation where we have a factor with sev
 
 # Joint regression line shows negative correlation, but each group
 # regression line shows a positive correlation
-plot(Sepal.Width ~ Petal.Width, data = iris, col = as.integer(Species) + 1, 
+plot(Sepal.Width ~ Petal.Width, data = iris, col = as.integer(Species) + 1,
      pch = 16)
 abline(a = modIris$coefficients[1], b = modIris$coefficients[2], lwd = 2)
-abline(a = modIrisSpecies$coefficients[1], b = modIrisSpecies$coefficients[2], 
+abline(a = modIrisSpecies$coefficients[1], b = modIrisSpecies$coefficients[2],
        col = 2, lwd = 2)
-abline(a = modIrisSpecies$coefficients[1] + modIrisSpecies$coefficients[3], 
-       b = modIrisSpecies$coefficients[2] + modIrisSpecies$coefficients[5], 
+abline(a = modIrisSpecies$coefficients[1] + modIrisSpecies$coefficients[3],
+       b = modIrisSpecies$coefficients[2] + modIrisSpecies$coefficients[5],
        col = 3, lwd = 2)
-abline(a = modIrisSpecies$coefficients[1] + modIrisSpecies$coefficients[4], 
-       b = modIrisSpecies$coefficients[2] + modIrisSpecies$coefficients[6], 
+abline(a = modIrisSpecies$coefficients[1] + modIrisSpecies$coefficients[4],
+       b = modIrisSpecies$coefficients[2] + modIrisSpecies$coefficients[6],
        col = 4, lwd = 2)
 ```
 
@@ -733,7 +732,7 @@ lm(I(log(medv*1000)) ~ I(rm^2) + age + log(dis) + log(rad) + tax + ptratio + I(b
 
 ## Model diagnostics {#lm-ii-diagnostics}
 
-As we saw in Section \@ref(lm-i-assumps), checking the assumptions of the multiple linear model through the visualization of the data becomes tricky even when $p=2$. To solve this issue, a series of *diagnostic tools* have been designed in order to evaluate graphically and systematically the validity of the assumptions. 
+As we saw in Section \@ref(lm-i-assumps), checking the assumptions of the multiple linear model through the visualization of the data becomes tricky even when $p=2$. To solve this issue, a series of *diagnostic tools* have been designed in order to evaluate graphically and systematically the validity of the assumptions.
 
 We will illustrate them in the `wine` dataset, which you can download as an `.RData`  ([here](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/wine.RData)).
 
@@ -829,7 +828,7 @@ Heteroskedasticity can be detected by looking into irregular *vertical* dispersi
 plot(mod, 3)
 ```
 
-**Under homoscedasticity, we expect the red line to show no trend.** If there are consistent nonlinear patterns, then there is evidence of heteroskedasticity. 
+**Under homoscedasticity, we expect the red line to show no trend.** If there are consistent nonlinear patterns, then there is evidence of heteroskedasticity.
 
 There are formal tests to check the null hypothesis of homoscedasticity in our residuals. For example:
 ```{r, diag-7, echo = TRUE, cache = TRUE, collapse = TRUE}
@@ -852,11 +851,11 @@ The Breusch-Pagan test checks homoscedasticity against a nonconstant, *linearly 
     y2 <- 1 + 2 * x + rnorm(100, sd = 1 + x * (x > 0))
     modHet1 <- lm(y1 ~ x)
     modHet2 <- lm(y2 ~ x)
-    
+
     # Heteroskedasticity not detected
     ncvTest(modHet1)
     plot(modHet1, 3)
-    
+
     # Heteroskedasticity correctly detected
     ncvTest(modHet2)
     plot(modHet2, 3)
@@ -865,7 +864,7 @@ The Breusch-Pagan test checks homoscedasticity against a nonconstant, *linearly 
 
 #### What to do if fails {-}
 
-Using a nonlinear transformation *for the response* $Y$ may help controlling the variance. Typical choices are $\log Y$ and $\sqrt{Y}$, which reduce the scale of the larger responses and leads to a reduction of heteroskedasticity. Let's see a quick example of this. 
+Using a nonlinear transformation *for the response* $Y$ may help controlling the variance. Typical choices are $\log Y$ and $\sqrt{Y}$, which reduce the scale of the larger responses and leads to a reduction of heteroskedasticity. Let's see a quick example of this.
 ```{r, diag-8, collapse = TRUE, cache = TRUE, fig.asp = 1/2, out.width = '70%', fig.pos = 'h!'}
 # Artificial data with heteroskedasticity
 set.seed(12345)
@@ -886,7 +885,7 @@ plot(lm(I(log(abs(y))) ~ x), 3) # Much less hereroskedastic
 
 ### Independence {#lm-ii-diagnostics-4}
 
-Independence is also a key assumption: it guarantees that the amount of information that we have on the relationship between $Y$ and $X_1,\ldots,X_p$ with $n$ observations is *maximal*. **If there is dependence, then information is repeated**, and as a consequence the variability of the estimates will be larger. For example, our $95\%$ confidence intervals will be smaller than the *adequate*, meaning that they will not contain with a $95\%$ confidence the unknown parameter, but with a lower confidence (say $80\%$). 
+Independence is also a key assumption: it guarantees that the amount of information that we have on the relationship between $Y$ and $X_1,\ldots,X_p$ with $n$ observations is *maximal*. **If there is dependence, then information is repeated**, and as a consequence the variability of the estimates will be larger. For example, our $95\%$ confidence intervals will be smaller than the *adequate*, meaning that they will not contain with a $95\%$ confidence the unknown parameter, but with a lower confidence (say $80\%$).
 
 An extreme case is the following: suppose we have two samples of sizes $n$ and $2n$, where the $2n$ sample contains the elements of the $n$ sample twice. The information in both samples is the same, and so are the estimates for the coefficients $\boldsymbol{\beta}$. Yet in the $2n$ sample the length of the confidence intervals is $C\sqrt{2n}^{-1}$, whereas in the $n$ sample they have length $C\sqrt{n}^{-1}$. A reduction by a factor of $\sqrt{2}$ in the confidence interval has happened, but we have the same information! This will give us a wrong sense of confidence in our model, and the root of the evil was the dependence between observations.
 
@@ -912,9 +911,9 @@ knitr::include_graphics("images/R/diagnostics4.png")
 
 #### What to do if fails {-}
 
-Little can be done if there is dependence in the data, once this has been collected. We must rely on the family of statistical models meant to deal with serial dependence: *time series*. 
+Little can be done if there is dependence in the data, once this has been collected. We must rely on the family of statistical models meant to deal with serial dependence: *time series*.
 
-However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovarions* of the series of $Y$. 
+However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovarions* of the series of $Y$.
 
 ```{block, exassump3d, type = 'rmdexercise', cache = TRUE}
 Load the dataset `assumptions3D.RData`([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions3D.RData)) and compute the regressions `y.3 ~ x1.3 + x2.3`, `y.4 ~ x1.4 + x2.4`, `y.5 ~ x1.5 + x2.5`, and `y.8 ~ x1.8 + x2.8`. Use the presented diagnostic tools to test the assumptions of the linear model and look out for possible problems.
@@ -928,7 +927,7 @@ A common problem that arises in multiple linear regression is **multicollinearit
 - It is **difficult to determine how each of the highly related predictors affects the response**, since one masks the other. Also, this may result in numerical instabilities because $\mathbf{X}'\mathbf{X}$ will be close to being singular.
 
 ```{block, insmultico-1, type = 'rmdinsight', cache = TRUE}
-Intuitively, multicollinearity can be visualized as a card (fitting plane) that is hold on its opposite corners and that spins on its diagonal (where the data is concentrated). Then very different planes will fit almost equally good the data, which results in a large variability of the selected plane. 
+Intuitively, multicollinearity can be visualized as a card (fitting plane) that is hold on its opposite corners and that spins on its diagonal (where the data is concentrated). Then very different planes will fit almost equally good the data, which results in a large variability of the selected plane.
 ```
 
 An approach is to detect multicollinearity is to compute the correlation matrix between the predictors by `cor`
@@ -1008,7 +1007,7 @@ The rule of thumb for declaring outliers and high-leverage points are:
 
 Let's see an artificial example.
 ```{r, outl-2, collapse = TRUE, cache = TRUE, fig.asp = 1/2, out.width = '70%', fig.pos = 'h!'}
-# Create data 
+# Create data
 set.seed(12345)
 x <- rnorm(100)
 e <- rnorm(100, sd = 0.5)
@@ -1054,7 +1053,7 @@ h_{i}=\frac{1}{n}+\frac{(X_i-\bar{X})^2}{\sum_{j=1}^n(X_j-\bar{X})^2}.
 \]
 Interestingly, this expression shows that the leverage statistic is directly dependent on the distance to the center of the predictor. A measure of how much $h_i$ exceeds the expected value $\bar{h}$ can be given if the predictors are assumed to be jointly normal. In this case, $nh_i-1\sim\chi^2_{p}$ [@Pena2002] and hence the $i$-th point is declared as a *potential high-leverage point* if $h_i>\frac{\chi^2_{p;\alpha}+1}{n}$, where $\chi^2_{p;\alpha}$ is the *$\alpha$-upper quantile of the $\chi^2_p$* distribution and $\alpha$ can be taken as $0.05$ or $0.01$.
 
-The functions `influence`, `hat`, and `rstandard` allow to have a finer inspection of a the leverage statistics 
+The functions `influence`, `hat`, and `rstandard` allow to have a finer inspection of a the leverage statistics
 
 ```{r, outl-3, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 # Access leverage statistics
@@ -1119,7 +1118,7 @@ As we have seen in Section \@ref(lm-ii-modsel), the selection of the best linear
 
 ### Review on principal component analysis {#lm-ii-dimred-pca}
 
-Principal Component Analysis (PCA) is a multivariate technique designed to summarize the most important features and relations of $p$ numerical random variables $X_1,\ldots,X_p$. PCA computes a new set of variables, the **principal components** $\text{PC}_1,\ldots, \text{PC}_p$, that contain the same information as $X_1,\ldots,X_p$ but expressed in a more convenient way. The goal is to retain only a limited number $1\leq l<p$ of principal components such that they explain most of the information and do *dimension reduction*. 
+Principal Component Analysis (PCA) is a multivariate technique designed to summarize the most important features and relations of $p$ numerical random variables $X_1,\ldots,X_p$. PCA computes a new set of variables, the **principal components** $\text{PC}_1,\ldots, \text{PC}_p$, that contain the same information as $X_1,\ldots,X_p$ but expressed in a more convenient way. The goal is to retain only a limited number $1\leq l<p$ of principal components such that they explain most of the information and do *dimension reduction*.
 
 If $X_1,\ldots,X_p$ are *centred* (this is, $\mathbb{E}[X_j]=0$, $j=1,\ldots,p$ -- this is important since PCA is sensitive to the centering of the data), then the principal components are *orthonormal linear combinations* of $X_1,\ldots,X_p$:
 \begin{align}
@@ -1140,12 +1139,12 @@ Mathematically, PCA reduces to compute the *spectral decomposition*^[Recall that
 where $\boldsymbol\Lambda=\mathrm{diag}(\lambda_1,\ldots,\lambda_p)$ contains the eigenvalues of $\boldsymbol\Sigma$ and $\mathbf{A}$ is the orthogonal matrix that contains the unit-norm eigenvectors of $\boldsymbol\Sigma$ as columns. $\mathbf{A}$ gives, thus, the coefficients of the orthonormal linear combinations:
 \[
 \mathbf{A}=\begin{pmatrix}
-\mathbf{a}_1 & \mathbf{a}_2 & \cdots & \mathbf{a}_p 
+\mathbf{a}_1 & \mathbf{a}_2 & \cdots & \mathbf{a}_p
 \end{pmatrix}=\begin{pmatrix}
 a_{11} & a_{12} & \cdots & a_{1p} \\
 a_{21} & a_{22} & \cdots & a_{2p} \\
 \vdots & \vdots & \ddots & \vdots \\
-a_{p1} & a_{p2} & \cdots & a_{pp} 
+a_{p1} & a_{p2} & \cdots & a_{pp}
 \end{pmatrix}.
 \]
 If the data is not centered, the computation of the principal components is done by first subtracting $\boldsymbol\mu=\mathbb{E}[\mathbf{X}]$ and then premultiplying with $\mathbf{A}^{-1}$:
@@ -1168,7 +1167,7 @@ In the sample case where $\mathbf{X}_1,\ldots,\mathbf{X}_n$ is given and $\bolds
 \[
 \hat{\mathbf{PC}}_1:=\hat{\mathbf{A}}'(\mathbf{X}_1-\bar{\mathbf{X}}),\ldots,\hat{\mathbf{PC}}_n:=\hat{\mathbf{A}}'(\mathbf{X}_n-\bar{\mathbf{X}}),
 \]
-a transformation of the sample that makes the scores *centred*, *uncorrelated*, and with sample *variances* in each vector's entry *sorted* in a decreasing way. 
+a transformation of the sample that makes the scores *centred*, *uncorrelated*, and with sample *variances* in each vector's entry *sorted* in a decreasing way.
 
 ```{block, caunp, type = 'rmdcaution', cache = TRUE}
 We implicitly assume that $n>p$. Otherwise, the maximum number of principal components is $\min(n-1,p)$.
@@ -1188,7 +1187,7 @@ laliga <- as.data.frame(laliga) # Avoid tibble since it drops row.names
 A quick preprocessing gives:
 ```{r, laliga-3, collapse = TRUE, echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE}
 rownames(laliga) <- laliga$Team # Set teams as case names
-laliga$Team <- NULL 
+laliga$Team <- NULL
 laliga <- laliga[, -c(2, 8)] # Do not add relevant information
 summary(laliga)
 ```
@@ -1196,16 +1195,16 @@ Let's check that `R`'s function for PCA, `princomp`, returns the same principal 
 ```{r, pca-1, collapse = TRUE, out.width = '70%', fig.pos = 'h!', fig.asp = 1, cache = TRUE}
 # PCA
 pcaLaliga <- princomp(laliga)
-summary(pcaLaliga) 
+summary(pcaLaliga)
 # The standard deviations are the square roots of the eigenvalues
-# The cumulative proportion of variance explained accumulates the 
+# The cumulative proportion of variance explained accumulates the
 # variance explained starting at the first component
 
 # Plot of variances of each component (screeplot)
 plot(pcaLaliga, type = "l")
 # Useful for detecting an "elbow" in the graph whose location gives the
 # "right" number of components to retain. Ideally, this elbow appears at
-# when the next variances are almost similar and notably smaller when 
+# when the next variances are almost similar and notably smaller when
 # compared with the previous
 
 # Plot of the cumulated percentage of variance
@@ -1234,7 +1233,7 @@ head(cov(pcaLaliga$scores))
 scores <- scale(laliga, center = TRUE, scale = FALSE) %*% A
 
 # Same as (but this is much slower)
-# scores <- t(apply(scale(laliga, center = TRUE, scale = FALSE), 1, 
+# scores <- t(apply(scale(laliga, center = TRUE, scale = FALSE), 1,
 #                   function(x) t(A) %*% x))
 
 # Same scores (up to possible changes in signs)
@@ -1246,7 +1245,7 @@ sweep(pcaLaliga$scores %*% t(pcaLaliga$loadings), 2, pcaLaliga$center, "+")
 An important issue when doing PCA is the **scale** of the variables, since the variance depends on the units in which the variable is measured. Therefore, a sample of lengths measured in centimeters will have a variance $10^4$ times larger than the same sample measured in meters -- yet it is the same information! The same phenomenon may happen when variables with different ranges are mixed: the variability of one may dominate the other as an artifact of the scale. To prevent this, we **standardize the dataset prior to a PCA**.
 
 ```{r, pca-2, collapse = TRUE, out.width = '70%', fig.pos = 'h!', fig.asp = 1, cache = TRUE}
-# Use cor = TRUE to standardize variables (all have unit variance) 
+# Use cor = TRUE to standardize variables (all have unit variance)
 # and avoid scale distortions
 pcaLaligaStd <- princomp(x = laliga, cor = TRUE)
 summary(pcaLaligaStd)
@@ -1260,7 +1259,7 @@ biplot(pcaLaligaStd, cex = 0.75)
 ```
 
 The biplot provides a powerful and succinct way of displaying the relevant information for up to two principal components. It shows:
-  
+
 1. The **scores of the data in $\text{PC}_1$ and $\text{PC}_2$** by points (with optional text labels, depending if there are case names). This is the representation of the data in the first two PCs.
 2. The **variables represented in the $\text{PC}_1$ and $\text{PC}_2$ by the arrows**. These arrows are centered at $(0, 0)$.
 
@@ -1291,12 +1290,12 @@ The insights obtained on the correlations between the variables and principal co
 ```
 
 Some interesting insights in La Liga 2015/2016 biplot are:
-  
+
   - $\text{PC}_1$ can be regarded as the *non-performance of a team* during the season. It is negatively correlated with `Wins`, `Points`,\ldots and positively correlated with `Draws`, `Loses`, `Yellow.cards`,\ldots The best performing teams are not surprising: Barcelona, Real Madrid, and Atlético Madrid. On the other hand, among the worst-performing teams are Levante, Getafe, and Granada.
   - $\text{PC}_2$ can be seen as the *inefficiency of a team* (conceding points with little participation in the game). Using this interpretation we can see that Rayo Vallecano and Real Madrid were the most inefficient teams and Atlético Madrid and Villareal were the most efficient.
   - `Offsides` is approximately uncorrelated with `Red.cards`.
   - $\text{PC}_3$ does not have a clear interpretation.
-  
+
 ```{r, pca-4, collapse = TRUE, out.width = '90%', fig.pos = 'h!', fig.asp = 1, cache = TRUE}
 biplot(pcaLaligaStd, cex = 0.75)
 ```
@@ -1349,12 +1348,12 @@ Finally, remember that the **usefulness** of PCR relies on how well we are able 
 Keep in mind that PCR considers the **PCA done in the set of predictors**, this is, we exclude the response for obvious reasons (a perfect and useless fit). It is important to remove the response from the call to `princomp` if we want to use the output in `lm`.
 ```
 
-We see now two approaches for performing PCR, which we illustrate in `laliga` dataset. The objective is to predict `Points` using the remaining variables (except from the directly related variables `Wins`, `Draws`, and `Loses`) in order to quantify, explain, and predict the final points of a team from its performance. 
+We see now two approaches for performing PCR, which we illustrate in `laliga` dataset. The objective is to predict `Points` using the remaining variables (except from the directly related variables `Wins`, `Draws`, and `Loses`) in order to quantify, explain, and predict the final points of a team from its performance.
 
 The first approach combines the use of the `princomp` and `lm` functions. Its strong points are that is both able to predict and explain, and is linked with techniques we have employed so far. The weak point is that it requires some extra coding.
 ```{r, pcr-1, collapse = TRUE, cache = TRUE, out.width = '90%', fig.pos = 'h!'}
 # A linear model is problematic
-mod <- lm(Points ~ . - Wins - Draws - Loses - Matches.without.conceding, 
+mod <- lm(Points ~ . - Wins - Draws - Loses - Matches.without.conceding,
           data = laliga)
 summary(mod) # Lots of non significant predictors
 
@@ -1394,18 +1393,18 @@ gamma <- pcaLaligaRed$loadings[, 1:3] %*% alpha[-1] # Slopes
 gamma <- c(alpha[1] - pcaLaligaRed$center %*% gamma, gamma) # Intercept
 gamma
 
-# We can overpenalize to have a simpler model - also one single 
+# We can overpenalize to have a simpler model - also one single
 # principal component does quite well
 modPCABIC <- stepAIC(modPCA, k = 2 * log(nrow(laliga)), trace = 0)
 summary(modPCABIC)
 # Note the order of the principal components does not correspond
 # exactly to its importance in the regression
 
-# To perform prediction we need to compute first the scores associated to the 
+# To perform prediction we need to compute first the scores associated to the
 # new values of the predictors, conveniently preprocessed
 # Predictions for FCB and RMA (although they are part of the training sample)
-newPredictors <- laligaRed[1:2, ] 
-newPredictors <- scale(newPredictors, center = pcaLaligaRed$center, 
+newPredictors <- laligaRed[1:2, ]
+newPredictors <- scale(newPredictors, center = pcaLaligaRed$center,
                        scale = pcaLaligaRed$scale) # Centred and scaled
 newScores <- t(apply(newPredictors, 1,
                      function(x) t(pcaLaligaRed$loadings) %*% x))
@@ -1444,8 +1443,8 @@ names(modPcr)
 
 # The coefficients of the original predictors, not of the components!
 modPcr$coefficients[, , 12]
-# pcr() computes up to ncomp (in this case, 12) linear models, each one 
-# considering one extra principal component. $coefficients returns in a 
+# pcr() computes up to ncomp (in this case, 12) linear models, each one
+# considering one extra principal component. $coefficients returns in a
 # 3-dim array the coefficients of all the linear models
 
 # Prediction is simpler and can be done for different number of components
@@ -1458,7 +1457,7 @@ summary(modPcr2)
 
 # Selecting the number of components to retain by Leave-One-Out
 # cross-validation
-modPcrCV1 <- pcr(Points ~ ., data = laligaRed2, scale = TRUE, 
+modPcrCV1 <- pcr(Points ~ ., data = laligaRed2, scale = TRUE,
                  validation = "LOO")
 summary(modPcrCV1)
 
@@ -1467,7 +1466,7 @@ validationplot(modPcrCV1, val.type = "MSEP") # l = 8 gives the minimum CV
 
 # Selecting the number of components to retain by 10-fold Cross-Validation
 # (k = 10 is the default)
-modPcrCV10 <- pcr(Points ~ ., data = laligaRed2, scale = TRUE, 
+modPcrCV10 <- pcr(Points ~ ., data = laligaRed2, scale = TRUE,
                   validation = "CV")
 summary(modPcrCV10)
 validationplot(modPcrCV10, val.type = "MSEP") # l = 6 gives the minimum CV
@@ -1484,16 +1483,16 @@ The next chunk of code illustrates the previous warning.
 sum(abs(abs(pcaLaligaRed$loadings[, 1:3]) - abs(modPcr$loadings[, 1:3])))
 
 # Equality of scores from princomp() and pcr() (with the same standardization)
-sum(abs(abs(pcaLaligaRed$scores[, 1:3]) - 
+sum(abs(abs(pcaLaligaRed$scores[, 1:3]) -
           abs(modPcr$scores[, 1:3] * sqrt(n / (n - 1)))))
 
-# Equality of the gamma coefficients obtained previously for 3 PCA 
+# Equality of the gamma coefficients obtained previously for 3 PCA
 # (with the same standardization)
 modPcr$coefficients[, , 3] / sqrt(n / (n - 1))
 gamma[-1]
 
 # Coefficients associated to the principal components - same as in modPCA3
-lm(Points ~ ., data = data.frame("Points" = laliga$Points, 
+lm(Points ~ ., data = data.frame("Points" = laliga$Points,
                                  modPcr$scores[, 1:3] * sqrt(n / (n - 1))))
 modPCA3
 # Of course, flipping of signs is always possible with PCA
@@ -1522,12 +1521,12 @@ Inference in PCR can be carried out in the same way as it was done for the stand
 ```
 
 ```{block2, insinference, type = 'rmdinsight', cache = TRUE}
-Inference in PCR is based on the assumptions of the linear model being satisfied for the principal components we are considering. The evaluation of the assumptions can be done using the exact same tools described in Section \@ref(lm-ii-diagnostics), but considering the principal components instead of the predictors. 
+Inference in PCR is based on the assumptions of the linear model being satisfied for the principal components we are considering. The evaluation of the assumptions can be done using the exact same tools described in Section \@ref(lm-ii-diagnostics), but considering the principal components instead of the predictors.
 
 **PCA is a linear transformation of the data**. Therefore:
 
 - If the **linearity** assumption fails for the predictors $X_1,\ldots,X_p$, then it will likely fail for $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$, since the transformation will not introduce nonlinearities able to capture the nonlinear effects.
-- Similarly, if the **homoscedasticity, normality, or independence** assumptions fail for $X_1,\ldots,X_p$, then they will likely fail for $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$. 
+- Similarly, if the **homoscedasticity, normality, or independence** assumptions fail for $X_1,\ldots,X_p$, then they will likely fail for $\mathrm{PC}_1,\ldots,\mathrm{PC}_l$.
 
 Exceptions to the previous common implications are possible, and may involve the association of one or several *problematic* predictors (e.g., have nonlinear effects on the response) to the principal components that are excluded from the model. Up to which extent the failure of the assumptions in the original predictors can be mitigated by PCR depends on each application.
 
@@ -1584,7 +1583,7 @@ head(cov(modPls$scores))
 modPls$coefficients[, , 2]
 
 # Obtaining the coefficients of the PLS components
-lm(formula = Points ~., data = data.frame("Points" = laliga$Points, 
+lm(formula = Points ~., data = data.frame("Points" = laliga$Points,
                                           modPls$scores[, 1:3]))
 
 # Prediction
@@ -1595,7 +1594,7 @@ modPls2 <- plsr(Points ~ ., data = laligaRed2, scale = TRUE, ncomp = 2)
 summary(modPls2)
 
 # Selecting the number of components to retain by Leave-One-Out cross-validation
-modPlsCV1 <- plsr(Points ~ ., data = laligaRed2, scale = TRUE, 
+modPlsCV1 <- plsr(Points ~ ., data = laligaRed2, scale = TRUE,
                   validation = "LOO")
 summary(modPlsCV1)
 
@@ -1604,10 +1603,10 @@ validationplot(modPlsCV1, val.type = "MSEP") # l = 4 gives the minimum CV
 
 # Selecting the number of components to retain by 10-fold Cross-Validation
 # (k = 10 is the default)
-modPlsCV10 <- plsr(Points ~ ., data = laligaRed2, scale = TRUE, 
+modPlsCV10 <- plsr(Points ~ ., data = laligaRed2, scale = TRUE,
                    validation = "CV")
 summary(modPlsCV10)
-validationplot(modPlsCV10, val.type = "MSEP") 
+validationplot(modPlsCV10, val.type = "MSEP")
 # l = 4 is close to the minimum CV
 
 # Regress manually Points in the scores, in order to have an lm object
@@ -1625,17 +1624,16 @@ For regression, PLS does a more clever selection of the directions of dimensiona
 ```
 
 ```{block2, cauplsinf, type = 'rmdcaution', cache = TRUE}
-Inference for PLS is more involved since, differently to what happens in PCR, the PLS directions are dependent on the response. We do not go into details on how to perform inference on PLS in these notes. 
+Inference for PLS is more involved since, differently to what happens in PCR, the PLS directions are dependent on the response. We do not go into details on how to perform inference on PLS in these notes.
 ```
 
 ```{block2, exapcrpls, type = 'rmdexercise', cache = TRUE}
 Let's perform PCR and PLS in the `iris` dataset. Recall that this dataset contains a factor variable, which can not be treated directly by `princomp` but can be used in PCR/PLS (it is transformed internally to two dummy variables). Do:
 
-- Compute the PCA of `iris`, excluding `Species`. What is the percentage of variability explained with two components? 
+- Compute the PCA of `iris`, excluding `Species`. What is the percentage of variability explained with two components?
 - Draw the biplot and look for interpretations of the principal components.
 - Plot the PCA scores in a `scatterplotMatrix` plot such that the scores are coloured by the levels in `Species` (you can use the `groups` argument).
-- Compute the PCR and PLS regressions of `Petal.Width` with $l=2$ (exclude `Species`). Inspect by CV the best selection of $l$ for each regression. 
+- Compute the PCR and PLS regressions of `Petal.Width` with $l=2$ (exclude `Species`). Inspect by CV the best selection of $l$ for each regression.
 - Plot the PLS scores of the data in a `scatterplotMatrix` plot such that the scores are coloured by the levels in `Species`. Compare with the PCA scores. (A quick and dirty way of converting the `scores` to a matrix is with `rbind`.)
 
 ```
-

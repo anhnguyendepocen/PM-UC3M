@@ -323,7 +323,6 @@ Do the following:
 ```{r, r-8, echo = TRUE, collapse = TRUE, error = TRUE, cache = TRUE}
 # The iris dataset is already imported in R
 # (beware: locfit has also an iris dataset, with different names and shorter)
-# data(iris)
 
 # The beginning of the data
 head(iris)
@@ -806,7 +805,7 @@ If $H_0$ holds, then the $p$-value (which is a random variable) is distributed u
 
 Least squares had a prominent role in linear models. Why is so? After all, it is a purely *geometrical argument* for fitting a plane to a cloud of points. It is not motivated as a *statistical procedure* for estimating the unknown parameters $\boldsymbol{\beta}$... at least apparently.
 
-However, **least squares estimation is equivalent to maximum likelihood estimation** under the assumptions of the model seen in Section \@ref(lm-i-assumps) (Normality is especially important here due to the squares present in the exponential of the Normal pdf). So maximum likelihood estimation, the most well-known statistical estimation method, is behind least squares if the assumptions of the model hold. 
+However, **least squares estimation is equivalent to maximum likelihood estimation** under the assumptions of the model seen in Section \@ref(lm-i-assumps) (Normality is especially important here due to the squares present in the exponential of the Normal pdf). So maximum likelihood estimation, the most well-known statistical estimation method, is behind least squares if the assumptions of the model hold.
 
 First, recall that given the sample $(\mathbf{X}_1,Y_1),\ldots,(\mathbf{X}_n, Y_n)$, due to the assumptions introduced in Section \@ref(lm-i-assumps), we have that:
 \begin{align*}
@@ -838,7 +837,7 @@ In order to differentiate with respect to $\boldsymbol{\beta}$, we use that, for
 $$
 \frac{\partial \mathbf{A}\mathbf{x}}{\partial \mathbf{x}}=\mathbf{A}\text{ and } \frac{\partial f(\mathbf{x})'g(\mathbf{x})}{\partial \mathbf{x}}=f(\mathbf{x})'\frac{\partial g(\mathbf{x})}{\partial \mathbf{x}}+g(\mathbf{x})'\frac{\partial f(\mathbf{x})}{\partial \mathbf{x}}.
 $$
-Then, differentiating with respect to $\boldsymbol{\beta}$ and equating to zero gives 
+Then, differentiating with respect to $\boldsymbol{\beta}$ and equating to zero gives
 $$
 \frac{1}{\sigma^2}(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})'\mathbf{X}=\frac{1}{\sigma^2}(\mathbf{Y}'\mathbf{X}-\boldsymbol{\beta}'\mathbf{X}'\mathbf{X})=0.
 $$
@@ -877,26 +876,26 @@ head(airquality[comp, ])
 # Linear model on all the variables
 summary(lm(Ozone ~ ., data = airquality)) # 129 not included
 
-# Caution! Even if the problematic variable is excluded, only the complete 
+# Caution! Even if the problematic variable is excluded, only the complete
 # observations are employed
 summary(lm(Ozone ~ . - Solar.R, data = airquality))
 
 # Notice the difference with
 summary(lm(Ozone ~ ., data = subset(airquality, select = -Solar.R)))
 
-# Model selection can be problematic with missing data, since the number 
+# Model selection can be problematic with missing data, since the number
 # of complete cases changes with the addition or removing of predictors
 mod <- lm(Ozone ~ ., data = airquality)
 
 # stepAIC drops an error
 modAIC <- stepAIC(mod)
 
-# Also, this will be problematic (the number of complete cases changes 
+# Also, this will be problematic (the number of complete cases changes
 # with the predictors considered!)
 modBIC <- stepAIC(mod, k = log(nrow(airquality)))
 
-# Comparison of AICs or BICs is spurious: the scale of the likelihood changes 
-# with the sample size (the likelihood decreases with n), which increases 
+# Comparison of AICs or BICs is spurious: the scale of the likelihood changes
+# with the sample size (the likelihood decreases with n), which increases
 # AIC / BIC with n. Hence using BIC / AIC is not adequate for model selection
 # with missing data.
 AIC(lm(Ozone ~ ., data = airquality))
@@ -918,21 +917,21 @@ Let's put in practise these three approaches in the previous example.
 # The complete cases approach is the default in R
 summary(lm(Ozone ~ ., data = airquality))
 
-# However, since the complete cases that R is going to consider depends on 
+# However, since the complete cases that R is going to consider depends on
 # which predictors are included, it is safer to exclude NA's explicitly
 # before the fitting of a model
 airqualityNoNA <- na.exclude(airquality)
 summary(airqualityNoNA)
 
-# The package VIM has a function to visualize where the missing data is 
-# present. It gives the percentage of NA's for each variable and most 
+# The package VIM has a function to visualize where the missing data is
+# present. It gives the percentage of NA's for each variable and most
 # important combinations of NA's
 library(VIM)
 aggr(airquality)
 aggr(airqualityNoNA)
 
 # Stepwise regression without NA's - no problem
-modBIC1 <- stepAIC(lm(Ozone ~ ., data = airqualityNoNA), 
+modBIC1 <- stepAIC(lm(Ozone ~ ., data = airqualityNoNA),
                    k = log(nrow(airqualityNoNA)), trace = 0)
 summary(modBIC1)
 
@@ -942,25 +941,25 @@ nrow(airqualityNoNA) / nrow(airquality)
 # Removing the predictor with many NA's, as we did before
 # We also exclude NA's from other predictors
 airqualityNoSolar.R <- na.exclude(subset(airquality, select = -Solar.R))
-modBIC2 <- stepAIC(lm(Ozone ~ ., data = airqualityNoSolar.R), 
+modBIC2 <- stepAIC(lm(Ozone ~ ., data = airqualityNoSolar.R),
                    k = log(nrow(airqualityNoSolar.R)), trace = 0)
 summary(modBIC2)
-# In this example the approach works well because most of the NA's are 
+# In this example the approach works well because most of the NA's are
 # associated to the variable Solar.R
 
 # Imput data using the sample mean
 library(mice)
-airqualityMean <- complete(mice(data = airquality, 
+airqualityMean <- complete(mice(data = airquality,
                                 m = 1, method = "mean"))
 head(airqualityMean)
 # Explanation of the sintaxis:
 # - complete() serves to retrieve the completed dataset from the mids object
-# - m = 1 specifies that we only want a reconstruction of the dataset 
+# - m = 1 specifies that we only want a reconstruction of the dataset
 #   because the imputation method is deterministic (it can have randomness)
 # - method = "mean" says that we want the sample mean to be used to fill
 #   NA's in all the columns. This only works properly for quantitative variables.
 
-# Impute using linear regression for the response (first column) and mean 
+# Impute using linear regression for the response (first column) and mean
 # for the predictors (remaining five columns)
 airqualityLm <- complete(mice(data = airquality, m = 1,
                               method = c("norm.predict", rep("mean", 5))))
@@ -971,15 +970,15 @@ airqualityLm$Ozone[is.na(airquality$Ozone)]
 
 # Notice that the imputed data is the same (except for a small truncation that
 # is introduced by mice) as
-predict(lm(airquality$Ozone ~ ., data = airqualityMean), 
+predict(lm(airquality$Ozone ~ ., data = airqualityMean),
         newdata = airqualityMean[is.na(airquality$Ozone), -1])
 
 # Removing the truncation with ridge = 0
 complete(mice(data = airquality, m = 1,
-              method = c("norm.predict", rep("mean", 5)), 
+              method = c("norm.predict", rep("mean", 5)),
               ridge = 0))[is.na(airquality$Ozone), 1]
 
-# The default mice's method (predictive mean matching) works better in this 
+# The default mice's method (predictive mean matching) works better in this
 # case (in the sense that it does not yield negative Ozone values)
 # Notice that there is randomness in the imputation!
 airqualityMice <- complete(mice(data = airquality, m = 1, seed = 123))
