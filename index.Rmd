@@ -43,7 +43,7 @@ We will employ several packages that are not contained in `R` (*note: list to be
 # Installation of required packages
 install.packages(c("MASS", "car", "readxl", "rgl", "nortest", "pca3d", 
                    "ISLR", "pls", "glmnet", "biglm", "leaps", "viridis",
-                   "ffbase", "KernSmooth", "mice", "VIM", "nnet"))
+                   "ffbase", "KernSmooth", "locfit", "mice", "VIM", "nnet"))
 ```
 
 The codes in the notes may assume that the packages have been loaded, so it is better to do it now (*note: list to be updated*):
@@ -63,7 +63,7 @@ library(leaps)
 library(viridis)
 library(ffbase)
 library(KernSmooth)
-# library(locfit)
+library(locfit)
 library(mice)
 library(VIM)
 library(nnet)
