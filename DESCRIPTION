@@ -5,6 +5,23 @@ Authors@R: person("Eduardo", "García-Portugués", role = c("aut", "cre"), email
 Description: Notes for Predictive Modeling
 Depends:
     R (>= 3.4.3),
-    MASS
+    MASS,
+    car,
+    readxl,
+    rgl,
+    nortest,
+    pac3d,
+    ISLR,
+    pls,
+    glmnet,
+    biglm,
+    leaps,
+    viridis,
+    ffbase,
+    KernSmooth,
+    locfit,
+    mice,
+    VIM,
+    nnet
 Imports: bookdown
 Remotes: rstudio/bookdown
