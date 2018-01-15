@@ -22,6 +22,8 @@ Depends:
     locfit,
     mice,
     VIM,
-    nnet
+    nnet,
+    lubridate,
+    ggplot2
 Imports: bookdown
 Remotes: rstudio/bookdown
