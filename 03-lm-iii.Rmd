@@ -1,8 +1,6 @@
 
 # Linear models III: shrinkage and big data {#lm-iii}
 
-<!-- ## Case study: Credit scoring {#lm-lab-iii-credit} -->
-
 ## Shrinkage {#lm-iii-shrink}
 
 As we saw in Section \@ref(lm-i-inference-dists), the least squares estimates $\hat{\boldsymbol{\beta}}$ of the linear model

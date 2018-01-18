@@ -76,7 +76,7 @@ scatterplot(nfails.field ~ temp, reg.line = lm, smooth = FALSE, spread = FALSE,
 ```
 
 There is a fundamental problem in using linear regression for this data: the response is not continuous. As a consequence, there is no linearity and the errors around the mean are not normal (indeed, they are strongly non-normal). Let's check this with the corresponding diagnostic plots:
-```{r, collapse = TRUE, cache = TRUE}
+```{r, nasadiag, out.width = '70%', fig.pos = 'h!', collapse = TRUE, cache = TRUE}
 mod <- lm(nfails.field ~ temp, data = challenger)
 par(mfrow = 1:2)
 plot(mod, 1)
@@ -123,9 +123,9 @@ Assume then that $Y$ is a Bernoulli variable and that $X_1,\ldots,X_p$ are predi
 \]
 this is, how the conditional expectation of $Y$ or, equivalently, the conditional probability of $Y=1$, is changing according to particular values of the predictors. At sight of \@ref(eq:eq-lm), a tempting possibility is to consider the model
 \[
-\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=\beta_0+\beta_1x_1+\ldots+\beta_px_p.
+\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=\beta_0+\beta_1x_1+\ldots+\beta_px_p=:\eta.
 \]
-However, such a model will run into serious problems inevitably: negative probabilities and probabilities larger than one may happen. A solution is to consider a **link function** $g$ to encapsulate the value of $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$ and map it back to $\mathbb{R}$. Or, alternatively, a function $g^{-1}$ that takes $\eta:=\beta_0+\beta_1x_1+\ldots+\beta_px_p\in\mathbb{R}$ and maps it to $[0,1]$, the support of $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$. There are several alternatives for $g^{-1}:\mathbb{R}\longrightarrow[0,1]$ (see Figure \@ref(fig:logitprobit)). Different choices of $g^{-1}$ give rise to different models:
+However, such a model will run into serious problems inevitably: negative probabilities and probabilities larger than one may happen. A solution is to consider a **link function** $g$ to encapsulate the value of $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$ and map it back to $\mathbb{R}$. Or, alternatively, a function $g^{-1}$ that takes $\eta\in\mathbb{R}$ and maps it to $[0,1]$, the support of $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$. There are several alternatives for $g^{-1}:\mathbb{R}\longrightarrow[0,1]$ (see Figure \@ref(fig:logitprobit)). Different choices of $g^{-1}$ give rise to different models:
 
 - **Uniform**: considers the truncation $\eta\mathbb{1}_{\{0<\eta<1\}}+\mathbb{1}_{\{\eta\geq1\}}$.
 - **Probit**: considers the *normal* distribution function, this is, $g^{-1}=\Phi$.
@@ -169,13 +169,13 @@ The logistic transformation is the most employed due to its tractability, interp
 
 In conclusion, with the logit link function we can map the domain of $Y$ to $\mathbb{R}$ in order to apply there a linear model. The *logistic model* can be then equivalently stated as
 \begin{align}
-\mathrm{logit}(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p])&=\beta_0+\beta_1x_1+\ldots+\beta_px_p(\#eq:eq-log-1)
+\mathrm{logit}(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p])=\eta (\#eq:eq-log-1)
 \end{align}
 or as
 \begin{align}
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]&=\mathrm{logistic}(\eta)=\frac{1}{1+e^{\eta}}(\#eq:eq-log-2),
 \end{align}
-where $\eta:=\beta_0+\beta_1x_1+\ldots+\beta_px_p$ and we have a clear interpretation of its role in \@ref(eq:eq-log-2):
+where remember that $\eta=\beta_0+\beta_1x_1+\ldots+\beta_px_p$. There is a clear interpretation of the role of the linear predictor $\eta$ in \@ref(eq:eq-log-2):
 
 - If $\eta=0$, then $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]=\frac{1}{2}$ ($Y=1$ and $Y=0$ are equally likely).
 - If $\eta<0$, then $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]<\frac{1}{2}$ ($Y=1$ less likely).
@@ -187,7 +187,7 @@ The odds is an equivalent way of expressing the distribution of probabilities in
 \begin{align}
 \mathrm{odds}(Y):=\frac{p}{1-p}=\frac{\mathbb{P}[Y=1]}{\mathbb{P}[Y=0]}.(\#eq:eq-odds)
 \end{align}
-The odds is the *ratio between the probability of success and the probability of failure*. It is extensively used in betting^[Recall that (traditionally) the result of a bet is binary: you either win or lose the bet.] due to its better interpretability. For example, if a horse $Y$ has a probability $p=2/3$ of winning a race ($Y=1$), then the odds of the horse is $\text{odds}=\frac{p}{1-p}=\frac{2/3}{1/3}=2$. This means that the horse has a *probability of winning that is twice larger than the probability of losing*. This is sometimes written as a $2:1$ or $2 \times 1$ (spelled "two-to-one"). Conversely, if the odds of $Y$ is given, we can easily know what is the probability of success $p$, using the inverse of \@ref(eq:eq-odds):
+The odds is the *ratio between the probability of success and the probability of failure*. It is extensively used in betting^[Recall that (traditionally) the result of a bet is binary: you either win or lose the bet.] due to its better interpretability. For example, if a horse $Y$ has a probability $p=2/3$ of winning a race ($Y=1$), then the odds of the horse is $\frac{p}{1-p}=\frac{2/3}{1/3}=2$. This means that the horse has a *probability of winning that is twice larger than the probability of losing*. This is sometimes written as a $2:1$ or $2 \times 1$ (spelled "two-to-one"). Conversely, if the odds of $Y$ is given, we can easily know what is the probability of success $p$, using the inverse of \@ref(eq:eq-odds):
 \[
 p=\mathbb{P}[Y=1]=\frac{\text{odds}(Y)}{1+\text{odds}(Y)}.
 \]
@@ -199,8 +199,7 @@ Recall that the odds is a number in $[0,+\infty]$. The $0$ and $+\infty$ values 
 
 We can rewrite \@ref(eq:eq-log-2) (since $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]=\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$) in terms of the odds \@ref(eq:eq-odds). If we do so, we have:
 \begin{align}
-\mathrm{odds}(Y|X_1=x_1,\ldots,X_p=x_p)&=e^{\beta_0+\beta_1x_1+\ldots+\beta_px_p}\nonumber\\
-&=e^{\beta_0}e^{\beta_1x_1}\ldots e^{\beta_px_p}.(\#eq:eq-odds-log1)
+\mathrm{odds}(Y|X_1=x_1,\ldots,X_p=x_p)=e^{\eta}=e^{\beta_0}e^{\beta_1x_1}\ldots e^{\beta_px_p}.(\#eq:eq-odds-log1)
 \end{align}
 Alternatively, taking logarithms, we have the *log-odds* (or logit)
 \begin{align}
@@ -218,7 +217,7 @@ The log-odds is not so easy to interpret as the odds. For that reason, an equiva
 
 As a consequence of this last interpretation, we have:
 ```{block2, insbeta, type = 'rmdinsight', cache = TRUE}
-If $\beta_j>0$ (respectively, $\beta_j<0$) then $e^{\beta_j}>1$ ($e^{\beta_j}<1$) in \@ref(eq:eq-odds-log1). Therefore, an increment of one unit in $X_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ do not change, results in an increment (decrement) of the odds, this is, in an increment (decrement) of $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]$.
+If $\beta_j>0$ (respectively, $\beta_j<0$) then $e^{\beta_j}>1$ ($e^{\beta_j}<1$) in \@ref(eq:eq-odds-log1). Therefore, an increment of one unit in $X_j$, provided that the remaining variables do not change, results in a positive (negative) increment in the odds and in $\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]$.
 ```
 
 #### Case study application {#glm-model-log-case}
@@ -255,13 +254,13 @@ The exponentials of the estimated coefficients are:
 
 However, for the moment we can not say whether these findings are significant, since we do not have information on the variability of the estimates of $\boldsymbol{\beta}$. We will need inference for that.
 
-#### Estimation by maximum likelihood #{glm-model-log-mle}
+#### Estimation by maximum likelihood {#glm-model-log-mle}
 
 The estimation of $\boldsymbol{\beta}$ from a sample $(\mathbf{X}_{1},Y_1),\ldots,(\mathbf{X}_{n},Y_n)$ is done by *Maximum Likelihood Estimation* (MLE). As it can be seen in Appendix \@ref(app-mle), MLE is equivalent to least squares in the linear model under the assumptions mentioned in Section \@ref(lm-i-assumps), particularly, normality and independence. In the logistic model, we assume that 
 \[
 Y_i|(X_{1}=x_{i1},\ldots,X_{p}=x_{ip})\sim \mathrm{Ber}(\mathrm{logistic}(\eta_i)),\quad i=1,\ldots,n,
 \]
-where $\eta_i=\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip}$. Denoting $p_i(\boldsymbol{\beta}):=\mathrm{logistic}(\eta_i)$, the likelihood of $\boldsymbol{\beta}$ is
+where $\eta_i:=\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip}$. Denoting $p_i(\boldsymbol{\beta}):=\mathrm{logistic}(\eta_i)$, the likelihood of $\boldsymbol{\beta}$ is
 \begin{align}
 \ell(\boldsymbol{\beta})&=\log\prod_{i=1}^np_i(\boldsymbol{\beta})^{Y_i}(1-p_i(\boldsymbol{\beta}))^{1-Y_i}\nonumber\\
 &=\sum_{i=1}^n\left[Y_i\log p_i(\boldsymbol{\beta})+(1-Y_i)\log (1-p_i(\boldsymbol{\beta}))\right].(\#eq:eq-lik)
@@ -270,7 +269,7 @@ The MLE estimate of $\boldsymbol{\beta}$ is
 \[
 \hat{\boldsymbol{\beta}}:=\arg\max_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\ell(\boldsymbol{\beta}).
 \]
-Unfortunately, due to the non-linearity of \@ref(eq:eq-lik) there is no explicit expression for $\hat{\boldsymbol{\beta}}$. $\hat{\boldsymbol{\beta}}$ has to be obtained numerically by means of an iterative procedure. We will see it with more detail in the next section. Just be aware that it may fail to converge in low sample size situations with perfect classification, where the likelihood might be numerically unstable.
+Unfortunately, due to the non-linearity of \@ref(eq:eq-lik), there is no explicit expression for $\hat{\boldsymbol{\beta}}$ and it has to be obtained numerically by means of an iterative procedure. We will see it with more detail in the next section. Just be aware that this iterative procedure may fail to converge in low sample size situations with perfect classification, where the likelihood might be numerically unstable.
 
 Figure \@ref(fig:maximumlikelihood) shows how the log-likelihood changes with respect to the values for $(\beta_0,\beta_1)$ in three data patterns.
 
@@ -296,7 +295,7 @@ y3 <- rbinom(50, size = 1, prob = 1 / (1 + exp(-y3)))
 dataMle <- data.frame(x = x, y1 = y1, y2 = y2, y3 = y3)
 ```
 
-For a fitting a logistic model we employ `glm`, which has the syntax `glm(formula = response ~ predictor, family = "binomial", data = data)`, where `response` is a binary variable. Note that `family = "binomial"` is referring to the fact that the response is Binomial variable (since it is a Bernoulli). Let's check that indeed the coefficients given by `glm` are the ones that maximize the likelihood given in the animation of Figure \@ref(fig:maximumlikelihood). We do so for `y ~ x1`.
+For fitting a logistic model we employ `glm`, which has the syntax `glm(formula = response ~ predictor, family = "binomial", data = data)`, where `response` is a binary variable. Note that `family = "binomial"` is referring to the fact that the response is Binomial variable (since it is a Bernoulli). Let's check that indeed the coefficients given by `glm` are the ones that maximize the likelihood given in the animation of Figure \@ref(fig:maximumlikelihood). We do so for `y ~ x1`.
 ```{r, modform-2, echo = TRUE, out.width = '70%', fig.asp = 1, fig.pos = 'h!', collapse = TRUE, cache = TRUE}
 # Call glm
 mod <- glm(y1 ~ x, family = "binomial", data = dataMle)
@@ -331,7 +330,7 @@ points(opt$par[1], opt$par[2], col = 4)
 ```{block2, exlog, type = 'rmdexercise', cache = TRUE}
 For the regressions `y ~ x2` and `y ~ x3`, do the following:
 
-- Check that $\boldsymbol{\beta}$ is indeed maximizing the likelihood as compared with Figure \@ref(fig:maximumlikelihood).
+- Check that the true $\boldsymbol{\beta}$ is close to maximizing the likelihood computed in Figure \@ref(fig:maximumlikelihood).
 - Plot the fitted logistic curve and compare it with the one in Figure \@ref(fig:maximumlikelihood).
 
 ```
@@ -344,59 +343,69 @@ The extension of the logistic model to the case of a *categorical response with 
 
 The same idea we used in logistic regression, namely transforming the conditional expectation of $Y$ into something that can be modeled by a linear model (this is, a quantity that lives in $\mathbb{R}$), can be generalized. This raises the family of *generalized linear models*, which extend the linear model to different kinds of response variables and provides a convenient parametric framework. The first ingredient is a link function $g$, that is monotonic and differentiable, which is going to produce a *transformed* expectation to be modeled by a linear combination of the predictors:
 \begin{align*}
-g\left(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]\right)&=\beta_0+\beta_1x_1+\ldots+\beta_px_p
+g\left(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]\right)=\eta
 \end{align*}
 or, equivalently,
 \begin{align*}
-\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]&=g^{-1}\left(\beta_0+\beta_1x_1+\ldots+\beta_px_p\right).
+\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]&=g^{-1}(\eta),
 \end{align*}
+where $\eta:=\beta_0+\beta_1x_1+\ldots+\beta_px_p$ is the *linear predictor*.
+
 The second ingredient of generalized linear models is a distribution for $Y|(X_1,\ldots,X_p)$, just as the linear model assumes normality or the logistic model assumes a Bernoulli random variable. Thus, we have **two generalizations** with respect to the usual linear model:
 
-1. The conditional mean may be modeled by a transformation $g^{-1}$ of the *linear predictor* $\eta:=\beta_0+\beta_1x_1+\ldots+\beta_px_p$.
+1. The conditional mean may be modeled by a transformation $g^{-1}$ of the linear predictor $\eta$.
 2. The distribution of $Y|(X_1,\ldots,X_p)$ may be different from the Normal.
 
 Generalized linear models are intimately related with the **exponential family**^[Not to be confused with the *exponential distribution* $\mathrm{Exp}(\lambda)$, which is a *member* of the exponential family.], which is the family of distributions with pdf expressable as
 \begin{align}
 f(y;\theta,\phi)=\exp\left\{\frac{y\theta-b(\theta)}{a(\phi)}+c(y,\phi)\right\},(\#eq:expd)
 \end{align}
-where $a(\cdot)$, $b(\cdot)$, and $c(\cdot,\cdot)$ are specific functions. If $Y$ has the pdf \@ref(eq:expd), then we write $Y\sim\mathrm{E}(\theta,\phi,a,b,c)$. If  $\phi$ is known, this is an exponential family with *canonical localization parameter* $\theta$ (if $\phi$ is unknown, then it may or not may be a two-parameter exponential family). Distributions from the exponential family have some nice properties. If $Y\sim\mathrm{E}(\theta,\phi,a,b,c)$, then
-\[
-\mu:=\mathbb{E}[Y]=b'(\theta),\quad \sigma^2:=\mathbb{V}\mathrm{ar}[Y]=b''(\theta)a(\phi).
-\]
-The *canonical link function* is the one that transforms $\mu$ into the canonical parameter $\theta$, this is:
-\[
-g\text{ is a canonical link function}:\iff \eta=g(\mu)=\theta.
-\]
+where $a(\cdot)$, $b(\cdot)$, and $c(\cdot,\cdot)$ are specific functions. If $Y$ has the pdf \@ref(eq:expd), then we write $Y\sim\mathrm{E}(\theta,\phi,a,b,c)$. If the *scale parameter* $\phi$ is known, this is an exponential family with **canonical parameter $\theta$** (if $\phi$ is unknown, then it may or not may be a two-parameter exponential family). Distributions from the exponential family have some nice properties. Importantly, if $Y\sim\mathrm{E}(\theta,\phi,a,b,c)$, then
+\begin{align}
+\mu:=\mathbb{E}[Y]=b'(\theta),\quad \sigma^2:=\mathbb{V}\mathrm{ar}[Y]=b''(\theta)a(\phi).(\#eq:musigmaexp)
+\end{align}
+The **canonical link function** is the one that **transforms $\mu=b'(\theta)$ into the canonical parameter $\theta$**. For $\mathrm{E}(\theta,\phi,a,b,c)$, this is happens if
+\begin{align}
+\theta=g(\mu)=\eta (\#eq:canlink1)
+\end{align}
+or, equivalently by \@ref(eq:musigmaexp), if
+\begin{align}
+g(\mu)=(b')^{-1}(\mu). (\#eq:canlink2)
+\end{align}
 In the case of canonical link function, the one-line summary of the generalized linear model is (independence is implicit)
 \begin{align}
-Y|(X_1=x_1,\ldots,X_p=x_p)\sim\mathrm{E}(g(\beta_0+\beta_1x_1+\ldots+\beta_px_p),\phi,a,b,c).(\#eq:expglm)
+Y|(X_1=x_1,\ldots,X_p=x_p)\sim\mathrm{E}(g(\eta),\phi,a,b,c).(\#eq:expglm)
 \end{align}
 
+```{block2, insglmnormal, type = 'rmdinsight', cache = TRUE}
+The **linear model** arises as a particular case of \@ref(eq:expglm) with $a(\phi)=\phi$, $b(\theta)=\frac{\theta^2}{2}$, $c(y,\phi)=-\frac{1}{2}\{\frac{y^2}{\phi}+\log(2\pi\phi)\}$ and scale parameter $\phi=\sigma^2$. In this case, $\theta=\mu$ and the canonical link function $g$ is the identity.
+```
+
 ```{block2, exexpfam, type = 'rmdexercise', cache = TRUE}
-Show that the Normal, Binomial, Gamma (includes Exponential and Chi-squared), and Poisson distributions are members of the exponential family. For that, express their pdfs in terms of \@ref(eq:expd) and identify who is $\theta$ and $\phi$.
+Show that the Normal, Binomial, Gamma (which includes Exponential and Chi-squared), and Poisson distributions are members of the exponential family. For that, express their pdfs in terms of \@ref(eq:expd) and identify who is $\theta$ and $\phi$.
 ```
 
 The following table lists some useful generalized linear models. Recall that the linear and logistic models of Sections \@ref(lm-i-model-mult) and \@ref(glm-model-log) are obtained from the first and second rows, respectively.
 
-| Support of $Y$ | Distribution | Link $g(\eta)$ | $g^{-1}(\theta)$ | $Y\vert(X_1=x_1,\ldots,X_p=x_p)$ |
-|:--------------:|:------------:|:-----------:|:-----------:|:-----------------------------:|
-| $\mathbb{R}$ | $\mathcal{N}(\mu,\sigma^2)$ | $\eta$ | $\theta$ | $\mathcal{N}(\eta,\sigma^2)$|
-| $0,1$ | $\mathrm{B}(1,q)$ | $\mathrm{logit}(\eta)$ | $\mathrm{logistic}(\theta)$ | $\mathrm{B}\left(1,\mathrm{logistic}(\eta)\right)$ |
-| $0,1,2,\ldots$ | $\mathrm{Pois}(\lambda)$ | $\log(\eta)$ | $e^\theta$ | $\mathrm{Pois}(e^{\eta})$ |
+| Support of $Y$ | Distribution | Link $g(\mu)$ | $g^{-1}(\eta)$ | $\phi$ | $Y\vert(X_1=x_1,\ldots,X_p=x_p)$ |
+|:--------------:|:------------:|:-----------:|:-----------:|:----:|:-----------------------------:|
+| $\mathbb{R}$ | $\mathcal{N}(\mu,\sigma^2)$ | $\mu$ | $\eta$ | $\sigma^2$ | $\mathcal{N}(\eta,\sigma^2)$|
+| $0,1$ | $\mathrm{B}(1,p)$ | $\mathrm{logit}(\mu)$ | $\mathrm{logistic}(\eta)$ | $1$ | $\mathrm{B}\left(1,\mathrm{logistic}(\mu)\right)$ |
+| $0,1,2,\ldots$ | $\mathrm{Pois}(\lambda)$ | $\log(\mu)$ | $e^\eta$ | $1$ | $\mathrm{Pois}(e^{\eta})$ |
 
 The third model is known as **Poisson regression** and is usually employed for modelling **count data** that arises from the recording of the frequencies of a certain phenomenon. It considers that
 \[
-Y|(X_1=x_1,\ldots,X_p=x_p)\sim\mathrm{Pois}(e^{\beta_0+\beta_1x_1+\ldots+\beta_px_p}),
+Y|(X_1=x_1,\ldots,X_p=x_p)\sim\mathrm{Pois}(e^{\eta}),
 \]
 this is,
-\begin{align*}
-\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]&=\lambda(Y|X_1=x_1,\ldots,X_p=x_p)\\
-&=e^{\beta_0+\beta_1x_1+\ldots+\beta_px_p}.
-\end{align*}
-Notice that, since in the Poisson distribution the mean and variance equal, this implies that the variance of $Y|(X_1=x_1,\ldots,X_p=x_p)$ changes according to the value of the predictors. The interpretation of the coefficients is:
+\begin{align}
+\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]&=\lambda(Y|X_1=x_1,\ldots,X_p=x_p)\nonumber\\
+&=e^{\beta_0+\beta_1x_1+\ldots+\beta_px_p}.(\#eq:poiscoef)
+\end{align}
+Notice that, since in the Poisson distribution the mean and variance equal, this implies that the variance of $Y|(X_1=x_1,\ldots,X_p=x_p)$ changes according to the value of the predictors. The interpretation of the coefficients is clear from \@ref(eq:poiscoef):
 
-- $e^{\beta_0}$: is the expected value of $Y$ when $X_1=\ldots=X_p=0$.
-- $e^{\beta_j}$, $1\leq j\leq p$: is the *multiplicative* increment of the expectation for an increment of one unit in $X_j=x_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ *do not change*. 
+- $e^{\beta_0}$: is the expected value *and variance* of $Y$ when $X_1=\ldots=X_p=0$.
+- $e^{\beta_j}$, $1\leq j\leq p$: is the *multiplicative* increment of the expectation *and variance* for an increment of one unit in $X_j=x_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ *do not change*. 
 
 #### Case study application {#glm-model-general-case}
 
@@ -455,141 +464,69 @@ lines(bio, exp(species2$coefficients[4] + species2$coefficients[6] * bio  + z),
       col = 3, lty = 2)
 ```
 
-<!-- ## Assumptions and model diagnostics {#glm-assumps} -->
+#### Estimation by maximum likelihood {#glm-model-general-mle}
 
-<!-- Some probabilistic assumptions are required for performing inference on the model parameters $\boldsymbol{\beta}$ from the sample $(\mathbf{X}_1, Y_1),\ldots,(\mathbf{X}_n, Y_n)$. These assumptions are somehow simpler than the ones for linear regression. -->
-
-<!-- ```{r, logisticmodel, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = 'The key concepts of the logistic model.', cache = TRUE} -->
-<!-- knitr::include_graphics("images/R/logisticmodel.png") -->
-<!-- ``` -->
-
-<!-- The assumptions of the logistic model are the following: -->
-
-<!-- i. **Linearity in the logit**^[An equivalent way of stating this assumption is $p(\mathbf{x})=\mathrm{logistic}(\beta_0+\beta_1x_1+\ldots+\beta_px_p)$.]: $\mathrm{logit}(p(\mathbf{x}))=\log\frac{ -->
-<!-- p(\mathbf{x})}{1-p(\mathbf{x})}=\beta_0+\beta_1x_1+\ldots+\beta_px_p$. -->
-<!-- ii. **Independence**: $Y_1,\ldots,Y_n$ are independent. -->
-
-<!-- A good one-line summary of the logistic model is the following (independence is assumed) -->
-<!-- \begin{align} -->
-<!-- Y|(X_1=x_1,\ldots,X_p=x_p)&\sim\mathrm{Ber}\left(\mathrm{logistic}(\beta_0+\beta_1x_1+\ldots+\beta_px_p)\right)\nonumber\\ -->
-<!-- &=\mathrm{Ber}\left(\frac{1}{1+e^{-(\beta_0+\beta_1x_1+\ldots+\beta_px_p)}}\right).(\#eq:condber) -->
-<!-- \end{align} -->
-
-<!-- There are three important points of the linear model assumptions missing in the ones for the logistic model: -->
-
-<!-- - *Why is homoscedasticity not required?* As seen in the previous section, Bernoulli variables are determined only by the probability of success, in this case $p(\mathbf{x})$. That determines also the variance, which is variable, so **there is heteroskedasticity**. In the linear model, we have to control $\sigma^2$ explicitly due to the higher flexibility of the normal. -->
-<!-- - *Where are the errors? The errors played a fundamental role in the linear model assumptions, but are not employed in logistic regression.* The errors are not fundamental for building the linear model but just a helpful concept related to least squares. The linear model can be constructed without errors as \@ref(eq:condnorm), which has a logistic analogous in \@ref(eq:condber). -->
-
-<!-- ```{block, insassumplog, type = 'rmdinsight', cache = TRUE} -->
-<!-- Recall that: -->
-
-<!-- - Nothing is said about the distribution of $X_1,\ldots,X_p$. They could be deterministic or random. They could be discrete or continuous. -->
-<!-- - $X_1,\ldots,X_p$ are **not required to be independent** between them. -->
-<!-- ``` -->
-
-
-<!-- Diagnostic plots -->
-
-<!-- ### Multicollinearity {-} -->
-
-<!-- Finally, **multicollinearity can also be present in generalized linear models**. Despite the nonlinear logistic curve, the predictors are combined linearly in \@ref(eq:eq-log-2). Due to this, if two or more predictors are highly correlated between them, the fit of the model will be compromised since the individual linear effect of each predictor is hard to disentangle from the rest of correlated predictors. -->
-
-<!-- In addition to inspecting the correlation matrix and look for high correlations, a powerful tool to detect multicollinearity is the **generalized Variance Inflation Factor** (gVIF) of each coefficient $\hat\beta_j$. This is a *measure of how much the variability in the estimation has increased due to the addition of the predictor $X_j$*. The next rule of thumb gives direct insight into which predictors are multicollinear: -->
-
-<!-- > - gVIF close to 1: absence of multicollinearity. -->
-<!-- > - **gVIF larger than 5 or 10: problematic amount of multicollinearity**. Advised to remove the predictor with largest gVIF. -->
-
-<!-- Here is an example illustrating the use of gVIF, through `vif`, in practice. It also shows also how the simple inspection of the covariance matrix is not enough for detecting collinearity in tricky situations. -->
-<!-- ```{r, modsel-3, collapse = TRUE, cache = TRUE} -->
-<!-- # Create predictors with multicollinearity: x4 depends on the rest -->
-<!-- set.seed(45678) -->
-<!-- x1 <- rnorm(100) -->
-<!-- x2 <- 0.5 * x1 + rnorm(100) -->
-<!-- x3 <- 0.5 * x2 + rnorm(100) -->
-<!-- x4 <- -x1 + x2 + rnorm(100, sd = 0.25) -->
-
-<!-- # Response -->
-<!-- z <- 1 + 0.5 * x1 + 2 * x2 - 3 * x3 - x4 -->
-<!-- y <- rbinom(n = 100, size = 1, prob = 1/(1 + exp(-z))) -->
-<!-- data <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, y = y) -->
-
-<!-- # Correlations - none seems suspicious -->
-<!-- cor(data) -->
-
-<!-- # Abnormal generalized variance inflation factors: largest for x4, we remove it -->
-<!-- modMultiCo <- glm(y ~ x1 + x2 + x3 + x4, family = "binomial") -->
-<!-- vif(modMultiCo) -->
-
-<!-- # Without x4 -->
-<!-- modClean <- glm(y ~ x1 + x2 + x3, family = "binomial") -->
-
-<!-- # Comparison -->
-<!-- summary(modMultiCo) -->
-<!-- summary(modClean) -->
-
-<!-- # Generalized variance inflation factors normal -->
-<!-- vif(modClean) -->
-<!-- ``` -->
-
-#### Estimation by maximum likelihood #{glm-model-general-mle}
-
-The estimation of $\boldsymbol{\beta}$ by MLE can be done in a unified framework for all for a generalized linear models thanks to \@ref(eq:expd). Given $(\mathbf{X}_{1},Y_1),\ldots,(\mathbf{X}_{n},Y_n)$ and employing a canonical link function \@ref(eq:expglm), we have that
+The estimation of $\boldsymbol{\beta}$ by MLE can be done in a unified framework for all for a generalized linear models thanks to \@ref(eq:expd). Given $(\mathbf{X}_{1},Y_1),\ldots,(\mathbf{X}_{n},Y_n)$ and employing a canonical link function \@ref(eq:canlink2), we have that
 \[
 Y_i|(X_1=x_{i1},\ldots,X_p=x_{ip})\sim\mathrm{E}(\theta_i,\phi,a,b,c),\quad i=1,\ldots,n,
 \]
-where $\theta_i=g(\eta_i)=g(\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip})$. Then, the log-likelihood is
-\[
-\ell(\boldsymbol{\beta})=\sum_{i=1}^n\left(\frac{Y_i\theta_i-b(\theta_i)}{a(\phi)}+c(y_i,\phi)\right).
-\]
+where 
+\begin{align*}
+\theta_i&:=g(\eta_i)=g(\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip}),\\ \mu_i&:=\mathbb{E}[Y_i|X_1=x_{i1},\ldots,X_p=x_{ip}]=g^{-1}(\eta_i).
+\end{align*}
+Then, the log-likelihood is
+\begin{align}
+\ell(\boldsymbol{\beta})=\sum_{i=1}^n\left(\frac{Y_i\theta_i-b(\theta_i)}{a(\phi)}+c(Y_i,\phi)\right).(\#eq:loglikglm)
+\end{align}
 Differentiating with respect to $\boldsymbol{\beta}$ gives
 \begin{align*}
 \frac{\partial \ell(\boldsymbol{\beta})}{\partial
   \boldsymbol{\beta}}=\sum_{i=1}^{n}\frac{\left(Y_i-b'(\theta_i)\right)}{a(\phi)}\frac{\partial \theta_i}{\partial \boldsymbol{\beta}}
 \end{align*}
-which exploiting the properties of the exponential family can be reduced to
+which, exploiting the properties of the exponential family, can be reduced to
 \begin{align*}
 \frac{\partial \ell(\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\sum_{i=1}^{n}\frac{(Y_i-\mu_i)}{g'(\mu_i)V_i}\mathbf{x}_i,
 \end{align*}
 where $\mathbf{x}_i$ is the $i$-th row of the design matrix $\mathbf{X}$ and
-$V_i:=\mathbb{V}\mathrm{ar}[Y_i]=a(\phi)b''(\theta_i)$. Solving explicitly the system of equations $\frac{\partial \ell(\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\mathbf{0}$ is not possible in general and a numerical procedure is required. Newton-Raphson is usually employed, which is based in obtaining $\boldsymbol{\beta}_\mathrm{new}$ from the linear system
+$V_i:=\mathbb{V}\mathrm{ar}[Y_i]=a(\phi)b''(\theta_i)$. Solving explicitly the system of equations $\frac{\partial \ell(\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\mathbf{0}$ is not possible in general and a numerical procedure is required. Newton-Raphson is usually employed, which is based in obtaining $\boldsymbol{\beta}_\mathrm{new}$ from the linear system^[The system stems from a first-order Taylor expansion around the root.]
 \begin{align}
 \left.\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta} \boldsymbol{\beta}'}\right |_{\boldsymbol{\beta}_\mathrm{old}}(\boldsymbol{\beta}_\mathrm{new} -\boldsymbol{\beta}_\mathrm{old})=-\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}_\mathrm{old}}.(\#eq:newrap)
+  \boldsymbol{\beta} \partial\boldsymbol{\beta}'}\right |_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}(\boldsymbol{\beta}_\mathrm{new} -\boldsymbol{\beta}_\mathrm{old})=-\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}.(\#eq:newrap)
 \end{align}
-A simplifying trick is to consider the *expectation* of $\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}_\mathrm{old}}$ in \@ref(eq:newrap) rather than its actual value. By doing so, we can arrive to a neat iterative algorithm called *Iterative Reweighted Least Squares* (IRLS). To that aim, we use that
+A simplifying trick is to consider the *expectation* of $\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}$ in \@ref(eq:newrap) rather than its actual value. By doing so, we can arrive to a neat iterative algorithm called *Iterative Reweighted Least Squares* (IRLS). To that aim, we use the following well-known property of the *Fisher information matrix* of the MLE theory:
 \[
-\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}\right]=-\mathbb{E}\left[\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\right]^2.
+\mathbb{E}\left[\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \partial\boldsymbol{\beta}'}\right]=-\mathbb{E}\left[\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\left(\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\right)'\right].
 \]
-Then, it can be seen that
+Then, it can be seen that^[Recall that $\mathbb{E}[(Y_i-\mu_i)(Y_j-\mu_j)]=\mathrm{Cov}[Y_i,Y_j]=\begin{cases}V_i,&i=j,\\0,&i\neq j,\end{cases}$ because of independence.]
 \begin{align}
-\mathbb{E}\left[\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}_\mathrm{old}} \right]= -\sum_{i=1}^{n} w_i \mathbf{x}_i \mathbf{x}_i'=-\mathbf{X}' \mathbf{W} \mathbf{X},(\#eq:newrap2)
+\mathbb{E}\left[\left.\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}} \right]= -\sum_{i=1}^{n} w_i \mathbf{x}_i \mathbf{x}_i'=-\mathbf{X}' \mathbf{W} \mathbf{X},(\#eq:newrap2)
 \end{align}
-where $w_i:=\left(V_i(g'(\mu_i))^2\right)^{-1}$ and $\mathbf{W}:=\mathrm{diag}(w_1,\ldots,w_n)$. Using this notation,
+where $w_i:=\frac{1}{V_i(g'(\mu_i))^2}$ and $\mathbf{W}:=\mathrm{diag}(w_1,\ldots,w_n)$. Using this notation,
 \begin{align}
-\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}_\mathrm{old}}= \mathbf{X}'\mathbf{W}(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old}),(\#eq:newrap3)
+\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}= \mathbf{X}'\mathbf{W}(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old}),(\#eq:newrap3)
 \end{align}
 Substituting \@ref(eq:newrap2) and \@ref(eq:newrap3) in \@ref(eq:newrap), we have:
 \begin{align}
-  \boldsymbol{\beta}_\mathrm{new}&=\boldsymbol{\beta}_\mathrm{old}-\mathbb{E}\left [\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
-  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}_\mathrm{old}} \right]^{-1}\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}_\mathrm{old}}\nonumber\\
+  \boldsymbol{\beta}_\mathrm{new}&=\boldsymbol{\beta}_\mathrm{old}-\mathbb{E}\left [\left.\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial
+  \boldsymbol{\beta} \boldsymbol{\beta}'}\right|_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}} \right]^{-1}\left. \frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right|_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}\nonumber\\
 &=\boldsymbol{\beta}_\mathrm{old}+(\mathbf{X}' \mathbf{W}
   \mathbf{X})^{-1}\mathbf{X}'\mathbf{W}(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old})\nonumber\\
 &=(\mathbf{X}' \mathbf{W}
   \mathbf{X})^{-1}\mathbf{X}'\mathbf{W} \mathbf{z},(\#eq:irls)
 \end{align}
-where $\mathbf{z}:=\mathbf{X}\boldsymbol{\beta}_{old}+(\mathbf{Y}-\boldsymbol{\mu}_{old})\mathbf{g}'(\boldsymbol{\mu}_{old})$ is the *working vector*.
+where $\mathbf{z}:=\mathbf{X}\boldsymbol{\beta}_\mathrm{old}+(\mathbf{Y}-\boldsymbol{\mu}_\mathrm{old})\mathbf{g}'(\boldsymbol{\mu}_\mathrm{old})$ is the *working vector*.
  
 As a consequence, **fitting a generalized linear model** by IRLS amounts to performing a **series of weighted linear models** with changing weights and responses given by the working vector. IRLS can be summarized as:
 
 1. Set $\boldsymbol{\beta}_\mathrm{old}$ with some initial estimation.
 2. Compute $\boldsymbol{\mu}_\mathrm{old}$, $\mathbf{W}$, and $\mathbf{z}_\mathrm{old}$.
 3. Compute $\boldsymbol{\beta}_\mathrm{new}$ using \@ref(eq:irls).
-4. Iterate steps 2--3 until convergence.
+4. Iterate steps 2--3 until convergence, then set $\hat{\boldsymbol{\beta}}=\boldsymbol{\beta}_\mathrm{new}$.
 
-```{block, inscanon, type = 'rmdinsight', cache = TRUE}
-In general, $\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}\right]\neq \frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \boldsymbol{\beta}'}$. Thus, IRLS in general departures from the standard Newton-Raphson. However, if the **canonical link** is used, **the equality of the matrices is guaranteed** and IRLS is exactly the same as Newton-Raphson. In this case, $w_i=(g'(\mu_i)^{-1})$.
+```{block2, inscanon, type = 'rmdinsight', cache = TRUE}
+In general, $\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \partial\boldsymbol{\beta}'}\right]\neq \frac{\partial^2 l(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \partial\boldsymbol{\beta}'}$. Thus, IRLS in general departures from the standard Newton-Raphson. However, if the **canonical link** is used, it can be seen that **the equality of the matrices is guaranteed** and IRLS is exactly the same as Newton-Raphson. In that case, $w_i=\frac{1}{g'(\mu_i)}$.
 ```
 
 ## Inference for model parameters {#glm-inference}
@@ -607,21 +544,21 @@ There is an important difference between the inference results for the linear mo
 
 The distribution of $\hat{\boldsymbol{\beta}}$ is given by the asymptotic theory of MLE:
 \begin{align}
-\hat{\boldsymbol{\beta}}\sim\mathcal{N}_{p+1}\left(\boldsymbol{\beta},I(\hat{\boldsymbol{\beta}})^{-1}\right)
+\hat{\boldsymbol{\beta}}\sim\mathcal{N}_{p+1}\left(\boldsymbol{\beta},I(\boldsymbol{\beta})^{-1}\right)
 (\#eq:mle1)
 \end{align}
-where $\sim$ must be understood as *approximately distributed as [...] when $n\to\infty$* for the rest of the chapter and
+where $\sim [\ldots]$ must be understood as *asymptotically distributed as $[\ldots]$ when $n\to\infty$* for the rest of the chapter and
 \[
-I(\boldsymbol{\beta})=-\mathbb{E}\left[\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\right]
+I(\boldsymbol{\beta}):=-\mathbb{E}\left[\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}\partial \boldsymbol{\beta}'}\right]
 \]
 is the *Fisher information matrix*. The name comes from the fact that *it measures the information available in the sample for estimating $\boldsymbol{\beta}$*. The "larger" (large eigenvalues) the matrix is, the more precise the estimation of $\boldsymbol{\beta}$ is, because that results in smaller variances in \@ref(eq:mle1). 
 
-The inverse of the Fisher information matrix is
+The inverse of the Fisher information matrix is can be estimated by
 \begin{align}
-I(\hat{\boldsymbol{\beta}})^{-1}=(\mathbf{X}'\mathbf{V}\mathbf{X})^{-1},
+I(\boldsymbol{\beta})^{-1}=(\mathbf{X}'\mathbf{V}\mathbf{X})^{-1},
 (\#eq:mle2)
 \end{align}
-where $\mathbf{V}=\mathrm{diag}(V_1,\ldots,V_n)$ and $V_i=\mathbb{V}\mathrm{ar}[Y_i]$. For the logistic model, $V_i=\mathrm{logistic}(\eta_i)(1-\mathrm{logistic}(\eta_i))$, $\eta_i=\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip}$. In the case of the multiple linear regression, $I(\hat{\boldsymbol{\beta}})^{-1}=\sigma^2(\mathbf{X}'\mathbf{X})^{-1}$ (see \@ref(eq:normp)), so the presence of $\mathbf{V}$ here is a consequence of the heteroskedasticity of the model.
+where $\mathbf{V}=\mathrm{diag}(V_1,\ldots,V_n)$ and $V_i=\mathbb{V}\mathrm{ar}[Y_i]$. For the logistic model, $V_i=\mathrm{logistic}(\eta_i)(1-\mathrm{logistic}(\eta_i))$, with $\eta_i=\beta_0+\beta_1x_{i1}+\ldots+\beta_px_{ip}$. In the case of the multiple linear regression, $I(\boldsymbol{\beta})^{-1}=\sigma^2(\mathbf{X}'\mathbf{X})^{-1}$ (see \@ref(eq:normp)), so the presence of $\mathbf{V}$ here is a consequence of the heteroskedasticity of the model.
 
 The interpretation of \@ref(eq:mle1) and \@ref(eq:mle2) gives some useful insights on what concepts affect the quality of the estimation:
 
@@ -730,22 +667,22 @@ confint(nasa, level = 0.99) # temp still significant
 
 Prediction in general linear models focuses mainly on predicting the values of the **conditional mean**
 \[
-\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=g^{-1}(\beta_0+\beta_1x_1+\ldots+\beta_px_p),
+\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=g^{-1}(\eta)=g^{-1}(\beta_0+\beta_1x_1+\ldots+\beta_px_p),
 \]
-by means of $g^{-1}(\hat\beta_0+\hat\beta_1x_1+\ldots+\hat\beta_px_p)$ and not on predicting the conditional response. The reason is that confidence intervals, the main difference between both kinds of prediction, depend heavily on the family we are considering for the response. 
+by means of $\hat\eta:=\hat\beta_0+\hat\beta_1x_1+\ldots+\hat\beta_px_p$ and not on predicting the conditional response. The reason is that confidence intervals, the main difference between both kinds of prediction, depend heavily on the family we are considering for the response. 
 
-For the logistic model, the prediction of the conditional response follows immediately from $\hat p(x_1,\ldots,x_p):=\mathrm{logistic}(\hat\beta_0+\hat\beta_1x_1+\ldots+\hat\beta_px_p)$:
+For the logistic model, the prediction of the conditional response follows immediately from $\mathrm{logistic}(\hat\eta)$:
 \[
 \hat{Y}|(X_1=x_1,\ldots,X_p=x_p)=\left\{
 \begin{array}{ll}
-1,&\text{with probability }\hat p(x_1,\ldots,x_p),\\
-0,&\text{with probability }1-\hat p(x_1,\ldots,x_p).\end{array}\right.
+1,&\text{with probability }\mathrm{logistic}(\hat\eta),\\
+0,&\text{with probability }1-\mathrm{logistic}(\hat\eta).\end{array}\right.
 \]
-As a consequence, we can predict $Y$ as $1$ if $\mathrm{logistic}(\hat\beta_0+\hat\beta_1x_1+\ldots+\hat\beta_px_p)>\frac{1}{2}$ and as $0$ otherwise.
+As a consequence, we can predict $Y$ as $1$ if $\mathrm{logistic}(\hat\eta)>\frac{1}{2}$ and as $0$ otherwise.
 
 To make predictions and compute CIs in practice we use `predict`. There are **two differences** with respect to its use for `lm`:
 
-- The argument `type`. `type = "link"` returns $\hat\eta=\hat\beta_0+\hat\beta_1x_1+\ldots+\hat\beta_px_p$ (the log-odds in the logistic model), `type = "response"` returns $g^{-1}(\hat\eta)$ (the probabilities in the logistic model). Observe that `type = "response"` has a different than in `predict` for `lm`, where it returned the predictions for the conditional response.
+- The argument `type`. `type = "link"` returns $\hat\eta$ (the log-odds in the logistic model), `type = "response"` returns $g^{-1}(\hat\eta)$ (the probabilities in the logistic model). Observe that `type = "response"` has a different than in `predict` for `lm`, where it returned the predictions for the conditional response.
 - There is no `interval` argument for using `predict` with `glm`. That means that there is no straightforward way of computing CIs for prediction.
 
 Figure \@ref(fig:logcipred) gives an interactive visualization of the CIs for the conditional probability in simple logistic regression. Their interpretation is very similar to the CIs for the conditional mean in the simple linear model, see Section \@ref(lm-i-prediction) and Figure \@ref(fig:cipred).
@@ -819,202 +756,466 @@ For the `challenger` dataset, do the following:
 
 ```
 
+## Deviance {#glm-deviance}
 
-## Deviance, diagnostics, and model selection {#glm-devdiagsel}
+The **deviance** is a key concept in generalized linear models. Intuitively, it measures the *deviance of the fitted generalized linear model with respect to a perfect model for $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$*. This perfect model, known as the *saturated model*, is the model that fits perfectly the data, in the sense that it has as many parameters as observations and the fitted responses ($\hat Y_i$) are the same as the observed responses ($Y_i$). For example, in logistic regression this would be the model such that
+\[
+\hat{\mathbb{P}}[Y=1|X_1=X_{i1},\ldots,X_k=X_{ik}]=Y_i,\quad i=1,\ldots,n.
+\]
+Figure \@ref(fig:saturated) shows a saturated model and a fitted logistic regression to a dataset.
 
-<!-- ### Deviance {#glm-devdiagsel-deviance} -->
+(ref:saturatedtitle) Fitted logistic regression versus *a* saturated model (several are possible depending on the interpolation between points) and the null model.
 
-<!-- The **deviance** is a key concept in generalized linear models. Intuitively, it measures the **deviance of the fitted generalized linear models with respect to a perfect model for $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$**. This perfect model, known as the *saturated model*, denotes an abstract model that fits perfectly the sample, this is, the model such that -->
-<!-- \[ -->
-<!-- \hat{\mathbb{P}}[Y=1|X_1=X_{i1},\ldots,X_p=X_{ip}]=Y_i,\quad i=1,\ldots,n. -->
-<!-- \] -->
-<!-- This model assigns probability $0$ or $1$ to $Y$ depending on the actual value of $Y_i$. To clarify this concept, Figure \@ref(fig:saturated) shows a saturated model and a fitted logistic regression. -->
+```{r, saturated, echo = FALSE, results = 'hide', out.width = '70%', fig.show = 'hold', fig.asp = 1, fig.pos = 'h!', fig.cap = '(ref:saturatedtitle)', cache = TRUE}
+set.seed(45671231)
+x <- runif(50, 0, 1)
+y <- rbinom(n = 50, size = 1, prob = 1/(1 + exp(-(1 - 6 * x))))
+mod <- glm(y ~ x, family = "binomial")
+xx <- seq(0, 1, l = 200)
+o <- order(x)
+plot(x, y, pch = 16)
+lines(x[o], y[o], col = 4, lwd = 2)
+lines(xx, 1/(1 + exp(-(mod$coefficients[1] + mod$coefficients[2] * xx))), col = 2, lwd = 2)
+lines(xx, rep(sum(y == 1)/50, 200), col = 3, lwd = 3)
+legend("topright", legend = c("Fitted logistic model", "A saturated model", "The null model"), lwd = 2, col = c(2, 4, 3))
+```
 
-<!-- (ref:saturatedtitle) Fitted logistic regression versus *a* saturated model (several are possible depending on the interpolation between points) and the null model. -->
+Formally, the deviance is defined through the difference of the log-likelihoods between the fitted model, $\ell(\hat{\boldsymbol{\beta}})$, and the saturated model, $\ell_s$. Computing $\ell_s$ amounts to substitute $\mu_i$ by $Y_i$ in \@ref(eq:loglikglm). If the canonical link function is used, this corresponds to setting $\theta_i=g(Y_i)$ (recall \@ref(eq:canlink1)). The deviance is then defined as:
+\[
+D:=-2\left[\ell(\hat{\boldsymbol{\beta}})-\ell_s\right]\phi.
+\]
+The log-likelihood $\ell(\hat{\boldsymbol{\beta}})$ is always smaller than $\ell_s$ (the saturated model is more likely since it has the maximum flexibility). As a consequence, the *deviance is always larger or equal than zero*, being zero only if the fit of the model is perfect.
 
-<!-- ```{r, saturated, echo = FALSE, results = 'hide', out.width = '70%', fig.show = 'hold', fig.asp = 1, fig.pos = 'h!', fig.cap = '(ref:saturatedtitle)', cache = TRUE} -->
-<!-- set.seed(45671231) -->
-<!-- x <- runif(50, 0, 1) -->
-<!-- y <- rbinom(n = 50, size = 1, prob = 1/(1 + exp(-(1 - 6 * x)))) -->
-<!-- mod <- glm(y ~ x, family = "binomial") -->
-<!-- xx <- seq(0, 1, l = 200) -->
-<!-- o <- order(x) -->
-<!-- plot(x, y, pch = 16) -->
-<!-- lines(x[o], y[o], col = 4, lwd = 2) -->
-<!-- lines(xx, 1/(1 + exp(-(mod$coefficients[1] + mod$coefficients[2] * xx))), col = 2, lwd = 2) -->
-<!-- lines(xx, rep(sum(y == 1)/50, 200), col = 3, lwd = 3) -->
-<!-- legend("topright", legend = c("Fitted logistic model", "A saturated model", "The null model"), lwd = 2, col = c(2, 4, 3)) -->
-<!-- ``` -->
-<!-- More precisely, the deviance is defined as the difference of likelihoods between the fitted model and the saturated model: -->
-<!-- \[ -->
-<!-- D=-2\ell(\hat{\boldsymbol{\beta}})+2\ell(\text{saturated model}). -->
-<!-- \] -->
-<!-- Since the likelihood of the saturated model is exactly one^[The probability of the sample according to the saturated is $1$ -- replace $p(\mathbf{X}_i)=Y_i$ in \@ref(eq:eq-lik).], then the deviance is simply another expression of the likelihood: -->
-<!-- \[ -->
-<!-- D=-2\ell(\hat{\boldsymbol{\beta}}). -->
-<!-- \] -->
-<!-- As a consequence, **the deviance is always larger or equal than zero, being zero only if the fit is perfect**. -->
+If the canonical link function is employed, the deviance can be expressed as
+\begin{align}
+D&=-\frac{2}{a(\phi)}\sum_{i=1}^n\left(Y_i\hat\theta_i-b(\hat\theta_i)-Y_ig(Y_i)+b(g(Y_i))\right)\phi\nonumber\\
+&=\frac{2\phi}{a(\phi)}\sum_{i=1}^n\left(Y_i(Y_i-\hat\theta_i)-b(g(Y_i))+b(\hat\theta_i)\right).(\#eq:dev)
+\end{align}
+This is interesting, since it allows the following insight:
 
-<!-- A benchmark for evaluating the magnitude of the deviance is the **null deviance**, -->
-<!-- \[ -->
-<!-- D_0=-2\ell(\hat{\beta}_0), -->
-<!-- \] -->
-<!-- which is the **deviance of the worst model, the one fitted without any predictor, and the perfect model**: -->
-<!-- \[ -->
-<!-- Y|(X_1=x_1,\ldots,X_p=x_p)\sim \mathrm{Ber}(\mathrm{logistic}(\beta_0)). -->
-<!-- \] -->
-<!-- In this case, $\hat\beta_0=\mathrm{logit}(\frac{m}{n})=\log\frac{\frac{m}{n}}{1-\frac{m}{n}}$ where $m$ is the number of $1$'s in $Y_1,\ldots,Y_n$ (see Figure \@ref(fig:saturated)). -->
+```{block, insdeviance, type = 'rmdinsight', cache = TRUE}
+The deviance is a **generalization of the Residual Sum of Squares (RSS) of the linear model**. The generalization is driven by the likelihood and its equivalence with the RSS in the linear model.
+```
 
-<!-- The null deviance serves for comparing how much the model has improved by adding the predictors $X_1,\ldots,X_p$. This can be done by means of the **$R^2$ statistic**, which is a *generalization* of the determination coefficient in multiple linear regression: -->
-<!-- \begin{align} -->
-<!-- R^2=1-\frac{D}{D_0}=1-\frac{\text{deviance(fitted logistic, saturated model)}}{\text{deviance(null model, saturated model)}}.(\#eq:log-r2) -->
-<!-- \end{align} -->
-<!-- This global measure of fit is *similar* indeed shares some important properties with the  determination coefficient in linear regression: -->
+To see it, let consider the linear model in \@ref(eq:dev) by  setting $\phi=\sigma^2$, $a(\phi)=\phi$, $b(\theta)=\frac{\theta^2}{2}$, $c(y,\phi)=-\frac{1}{2}\{\frac{y^2}{\phi}+\log(2\pi\phi)\}$ and $\theta=\mu=\eta$ (the canonical link function $g$ is the identity, check \@ref(eq:canlink1) and \@ref(eq:canlink2)). Then, we have:
+\begin{align*}
+D&=\frac{2\sigma^2}{\sigma^2}\sum_{i=1}^n\left(Y_i(Y_i-\hat\eta_i)-\frac{Y_i^2}{2}+\frac{\hat\eta_i^2}{2}\right)\\
+&=\sum_{i=1}^n\left(2Y_i^2-2Y_i\hat\eta_i-Y_i^2+\hat\eta_i^2\right)\\
+&=\sum_{i=1}^n\left(Y_i-\hat\eta_i\right)^2\\
+&=\mathrm{RSS}(\hat{\boldsymbol{\beta}}),(\#eq:devrss)
+\end{align*}
+since $\hat\eta_i=\hat\beta_0+\hat\beta_1x_{i1}+\ldots+\hat\beta_px_{ip}$. Remember that $\mathrm{SSE}=\mathrm{RSS}(\hat{\boldsymbol{\beta}})$.
 
-<!-- 1. It is a quantity between $0$ and $1$. -->
-<!-- 2. If the fit is perfect, then $D=0$ and $R^2=1$. If the predictors do not add anything to the regression, then $D=D_0$ and $R^2=0$. -->
+A benchmark for evaluating the magnitude of the deviance is the **null deviance**,
+\[
+D_0:=-2\left[\ell(\hat{\beta}_0)-\ell_s\right]\phi,
+\]
+which is the **deviance of the worst model, the one fitted without any predictor**, to the perfect model. For example, in logistic regression:
+\[
+Y|(X_1=x_1,\ldots,X_p=x_p)\sim \mathrm{Ber}(\mathrm{logistic}(\beta_0)).
+\]
+In this case, $\hat\beta_0=\mathrm{logit}(\frac{m}{n})=\log\frac{\frac{m}{n}}{1-\frac{m}{n}}$ where $m$ is the number of $1$'s in $Y_1,\ldots,Y_n$ (see Figure \@ref(fig:saturated)). 
 
-<!-- ```{block, insr2log, type = 'rmdinsight', cache = TRUE} -->
-<!-- In logistic regression, $R^2$ does not have the same interpretation as in linear regression: -->
+Using again \@ref(eq:dev), we can see that the **null deviance is a generalization of the total sum of squares of the linear model** (see Section \@ref(lm-i-anova)):
+\[
+D_0=\sum_{i=1}^n\left(Y_i-\hat\eta_i\right)^2=\sum_{i=1}^n\left(Y_i-\hat\beta_0\right)^2=\mathrm{SST},
+\]
+since $\hat\beta_0=\bar Y$ because there are no predictors.
 
-<!-- - Is **not the percentage of variance explained by the logistic model**, but rather a ratio indicating how close is the fit to being perfect or the worst. -->
-<!-- - It is not related to any correlation coefficient. -->
+Using the deviance and the null deviance, we can compare how much the model has improved by adding the predictors $X_1,\ldots,X_p$ and quantify the *percentage of deviance* explained. This can be done by means of the **$R^2$ statistic**, which is a generalization of the determination coefficient for linear regression:
+\[
+R^2:=1-\frac{D}{D_0}\stackrel{\substack{\mathrm{Linear}\\ \mathrm{model}\\{}}}{=}1-\frac{\mathrm{SSE}}{\mathrm{SST}}.
+\]
 
-<!-- ``` -->
+```{block, caur2glm, type = 'rmdcaution', cache = TRUE}
+The $R^2$ for generalized linear models is a global measure of fit that shares the same philosophy with the determination coefficient in linear regression: it is a proportion of how good the fit is. If perfect, $D=0$ and $R^2=1$. If the predictors do not add anything to the regression, then $D=D_0$ and $R^2=0$.
 
-<!-- ```{block2, insr2glm, type = 'rmdinsight', cache = TRUE} -->
-<!-- The $R^2$ in \@ref(eq:log-r2) is valid for the whole family of *generalized linear models*, for which linear and logistic regression are particular cases. The connexion between \@ref(eq:log-r2) and the determination coefficient is given by the expressions of the deviance and null the deviance for the linear model: -->
-<!-- \[ -->
-<!-- D=\mathrm{SSE}\text{ (or }D=\mathrm{RSS}\text{) and }D_0=\mathrm{SST}. -->
-<!-- \] -->
-<!-- ``` -->
+However, this $R^2$ has a different interpretation than the one in linear regression. In particular:
 
-<!-- Let's see how these concepts are given by the `summary` function: -->
-<!-- ```{r, deviance-1, collapse = TRUE, cache = TRUE} -->
-<!-- # Summary of model -->
-<!-- nasa <- glm(fail.field ~ temp, family = "binomial", data = challenger) -->
-<!-- summaryLog <- summary(nasa) -->
-<!-- summaryLog # 'Residual deviance' is the deviance; 'Null deviance' is the null deviance -->
+- Is **not the percentage of variance explained by the model**, but rather a ratio indicating how close is the fit to being perfect or the worst.
+- It is not related to any correlation coefficient.
 
-<!-- # Null model - only intercept -->
-<!-- null <- glm(fail.field ~ 1, family = "binomial", data = challenger) -->
-<!-- summaryNull <- summary(null) -->
-<!-- summaryNull -->
+```
 
-<!-- # Computation of the R^2 with a function - useful for repetitive computations -->
-<!-- r2Log <- function(model) { -->
+The deviance is returned by `summary`:
+```{r, deviance-1, collapse = TRUE, cache = TRUE}
+# Summary of model
+nasa <- glm(fail.field ~ temp, family = "binomial", data = challenger)
+summaryLog <- summary(nasa)
+summaryLog 
+# 'Residual deviance' is the deviance; 'Null deviance' is the null deviance
 
-<!--   summaryLog <- summary(model) -->
-<!--   1 - summaryLog$deviance / summaryLog$null.deviance -->
+# Null model (only intercept)
+null <- glm(fail.field ~ 1, family = "binomial", data = challenger)
+summaryNull <- summary(null)
+summaryNull
 
-<!-- } -->
+# Computation of the R^2 with a function - useful for repetitive computations
+r2glm <- function(model) {
 
-<!-- # R^2 -->
-<!-- r2Log(nasa) -->
-<!-- r2Log(null) -->
-<!-- ``` -->
+  summaryLog <- summary(model)
+  1 - summaryLog$deviance / summaryLog$null.deviance
 
-<!-- Another way of evaluating the model fit is its **predictive accuracy**. The motivation is that most of the times we are interested simply in *classifying*, for an observation of the predictors, the value of $Y$ as either $0$ or $1$, but not in predicting the value of $p(x_1,\ldots,x_p)=\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p]$. The classification in prediction is simply done by the rule -->
-<!-- \[ -->
-<!-- \hat{Y}=\left\{\begin{array}{ll} -->
-<!-- 1,&\hat{p}(x_1,\ldots,x_p)>\frac{1}{2},\\ -->
-<!-- 0,&\hat{p}(x_1,\ldots,x_p)<\frac{1}{2}. -->
-<!-- \end{array}\right. -->
-<!-- \] -->
-<!-- The overall predictive accuracy can be summarized with the **hit matrix** -->
+}
 
-<!-- | Reality vs. classified | $\hat Y=0$ | $\hat Y=1$ | -->
-<!-- |----------|----------|----------| -->
-<!-- | $Y=0$ | Correct$_{0}$ | Incorrect$_{01}$ | -->
-<!-- | $Y=1$ | Incorrect$_{10}$ | Correct$_{1}$ | -->
+# R^2
+r2glm(nasa)
+r2glm(null)
+```
 
-<!-- and with the **hit ratio** $\frac{\text{Correct}_0+\text{Correct}_1}{n}$. The hit matrix is easily computed with the `table` function. The function, whenever called with two vectors, computes the cross-table between the two vectors. -->
-<!-- ```{r, deviance-2, collapse = TRUE, cache = TRUE} -->
-<!-- # Fitted probabilities for Y = 1 -->
-<!-- nasa$fitted.values -->
+A related quantity with the deviance is the **scaled deviance**, which removes the effects of the scale parameter $\phi$:
+\[
+D^*:=\frac{D}{\phi}=-2\left[\ell(\hat{\boldsymbol{\beta}})-\ell_s\right].
+\]
+If $\phi=1$, such as in the logistic or Poisson regression models, then both the deviance and the scaled deviance agree. The scaled deviance has asymptotic distribution
+\begin{align}
+D^*\sim\chi^2_{n-p-1},(\#eq:dp)
+\end{align}
+where $\chi^2_{k}$ is the *Chi-squared distribution with $k$ degrees of freedom*. In the case of the linear model, $D^*=\frac{1}{\sigma^2}\mathrm{RSS}$ is *exactly* distributed as a $\chi^2_{n-p-1}$. The result \@ref(eq:dp) provides a way of estimating $\phi$ when it is unknown: match $D^*$ with the expectation $\mathbb{E}\left[\chi^2_{n-p-1}\right]=n-p-1$. This provides
+\[
+\hat\phi_D:=\frac{D}{n-p-1}=\frac{-2\ell(\hat{\boldsymbol{\beta}})}{n-p-1},
+\]
+which, as expected, in the case of the linear model is equivalent to $\hat\sigma^2$ as given in \@ref(eq:varhat). More importantly, the scaled deviance can be used for performing **hypotheses tests on sets of coefficients** of a generalized linear model.
 
-<!-- # Classified Y's -->
-<!-- yHat <- nasa$fitted.values > 0.5 -->
+Assume we have one model, say model $2$, with $p_2$ predictors and another model, say model $1$, with $p_1<p_2$ predictors that are contained in the set of predictors of the model $2$. In other words, assume model $1$ is **nested** within model $2$. Then we can test the null hypothesis that the extra coefficients of model $2$ are simultaneously zero. For example, if model $1$ has the coefficients $\{\beta_0,\beta_1,\ldots,\beta_{p_1}\}$ and model $2$ has $\{\beta_0,\beta_1,\ldots,\beta_{p_1},\beta_{p_1+1},\ldots,\beta_{p_2}\}$, we can test
+\begin{align*}
+H_0:\beta_{p_1+1}=\ldots=\beta_{p_2}=0\quad\text{vs.}\quad H_1:\beta_j\neq 0\text{ for any }p_1<j\leq p_2.
+\end{align*}
+This can be done by means of the statistic^[Note that $D_{p_1}^*>D^*_{p_2}$ because $\ell(\hat{\boldsymbol{\beta}}_{p_1})<\ell(\hat{\boldsymbol{\beta}}_{p_2})$.]
+\begin{align}
+D_{p_1}^*-D^*_{p_2}\stackrel{H_0}{\sim}\chi^2_{p_2-p_1}.(\#eq:d12)
+\end{align}
+If $H_0$ is true, then $D_{p_1}^*-D^*_{p_2}$ is expected to be *small*, thus we will reject $H_0$ if the value of the statistic is above the *$\alpha$-upper quantile of the $\chi^2_{p_2-p_1}$*, $\chi^2_{\alpha;p_2-p_1}$.
 
-<!-- # Hit matrix: -->
-<!-- # - 16 correctly classified as 0 -->
-<!-- # - 4 correctly classified as 1 -->
-<!-- # - 3 incorrectly classified as 0 -->
-<!-- tab <- table(challenger$fail.field, yHat) -->
-<!-- tab -->
+Note that $D^*$ depends on $\phi$, which may be unknown. Hopefully, this dependence is removed by employing \@ref(eq:dp) and \@ref(eq:d12) and assuming that are asymptotically independent. This gives the $F$-test for $H_0$:
+\begin{align*}
+F=\frac{(D_{p_1}-D_{p_2})/(p_2-p_1)}{D_{p_2}/(n-p_2-1)}=\frac{(D^*_{p_1}-D^*_{p_2})/(p_2-p_1)}{D^*_{p_2}/(n-p_2-1)}\stackrel{H_0}{\sim} F_{p_2-p_1,n-p_2-1}.
+\end{align*}
+Note that the LHS is perfectly computable, since $\phi$ cancels due to the quotient. Note also that this is an extension of the $F$-test as we saw it in Section \@ref(lm-i-anova): take $p_1=0$ and $p_2=p$ and you test for the significance of all the predictors included in the model (both models contain intercept).
 
-<!-- # Hit ratio (ratio of correct classification) -->
-<!-- sum(diag(tab)) / sum(tab) -->
-<!-- ``` -->
+The computation of deviances and associated tests is done through `anova`, which implements the *Analysis of Deviance*.
+```{r, deviance-2, collapse = TRUE, cache = TRUE}
+# Polynomial predictors
+nasa0 <- glm(fail.field ~ 1, family = "binomial", data = challenger)
+nasa1 <- glm(fail.field ~ temp, family = "binomial", data = challenger)
+nasa2 <- glm(fail.field ~ poly(temp, degree = 2), family = "binomial", 
+             data = challenger)
+nasa3 <- glm(fail.field ~ poly(temp, degree = 3), family = "binomial", 
+             data = challenger)
 
-<!-- It is important to recall that the hit matrix will be always *biased towards unrealistic good classification rates* if it is computed in the same sample used for fitting the logistic model. A familiar analogy is asking to your mother (data) whether you (model) are a good-looking human being (good predictive accuracy) -- the answer will be highly positively biased. To get a fair hit matrix, the right approach is to split randomly the sample into two: a *training dataset*, used for fitting the model, and a *test dataset*, used for evaluating the predictive accuracy. -->
+# Plot fits
+temp <- seq(-1, 35, l = 200)
+tt <- data.frame(temp = temp)
+plot(fail.field ~ temp, data = challenger, pch = 16, xlim = c(-1, 30), 
+     xlab = "Temperature", ylab = "Incident probability")
+lines(temp, predict(nasa0, newdata = tt, type = "response"), col = 1)
+lines(temp, predict(nasa1, newdata = tt, type = "response"), col = 2)
+lines(temp, predict(nasa2, newdata = tt, type = "response"), col = 3)
+lines(temp, predict(nasa3, newdata = tt, type = "response"), col = 4)
+legend("bottomleft", legend = c("Null model", "Linear", "Quadratic", "Cubic"),
+       lwd = 2, col = 1:4)
 
+# R^2's
+r2glm(nasa0)
+r2glm(nasa1)
+r2glm(nasa2)
+r2glm(nasa3)
 
-<!-- ### Model diagnostics {#glm-devdiagsel-diagnostics} -->
+# Chisq and F tests - same results since phi is known
+anova(nasa1, test = "Chisq")
+anova(nasa1, test = "F")
 
-<!-- ### Model selection {#glm-devdiagsel-modsel} -->
+# Incremental comparisons of nested models
+anova(nasa1, nasa2, nasa3, test = "Chisq")
+# Quadratic effects are not significative
 
-<!-- The same discussion we did in Section \@ref(lm-ii-modsel) is applicable to logistic regression with small changes: -->
+# Test for all coefficients being zero
+anova(nasa3, test = "Chisq")
 
-<!-- 1. The **deviance** of the model (reciprocally the likelihood and the $R^2$) **always decreases** (increase) with the inclusion of more predictors -- no matter whether they are significant or not. -->
-<!-- 2. The **excess of predictors** in the model is paid by a larger variability in the estimation of the model which results in less precise prediction. -->
-<!-- 3. **Multicollinearity** may hide significant variables, change the sign of them and result in an increase of the variability of the estimation at the expense of little improvement in . -->
+# Example in Poisson regression
+species1 <- glm(Species ~ ., data = species, family = poisson)
+species2 <- glm(Species ~ Biomass * pH, data = species, family = poisson)
 
-<!-- The use of information criteria, `stepAIC`, and `vif` allow to fight back these issues^[The `leaps` package does not support generalized linear models. There are, however, other packages for performing best subset selection with generalized linear models, but we do not cover them here.]. Let's review them quickly from the perspective of logistic regression. -->
+# Comparison 
+anova(species1, species2, test = "Chisq")
+r2glm(species1)
+r2glm(species2)
+```
 
-<!-- First, remember that the BIC/AIC information criteria are based on a **balance between the model fitness, given by the likelihood, and its complexity**. In the logistic regression, the BIC is -->
-<!-- \begin{align*} -->
-<!-- \text{BIC}(\text{model}) &= -2 \ell(\hat{\boldsymbol{\beta}}) + (p + 1)\times\log n\\ -->
-<!-- &=D+(p+1)\times \log n, -->
-<!-- \end{align*} -->
-<!-- where $\ell(\hat{\boldsymbol{\beta}})$ is the *likelihood of the model*. The AIC replaces $\log n$ by $2$, hence penalizing less model complexity. The BIC and AIC can be computed in `R` through the functions `BIC` and `AIC`, and we can check manually that they match with its definition. -->
-<!-- ```{r, modsel-1, collapse = TRUE, cache = TRUE} -->
-<!-- # Models -->
-<!-- nasa <- glm(fail.field ~ temp, family = "binomial", data = challenger) -->
-<!-- nasa2 <- glm(fail.field ~ temp + pres.field, family = "binomial", -->
-<!--              data = challenger) -->
+## Model selection {#glm-modsel}
 
-<!-- # nasa -->
-<!-- summary1 <- summary(nasa) -->
-<!-- summary1 -->
-<!-- BIC(nasa) -->
-<!-- summary1$deviance + 2 * log(dim(challenger)[1]) -->
-<!-- AIC(nasa) -->
-<!-- summary1$deviance + 2 * 2 -->
+The same discussion we did in Section \@ref(lm-ii-modsel) is applicable to logistic regression with small changes:
 
-<!-- # nasa2 -->
-<!-- summary2 <- summary(nasa2) -->
-<!-- summary2 -->
-<!-- BIC(nasa2) -->
-<!-- summary2$deviance + 3 * log(dim(challenger)[1]) -->
-<!-- AIC(nasa2) -->
-<!-- summary2$deviance + 3 * 2 -->
-<!-- ``` -->
-<!-- Second, `stepAIC` works analogously to the linear regression situation. Here is an illustration for a binary variable that measures whether a Boston suburb (`Boston` dataset) is wealth or not. The binary variable is `medv > 25`: it is `TRUE` (`1`) for suburbs with median house value larger than 25000\$) and `FALSE` (`0`) otherwise. The cutoff 25000\$ corresponds to the 25\% richest suburbs. -->
+1. The **deviance** of the model (reciprocally the likelihood and the $R^2$) **always decreases** (increase) with the inclusion of more predictors -- no matter whether they are significant or not.
+2. The **excess of predictors** in the model is paid by a larger variability in the estimation of the model which results in less precise prediction.
+3. **Multicollinearity** may hide significant variables, change the sign of them and result in an increase of the variability of the estimation.
 
-<!-- ```{r, modsel-2, collapse = TRUE, cache = TRUE} -->
-<!-- # Boston dataset -->
-<!-- data(Boston) -->
+The use of information criteria, `stepAIC`, and `vif` allow to fight back these issues^[The `leaps` package does not support generalized linear models directly. There are, however, other packages for performing best subset selection with generalized linear models, but we do not cover them here.]. Let's review them quickly from the perspective of logistic regression.
 
-<!-- # Model whether a suburb has a median house value larger than 25000$ -->
-<!-- mod <- glm(I(medv > 25) ~ ., data = Boston, family = "binomial") -->
-<!-- summary(mod) -->
-<!-- r2Log(mod) -->
+```{r, glmmodsel-1, collapse = TRUE, cache = TRUE}
+# Models
+nasa1 <- glm(fail.field ~ temp, family = "binomial", data = challenger)
+nasa2 <- glm(fail.field ~ temp + pres.field, family = "binomial",
+             data = challenger)
 
-<!-- # With BIC - ends up with only the significant variables and a similar R^2 -->
-<!-- modBIC <- stepAIC(mod, trace = 0) -->
-<!-- summary(modBIC) -->
-<!-- r2Log(modBIC) -->
-<!-- ``` -->
+# nasa1
+summary1 <- summary(nasa)
+summary1
+AIC(nasa)
+summary1$deviance + 2 * 2
 
-<!-- ```{block, exhitmat, type = 'rmdexercise', cache = TRUE} -->
-<!-- For the `Boston` dataset, do the following: -->
+# nasa2
+summary2 <- summary(nasa2)
+summary2
+BIC(nasa2)
+summary2$deviance + 3 * log(nrow(challenger))
+```
 
-<!-- 1. Compute the hit matrix and hit ratio for the regression `I(medv > 25) ~ .` (hint: do `table(medv > 25, ...)`). -->
-<!-- 2. Fit `I(medv > 25) ~ .` but now using only the first 300 observations of `Boston`, the *training dataset* (hint: use `subset`). -->
-<!-- 3. For the previous model, predict the probability of the responses and classify them into `0` or `1` in the last 206 observations, the *testing dataset* (hint: use `predict` on that subset). -->
-<!-- 4. Compute the hit matrix and hit ratio for the new predictions. Check that the hit ratio is smaller than the one in the first point. The hit ratio on the testing dataset, and not the first hit rate, is an estimator of how well the model is going to classify future observations. -->
-<!-- ``` -->
+`stepAIC` works analogously to the linear regression situation. Here is an illustration for a binary variable that measures whether a Boston suburb (`Boston` dataset from Section \@ref(lm-ii-lab-boston)) is wealth or not. The binary variable is `medv > 25`: it is `TRUE` (`1`) for suburbs with median house value larger than 25000\$) and `FALSE` (`0`) otherwise. The cutoff 25000\$ corresponds to the 25\% richest suburbs.
+
+```{r, glmmodsel-2, collapse = TRUE, cache = TRUE}
+# Boston dataset
+data(Boston)
+
+# Model whether a suburb has a median house value larger than 25000$
+mod <- glm(I(medv > 25) ~ ., data = Boston, family = "binomial")
+summary(mod)
+r2glm(mod)
+
+# With BIC - ends up with only the significant variables and a similar R^2
+modBIC <- stepAIC(mod, trace = 0, k = log(nrow(Boston)))
+summary(modBIC)
+r2glm(modBIC)
+```
+
+The logistic model is at the intersection between *regression models* and *classification methods*. Therefore, the search for adequate predictors to be included in the model can also be done in terms of the **classification accuracy**. Although we do not explore in detail this direction, we simply mention how the overall predictive accuracy can be summarized with the *hit matrix* (also called *confusion matrix*)
+
+| Reality vs. classified | $\hat Y=0$ | $\hat Y=1$ |
+|----------|----------|----------|
+| $Y=0$ | Correct$_{0}$ | Incorrect$_{01}$ |
+| $Y=1$ | Incorrect$_{10}$ | Correct$_{1}$ |
+
+and with the *hit ratio*, $\frac{\text{Correct}_0+\text{Correct}_1}{n}$, which is the percentage of correct classifications. The hit matrix is easily computed with the `table` function. The function, whenever called with two vectors, computes the cross-table between the two vectors.
+```{r, glmmodsel-3, collapse = TRUE, cache = TRUE}
+# Fitted probabilities for Y = 1
+nasa$fitted.values
+
+# Classified Y's
+yHat <- nasa$fitted.values > 0.5
+
+# Hit matrix:
+# - 16 correctly classified as 0
+# - 4 correctly classified as 1
+# - 3 incorrectly classified as 0
+tab <- table(challenger$fail.field, yHat)
+tab
+
+# Hit ratio (ratio of correct classification)
+sum(diag(tab)) / sum(tab)
+```
+
+It is important to recall that the hit matrix will be always *biased towards unrealistic good classification rates* if it is computed in the same sample used for fitting the logistic model. An approach based on multi-splitting/cross-validation would be required to handle this problem suitably.
+
+```{block, exhitmat, type = 'rmdexercise', cache = TRUE}
+For the `Boston` dataset, do the following:
+
+1. Compute the hit matrix and hit ratio for the regression `I(medv > 25) ~ .`.
+2. Fit `I(medv > 25) ~ .` but now using only the first 300 observations of `Boston`, the training dataset.
+3. For the previous model, predict the probability of the responses and classify them into `0` or `1` in the last $206$ observations, the testing dataset.
+4. Compute the hit matrix and hit ratio for the new predictions. Check that the hit ratio is smaller than the one in the first point.
+
+```
+
+## Model diagnostics {#glm-diagnostics}
+
+As it was implicit in Section \@ref(glm-model), generalized linear models are built on some probabilistic assumptions that are required for performing inference on the model parameters $\boldsymbol{\beta}$ and $\phi$. Unless stated otherwise, $\sim [\ldots]$ denotes *distributed as $[\ldots]$* along this section.
+
+In general, we assume that the data has been generated from (independence is implicit)
+\begin{align}
+Y&|(X_1=x_{1},\ldots,X_p=x_{p})\sim\mathrm{E}(\theta(x_{1},\ldots,x_{p})),\phi,a,b,c),(\#eq:condglm)
+\end{align}
+such that
+\[
+\mu=\mathbb{E}[Y|X_1=x_{1},\ldots,X_p=x_{p}]=g^{-1}(\eta),
+\]
+where $\theta$ is given by (check \@ref(eq:musigmaexp)--\@ref(eq:canlink2))
+\[
+\theta=\begin{cases}
+\mu,&\text{ if $g$ is the canonical link function},\\
+(b')^{-1}(\mu),&\text{ otherwise},
+\end{cases}
+\]
+and $\eta=\beta_0+\beta_1x_{1}+\ldots+\beta_px_{p}$.
+
+In the case of the logistic and Poisson regressions, both with canonical link functions, the general model takes the forms (independence is implicit)
+\begin{align}
+Y|(X_1=x_1,\ldots,X_p=x_p)&\sim\mathrm{Ber}\left(\mathrm{logistic}(\eta)\right), (\#eq:condber)\\
+Y|(X_1=x_1,\ldots,X_p=x_p)&\sim\mathrm{Pois}\left(e^{\eta}\right). (\#eq:condpois)
+\end{align}
+
+(ref:logisticmodeltitle) The key concepts of the logistic model.
+
+```{r, logisticmodel, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:logisticmodeltitle)', cache = TRUE}
+knitr::include_graphics("images/R/logisticmodel.png")
+```
+
+The assumptions behind \@ref(eq:condglm), \@ref(eq:condber), and \@ref(eq:condpois) are the following:
+
+i. **Linearity** in the transformed expectation: $g\left(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]\right)=\beta_0+\beta_1x_1+\ldots+\beta_px_p$.
+ii. **Response distribution**: $Y|\mathbf{X}=\mathbf{x}\sim\mathrm{E}(\theta(\mathbf{x}),\phi,a,b,c)$ ($\phi,a,b,c$ are *constant* for $\mathbf{x}$).
+iii. **Independence**: $Y_1,\ldots,Y_n$ are independent, conditionally on $\mathbf{X_1},\ldots,\mathbf{X_n}$.
+
+There are two important points of the linear model assumptions "missing" here:
+
+- *Where is homoscedasticity?* Homoscedasticity is specific to certain exponential family distributions for whose $\theta$ does not affect the variance. This is not the case for Bernoulli or Poisson distributions variables, which result in heteroskedastic models. Also, homoscedasticity is the implication of assumption ii in the case of the Normal distribution. 
+- *Where are the errors?* The errors are not fundamental for building the linear model, but just a helpful concept related to least squares. The linear model can be constructed without errors using \@ref(eq:condnorm).
+
+```{block, insassumplog, type = 'rmdinsight', cache = TRUE}
+Recall that:
+
+- Nothing is said about the distribution of $X_1,\ldots,X_p$. They could be deterministic or random. They could be discrete or continuous.
+- $X_1,\ldots,X_p$ are **not required to be independent** between them.
+
+```
+
+Checking the assumptions of a generalized linear model is more complicated than what we did in \@ref(lm-ii-diagnostics). The reason is the **heterogeneity and heteroskedasticity of the responses**, which makes the inspection of the residuals $Y_i-\hat Y_i$ complicated. The first step is to construct some residuals $\hat\varepsilon_i$ that are simpler to analyze.
+
+The **deviance residuals** are the generalization of the residuals $Y_i-\hat Y_i$ from the linear model. They are constructed using the analogy between the deviance and the RSS saw in \@ref(eq:devrss). The deviance can be expressed into a sum of terms associated to each datum (recall e.g. \@ref(eq:dev)):
+\[
+D=\sum_{i=1}^n d_i.
+\]
+For the linear model, $d_i=\hat\varepsilon_i^2$. Therefore, we can define the deviance residuals as the folowing generalization of $\hat\varepsilon_i$:
+\[
+\hat\varepsilon_i^D:=\mathrm{sign}(Y_i-\hat \mu_i)\sqrt{d_i},\quad i=1,\ldots,n.
+\]
+This definition has interesting distributional consequences. From \@ref(eq:dp), we know that, asymptotically, $D^*\sim\chi_{n-p-1}^2$. This *suggests* that^[Remember: a $\chi^2_k$ random variable has the same distribution as the sum of $k$ independent squared $\mathcal{N}(0,1)$ variables.] (practical counterexamples are possible, see e.g. Figure \@ref(fig:logdiagnostics2))
+\[
+\frac{\hat\varepsilon_i^D}{\sqrt{\phi}}\text{ behaves like a } \mathcal{N}(0,1).
+\]
+The previous statement is of variable accuracy, depending on the model, sample size, and distribution of the predictors. In the linear model, it is exact.
+
+The deviance residuals are key for the diagnostics of generalized linear models. Whenever we refer to "residuals", we understand that we refer to the deviance residuals (several are possible). They are also theresiduals returned in `R`, either by `glm$residuals` or by `residuals(glm)`.
+
+```{block2, insdevres, type = 'rmdinsight', cache = TRUE}
+This generalization has interesting connexions:
+
+- If the canonical function is employed, then $\sum_{i=1}^n \hat\varepsilon_i^D=0$, as happened in linear models.
+- The estimate of the scale parameter can be seen as $\hat\phi_D=\frac{\sum_{i=1}^n(\hat\varepsilon_i^D)^2}{n-p-1}$, which is perfectly coherent with $\hat\sigma$ in the linear model.
+- Therefore, $\hat\phi_D$ is the sample variance of $\hat\varepsilon_1^D,\ldots,\hat\varepsilon_n^D$, which suggets that $\phi$ is the asymptotic variance of the population deviance residuals, in other words, $\mathbb{V}\mathrm{ar}[\varepsilon^D]\approx \phi$.
+
+```
+
+```{block, cauassumpfailglm, type = 'rmdcaution', cache = TRUE}
+When one assumption fails, it is likely that this failure will affect to other assumptions. For example, if linearity fails, then most likely the response distribution will fail also. The key point is to identify the **root cause** of the assumptions failure in order to try to find a patch.
+```
+
+### Linearity {#glm-diagnostics-1}
+
+Linearity between the *transformed expectation* of $Y$ and the predictors $X_1,\ldots,X_p$ is the building block of generalized linear models. If this assumption fails, then all the conclusions we might extract from the analysis are suspected to be flawed. Therefore it is a **key assumption**.
+
+#### How to check it {-}
+
+We use the *residuals vs. fitted values plot*, which for generalized linear models is the scatterplot of $(\hat\eta_i,\hat \varepsilon_i)$, $i=1,\ldots,n$. Recall that it is **not** the scatterplot of $(\hat Y_i,\hat \varepsilon_i)$. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i$ with respect to $\hat \eta_i$. If nonlinearities are observed, it is worth to plot the regression terms of the model via `termplot`.
+
+```{r, poisdiagnostics1, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Residuals vs. fitted values plots for datasets respecting (left column) and violating (right column) the linearity assumption in Poisson regression.', cache = TRUE}
+knitr::include_graphics("images/R/poisdiagnostics1.png")
+```
+
+```{r, logdiagnostics1, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Residuals vs. fitted values plots for datasets respecting (left column) and violating (right column) the linearity assumption in logistic regression.', cache = TRUE}
+knitr::include_graphics("images/R/logdiagnostics1.png")
+```
+
+#### What to do if fails {-}
+
+Using an adequate nonlinear transformation for the problematic predictors or adding interaction terms might be helpful. Alternatively, consider a nonlinear transformation $f$ *for the response* $Y$.
+
+### Response distribution {#glm-diagnostics-2}
+
+The *approximate* normality in the deviance residuals allows to evaluate how well is satisfied the assumption of the response distribution. The good news is that we can do so **without relying in ad-hoc tools for each distribution**. The bad news is that we have to pay a price in terms of inexactitude, since we employ an **asymptotic distribution**. The speed of this asymptotic convergence largely depends on several aspects (distribution of the response, sample size, distribution od the predictors).
+
+#### How to check it {-}
+
+The *QQ-plot* allows to check if the standardized (by $\phi$) residuals follow a $\mathcal{N}(0,1)$. **Under the correct distribution of the response, we expect the points to align with the diagonal line**. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal. Unfortunately, it is also possible to have severe departures from normality *even* if the model is correct, see below.
+
+```{r, poisdiagnostics2, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'QQ-plots for the deviance residuals of datasets respecting (left column) and violating (right column) the response distribution assumption for Poisson regression.', cache = TRUE}
+knitr::include_graphics("images/R/poisdiagnostics2.png")
+```
+
+```{r, logdiagnostics2, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'QQ-plots for the deviance residuals of datasets respecting (left column) and violating (right column) the response distribution assumption for logistic regression.', cache = TRUE}
+knitr::include_graphics("images/R/logdiagnostics2.png")
+```
+
+Formal normality tests are available through `shapiro.test` and `lillie.test`.
+
+#### What to do if fails {-}
+
+Patching the distribution assumption is not easy and requires from the consideration of more flexible models. One possibility is to transform $Y$ by means of a Box-Cox transformation of the form $\frac{Y^\lambda-1}{\lambda}$, $\lambda\neq0$ or $\log(Y)$, of course at the price of modelling the transformed response rather than $Y$.
+
+### Independence {#glm-diagnostics-3}
+
+Independence is also a key assumption: it guarantees that the amount of information that we have on the relationship between $Y$ and $X_1,\ldots,X_p$ with $n$ observations is maximal.
+
+#### How to check it {-}
+
+The presence of *autocorrelation* in the residuals can be examined by means of a **serial plot of the residuals**.
+
+```{r, poisdiagnostics3, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Serial plots of the residuals for datasets respecting (left column) and violating (right column) the independence assumption for Poisson regression.', cache = TRUE}
+knitr::include_graphics("images/R/poisdiagnostics3.png")
+```
+
+```{r, logdiagnostics3, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Serial plots of the residuals for datasets respecting (left column) and violating (right column) the independence assumption for logistic regression.', cache = TRUE}
+knitr::include_graphics("images/R/logdiagnostics3.png")
+```
+
+**Under uncorrelation, we expect the series to show no *tracking* of the residuals**, which is a sign of positive serial correlation. Negative serial correlation can be identified with systematic switching in the series between two states.
+
+#### What to do if fails {-}
+
+As in the linear model, little can be done if there is dependence in the data, once this has been collected. If serial dependence is present, a differentiation of the response may lead to independent observations.
+
+### Multicollinearity 
+
+Multicollinearity can also be present in generalized linear models. Despite the nonlinear logistic curve, **the predictors are combined linearly** in \@ref(eq:eq-log-2). Due to this, if two or more predictors are highly correlated between them, the fit of the model will be compromised since the individual linear effect of each predictor is hard to distinguish from the rest of correlated predictors.
+
+The VIF of each coefficient $\hat\beta_j$. The situation is exactly the same as in linear regression, since VIF looks only into the linear relations of the predictors. Therefore, the rule of thumb is the same as in Section \@ref(lm-ii-diagnostics-6):
+
+> - VIF close to 1: absence of multicollinearity.
+> - **VIF larger than 5 or 10: problematic amount of multicollinearity**. Advised to remove the predictor with largest VIF.
+
+```{r, moddiag-1, collapse = TRUE, cache = TRUE}
+# Create predictors with multicollinearity: x4 depends on the rest
+set.seed(45678)
+x1 <- rnorm(100)
+x2 <- 0.5 * x1 + rnorm(100)
+x3 <- 0.5 * x2 + rnorm(100)
+x4 <- -x1 + x2 + rnorm(100, sd = 0.25)
+
+# Response
+z <- 1 + 0.5 * x1 + 2 * x2 - 3 * x3 - x4
+y <- rbinom(n = 100, size = 1, prob = 1/(1 + exp(-z)))
+data <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x4, y = y)
+
+# Correlations - none seems suspicious
+cor(data)
+
+# Abnormal generalized variance inflation factors: largest for x4, we remove it
+modMultiCo <- glm(y ~ x1 + x2 + x3 + x4, family = "binomial")
+vif(modMultiCo)
+
+# Without x4
+modClean <- glm(y ~ x1 + x2 + x3, family = "binomial")
+
+# Comparison
+summary(modMultiCo)
+summary(modClean)
+
+# Generalized variance inflation factors normal
+vif(modClean)
+```
+
+```{block2, inspcrglm, type = 'rmdinsight', cache = TRUE}
+Performing **PCA on the predictors**, as seen in Section \@ref(lm-ii-dimred-pcr), is a possibility to achieve **uncorrelation** and can be employed straighforwardly in generalized linear models. The story is different for PLS, since it makes use of the linear structure between the response and the predictors and thus is not inmediately adaptable to generalized linear models.
+```
 
 ## Shrinkage {#glm-shrink} 
 

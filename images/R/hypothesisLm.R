@@ -1,4 +1,5 @@
 
+## Assumptions
 
 # Sample the predictor
 set.seed(345612131)
@@ -60,6 +61,8 @@ plot(x, y + epsNoIndep, pch = 16, xlab = "x", ylab = "y",
      main = "No independence")
 abline(lm(I(y + epsNoIndep) ~ x)$coefficients, col = 2, lwd = 2)
 dev.off()
+
+## assumptions.RData
 
 # Quiz linear model
 n <- 200
@@ -134,36 +137,7 @@ assumptions <- data.frame(x1, x2, x3, x4, x5, x6, x7, x8, x9,
                           y1, y2, y3, y4, y5, y6, y7, y8, y9)
 save(assumptions, file = "assumptions.RData")
 
-
-# t
-png("ttest.png", width = 7, height = 7, res = 200, units = "in")
-xx <- seq(-7, 7, l = 500)
-plot(xx, dt(x = xx, df = n - 2), type = "l", xlab = "x",
-     ylab = "Density of the Student's t with n - 2 df", lwd = 2)
-q1 <- qt(p = 0.975, df = n - 2, lower.tail = FALSE)
-q2 <- qt(p = 0.025, df = n - 2, lower.tail = FALSE)
-xvals1 <- seq(q1, q2, length = n)
-dvals1 <- dt(x = xvals1, df = n - 2)
-xvals2 <- seq(xx[1], q1, length = n)
-dvals2 <- dt(x = xvals2, df = n - 2)
-xvals3 <- seq(q2, xx[length(xx)], length = n)
-dvals3 <- dt(x = xvals3, df = n - 2)
-polygon(c(xvals1, rev(xvals1)), c(rep(0, n), rev(dvals1)), col = "lightblue")
-polygon(c(xvals2, rev(xvals2)), c(rep(0, n), rev(dvals2)), col = "lightgreen")
-polygon(c(xvals3, rev(xvals3)), c(rep(0, n), rev(dvals3)), col = "lightgreen")
-text(x = q2, y = dvals1[1], labels = expression(t[list(n - 2, alpha/2)]), pos = 4)
-text(x = q1, y = dvals1[1], labels = expression(-t[list(n - 2, alpha/2)]), pos = 2)
-text(x = 0, y = 0.1, labels = expression(1 - alpha), pos = 3)
-text(x = q1 + 0.3, y = 0.007, labels = expression(alpha / 2), pos = 2)
-text(x = q2 - 0.3, y = 0.007, labels = expression(alpha / 2), pos = 4)
-rug(-0.353, col = 2, lwd = 2)
-rug(-6.170, col = 6, lwd = 2)
-legend("topright", legend = expression(100 * (1 - alpha) * "% CI of the " * t[n - 2],
-                                       "Tails with " * alpha/2 * " probability",
-                                       t * "-statistic for " * beta[0],
-                                       t * "-statistic for " * beta[1]),
-       col = c("lightblue", "lightgreen", 2, 6), lwd = 2)
-dev.off()
+## moreAssumptions.RData
 
 # Exercise assumptions
 n <- 200
@@ -239,8 +213,40 @@ moreAssumptions <- data.frame(x1, x2, x3, x4, x5, x6, x7, x8, x9,
                               y1, y2, y3, y4, y5, y6, y7, y8, y9)
 save(moreAssumptions, file = "moreAssumptions.RData")
 
+## t-test
 
-# Valid linear model
+# t
+png("ttest.png", width = 7, height = 7, res = 200, units = "in")
+xx <- seq(-7, 7, l = 500)
+plot(xx, dt(x = xx, df = n - 2), type = "l", xlab = "x",
+     ylab = "Density of the Student's t with n - 2 df", lwd = 2)
+q1 <- qt(p = 0.975, df = n - 2, lower.tail = FALSE)
+q2 <- qt(p = 0.025, df = n - 2, lower.tail = FALSE)
+xvals1 <- seq(q1, q2, length = n)
+dvals1 <- dt(x = xvals1, df = n - 2)
+xvals2 <- seq(xx[1], q1, length = n)
+dvals2 <- dt(x = xvals2, df = n - 2)
+xvals3 <- seq(q2, xx[length(xx)], length = n)
+dvals3 <- dt(x = xvals3, df = n - 2)
+polygon(c(xvals1, rev(xvals1)), c(rep(0, n), rev(dvals1)), col = "lightblue")
+polygon(c(xvals2, rev(xvals2)), c(rep(0, n), rev(dvals2)), col = "lightgreen")
+polygon(c(xvals3, rev(xvals3)), c(rep(0, n), rev(dvals3)), col = "lightgreen")
+text(x = q2, y = dvals1[1], labels = expression(t[list(n - 2, alpha/2)]), pos = 4)
+text(x = q1, y = dvals1[1], labels = expression(-t[list(n - 2, alpha/2)]), pos = 2)
+text(x = 0, y = 0.1, labels = expression(1 - alpha), pos = 3)
+text(x = q1 + 0.3, y = 0.007, labels = expression(alpha / 2), pos = 2)
+text(x = q2 - 0.3, y = 0.007, labels = expression(alpha / 2), pos = 4)
+rug(-0.353, col = 2, lwd = 2)
+rug(-6.170, col = 6, lwd = 2)
+legend("topright", legend = expression(100 * (1 - alpha) * "% CI of the " * t[n - 2],
+                                       "Tails with " * alpha/2 * " probability",
+                                       t * "-statistic for " * beta[0],
+                                       t * "-statistic for " * beta[1]),
+       col = c("lightblue", "lightgreen", 2, 6), lwd = 2)
+dev.off()
+
+## Diagnostics
+
 png("diagnostics1.png", width = 10, height = 15, res = 200, units = "in")
 par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
 # Good
@@ -253,7 +259,6 @@ plot(lm(y1 ~ x1, data = moreAssumptions), 1)
 plot(lm(y9 ~ x9, data = assumptions), 1)
 dev.off()
 
-# Valid linear model
 png("diagnostics2.png", width = 10, height = 15, res = 200, units = "in")
 par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
 # Good
@@ -266,7 +271,6 @@ x <- rnorm(n); y <- 1 + 2 * x + epsNoNorm; plot(lm(y ~ x), 2)
 plot(lm(y4 ~ x4, data = assumptions), 2)
 dev.off()
 
-# Valid linear model
 png("diagnostics3.png", width = 10, height = 15, res = 200, units = "in")
 par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
 # Good
@@ -279,7 +283,6 @@ x <- rnorm(n); y <- 1 + 2 * x + sin(x) * epsNoNorm; plot(lm(y ~ x), 3)
 plot(lm(y8 ~ x8, data = assumptions), 3)
 dev.off()
 
-# Valid linear model
 png("diagnostics4.png", width = 10, height = 15, res = 200, units = "in")
 par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
 # Good

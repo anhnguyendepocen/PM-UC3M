@@ -748,7 +748,7 @@ summary(mod)
 ```
 
 ```{block, cauassumpfail, type = 'rmdcaution', cache = TRUE}
-When one assumption fails, it is likely that this failure will affect to other assumptions. For example, if linearity fails, then most likely homoscedasticity and normality will fail also too. The key point is to identify the **root cause** of the assumptions failure in order to try to find a patch.
+When one assumption fails, it is likely that this failure will affect to other assumptions. For example, if linearity fails, then most likely homoscedasticity and normality will fail also. The key point is to identify the **root cause** of the assumptions failure in order to try to find a patch.
 ```
 
 ### Linearity {#lm-ii-diagnostics-1}
@@ -757,13 +757,13 @@ Linearity between the response $Y$ and the predictors $X_1,\ldots,X_p$ is the bu
 
 #### How to check it {-}
 
-The so-called **residuals vs. fitted values plot** is the scatterplot of $(\hat\varepsilon_i,\hat Y_i)$, $i=1,\ldots,n$, and is a very useful for detecting linearity departures using a single graphical device. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i$ with respect to $\hat Y_i$. For example:
+The so-called **residuals vs. fitted values plot** is the scatterplot of $(\hat Y_i,\hat\varepsilon_i)$, $i=1,\ldots,n$, and is a very useful for detecting linearity departures using a single graphical device. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i$ with respect to $\hat Y_i$. For example:
 
 ```{r, diag-1, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 plot(mod, 1)
 ```
 
-**Under linearity, we expect the red line** (a flexible fit of the mean of the residuals) **to capture no trend**. If nonlinearities are observed, it is worth to plot the *regression terms* of the model. These are the $p$ scatterplots $(Y_i,X_{ij})$, $i=1,\ldots,n$, that are accompanied by the regression lines $y=\hat\beta_0+\hat\beta_jx$ (important: $\hat\beta_j$, $j=1,\ldots,p$, come from the *multiple* linear fit that gives $\hat{\boldsymbol\beta}$, not from individual *simple* linear regressions). They help on detecting which predictor is having  nonlinear effects on $Y$.
+**Under linearity, we expect the red line** (a flexible fit of the mean of the residuals) **to capture no trend**. If nonlinearities are observed, it is worth to plot the *regression terms* of the model. These are the $p$ scatterplots $(X_{ij},Y_i)$, $i=1,\ldots,n$, that are accompanied by the regression lines $y=\hat\beta_0+\hat\beta_jx$ (important: $\hat\beta_j$, $j=1,\ldots,p$, come from the *multiple* linear fit that gives $\hat{\boldsymbol\beta}$, not from individual *simple* linear regressions). They help on detecting which predictor is having  nonlinear effects on $Y$.
 ```{r, diag-2, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 par(mfrow = c(2, 2)) # We have 4 predictors
 termplot(mod, partial.resid = TRUE)
@@ -775,7 +775,7 @@ knitr::include_graphics("images/R/diagnostics1.png")
 
 #### What to do if fails {-}
 
-Using an adequate nonlinear transformation for the problematic predictors or adding interaction terms, as we saw in Section \@ref(lm-ii-nonlin). Alternatively, using a nonlinear transformation $f$ *for the response* $Y$ (of course, at the price of predicting $f(Y)$ rather than $Y$), as we will see in the case study of Section \@ref(lm-ii-diagnostics-case). Let's see the transformation of predictors in the example that motivated Section \@ref(lm-ii-nonlin).
+Using an adequate nonlinear transformation for the problematic predictors or adding interaction terms, as we saw in Section \@ref(lm-ii-nonlin), might be helpful. Alternatively, consider a nonlinear transformation $f$ *for the response* $Y$ (of course, at the price of predicting $f(Y)$ rather than $Y$), as we will see in the case study of Section \@ref(lm-ii-diagnostics-case). Let's see the transformation of predictors in the example that motivated Section \@ref(lm-ii-nonlin).
 ```{r, diag-3, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 plot(lm(y ~ x, data = nonLinear), 1) # Nonlinear
 plot(lm(y ~ I(x^2), data = nonLinear), 1) # Linear
@@ -891,7 +891,7 @@ An extreme case is the following: suppose we have two samples of sizes $n$ and $
 
 #### How to check it {-}
 
-The set of possible dependence structures is immense, and there is no simple  way of checking all of them. Usually what it is examined is the presence of *autocorrelation*, which appears when there is some kind of time dependence in the measurement of observations. The **serial plot of the residuals** allows to detect time trends in them.
+The set of possible dependence structures is immense, and there is no simple way of checking all of them. Usually what it is examined is the presence of *autocorrelation*, which appears when there is some kind of time dependence in the measurement of observations. The **serial plot of the residuals** allows to detect time trends in them.
 
 ```{r, diag-9, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 plot(mod$residuals, type = "o")
@@ -913,7 +913,7 @@ knitr::include_graphics("images/R/diagnostics4.png")
 
 Little can be done if there is dependence in the data, once this has been collected. We must rely on the family of statistical models meant to deal with serial dependence: *time series*.
 
-However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovarions* of the series of $Y$.
+However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovations* of the series of $Y$.
 
 ```{block, exassump3d, type = 'rmdexercise', cache = TRUE}
 Load the dataset `assumptions3D.RData`([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions3D.RData)) and compute the regressions `y.3 ~ x1.3 + x2.3`, `y.4 ~ x1.4 + x2.4`, `y.5 ~ x1.5 + x2.5`, and `y.8 ~ x1.8 + x2.8`. Use the presented diagnostic tools to test the assumptions of the linear model and look out for possible problems.

@@ -509,7 +509,6 @@ Recall:
 ```
 
 Figures \@ref(fig:linearmodelgood) and \@ref(fig:linearmodelbad) represent situations where the assumptions of the model for $p=1$ are respected and violated, respectively. 
-
 ```{r, linearmodelgood, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = 'Perfectly valid simple linear models (all the assumptions are verified).', cache = TRUE}
 knitr::include_graphics("images/R/linearmodelgood.png")
 ```
@@ -593,9 +592,9 @@ The insights about \@ref(eq:normp) are more convoluted. The following broad rema
     - *Predictor sparsity $(\mathbf{X}'\mathbf{X})^{-1}$*. The more *sparse* the predictor is (small $|(\mathbf{X}'\mathbf{X})^{-1}|$), the more precise $\hat{\boldsymbol{\beta}}$ is.
 
 The problem with \@ref(eq:normp) is that *$\sigma^2$ is unknown* in practice, so we need to estimate $\sigma^2$ from the data. We do so by computing a rescaled sample variance of the residuals $\hat\varepsilon_1,\ldots,\hat\varepsilon_n$:
-\begin{align*}
-\hat\sigma^2:=\frac{1}{n-p-1}\sum_{i=1}^n\hat\varepsilon_i^2.
-\end{align*}
+\begin{align}
+\hat\sigma^2:=\frac{1}{n-p-1}\sum_{i=1}^n\hat\varepsilon_i^2.(\#eq:varhat)
+\end{align}
 Note the $n-p-1$ in the denominator. Now $n-p-1$ are the *degrees of freedom*, the number of data points minus the number of already fitted parameters ($p$ slopes and $1$ intercept). For the interpretation of $\hat\sigma^2$, it is key to realize that *the mean of the residuals $\hat\varepsilon_1,\ldots,\hat\varepsilon_n$ is zero*, this is $\bar{\hat\varepsilon}=0$. Therefore, $\hat\sigma^2$ is indeed a rescaled sample variance of the residuals which estimates the variance of $\varepsilon$.
 
 If we use the estimate $\hat\sigma^2$ instead of $\sigma^2$, we get more useful distributions than \@ref(eq:normp1b)
@@ -985,7 +984,7 @@ For the `y6 ~ x6` and `y7 ~ x7` in the `assumptions` dataset, compute their ANOV
 
 The *coefficient of determination* $R^2$ is closely related with the ANOVA decomposition. It is defined as
 \begin{align*}
-R^2=\frac{\text{SSR}}{\text{SST}}=\frac{\text{SSR}}{\text{SSR}+\text{SSE}}=\frac{\text{SSR}}{\text{SSR}+(n-p-1)\hat\sigma^2}.
+R^2:=\frac{\text{SSR}}{\text{SST}}=\frac{\text{SSR}}{\text{SSR}+\text{SSE}}=\frac{\text{SSR}}{\text{SSR}+(n-p-1)\hat\sigma^2}.
 \end{align*}
 $R^2$ measures the **proportion of variation** of the response variable $Y$ that is **explained** by the predictors $X_1,\ldots,X_p$ through the regression. Intuitively, $R^2$ measures the *tightness of the data cloud around the regression plane*. Check in Figure \@ref(fig:anovaillus) how changing the value of $\sigma^2$ (not $\hat\sigma^2$, but $\hat\sigma^2$ is obviously dependent on $\sigma^2$) affects the $R^2$. 
 
@@ -1078,8 +1077,8 @@ so if $\text{RSS}(\hat{\boldsymbol{\beta}})=\min_{\boldsymbol{\beta}\in\mathbb{R
 
 As we saw, these are equivalent forms for $R^2$:
 \begin{align}
-R^2&=\frac{\text{SSR}}{\text{SST}}=\frac{\text{SST}-\text{SSE}}{\text{SST}}=1-\frac{\text{SSE}}{\text{SST}}\nonumber\\
-&=1-\frac{\hat\sigma^2}{\text{SST}}\times(n-p-1).(\#eq:R2)
+R^2:=&\,\frac{\text{SSR}}{\text{SST}}=\frac{\text{SST}-\text{SSE}}{\text{SST}}=1-\frac{\text{SSE}}{\text{SST}}\nonumber\\
+=&\,1-\frac{\hat\sigma^2}{\text{SST}}\times(n-p-1).(\#eq:R2)
 \end{align}
 The SSE on the numerator always decreases as more predictors are added to the model, even if these are no significant. As a consequence, the **$R^2$ always increases with $p$**. Why is so? Intuitively, because the complexity -- hence the flexibility -- of the model increases when we use more predictors to explain $Y$. Mathematically, because when $p$ approaches $n-1$ the second term in \@ref(eq:R2) is reduced and, as a consequence, $R^2$ grows.
 
