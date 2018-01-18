@@ -1,3 +1,434 @@
 
 # Nonparametric regression {#npreg}
 
+The relation of two random variables $X$ and $Y$ can be completely characterized by their joint cdf $F$, or equivalently, by the joint pdf $f$ if $(X,Y)$ is continuous, the case we will address. In the regression setting, we are interested in predicting/explaining the *response* $Y$ by means of the *predictor* $X$ from a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$.
+
+The complete knowledge of $Y$ when $X=x$ is given by the conditional pdf: $f_{Y| X=x}(y)=\frac{f(x,y)}{f_X(x)}$. While this pdf provides full knowledge about $Y| X=x$, it is also a challenging task to estimate it: for each $x$ we have to estimate a *curve*! A simpler approach, yet still challenging, is to estimate the conditional mean (a scalar) for each $x$. This is the so-called *regression function*^[Recall that we assume that $(X,Y)$ is continuous.]
+$$
+m(x):=\mathbb{E}[Y| X=x]=\int y\mathrm{d}F_{Y| X=x}(y)=\int yf_{Y| X=x}(y)\mathrm{d}y.
+$$
+Thus we aim to provide information about $Y$'s expectation, not distribution, by $X$.
+
+Finally, recall that $Y$ can expressed in terms of $m$ by means of the *location-scale model*:
+$$
+Y=m(X)+\sigma(X)\varepsilon,
+$$
+where $\sigma^2(x):=\mathbb{V}\mathrm{ar}[Y| X=x]$ and $\varepsilon$ is independent from $X$ and such that $\mathbb{E}[\varepsilon]=0$ and $\mathbb{V}\mathrm{ar}[\varepsilon]=0$.
+
+## Kernel density estimation {#npreg-kde}
+
+TODO
+
+Then $K$ is known as a *kernel*, a density that is typically symmetric and unimodal at $0$. This generalization provides the definition of **kernel density estimator** (kde)^[Also known as the *Parzen-Rosemblatt estimator* to hounour the proposals by @Parzen1962 and @Rosenblatt1956.]:
+\begin{align}
+\hat f(x;h):=\frac{1}{nh}\sum_{i=1}^nK\left(\frac{x-X_i}{h}\right). (\#eq:kde)
+\end{align}
+A common notation is $K_h(z):=\frac{1}{h}K\left(\frac{z}{h}\right)$, so $\hat f(x;h)=\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)$.
+
+Several types of kernels are possible. The most popular is the *normal kernel* $K(z)=\phi(z)$, although the *Epanechnikov kernel*, $K(z)=\frac{3}{4}(1-z^2)1_{\{|z|<1\}}$, is the most efficient. The *rectangular kernel* $K(z)=\frac{1}{2}1_{\{|z|<1\}}$ yields the moving histogram as a particular case. The kde inherits the smoothness properties of the kernel. That means, for example, \@ref(eq:kde) with a normal kernel is infinitely differentiable. But with an Epanechnikov kernel, \@ref(eq:kde) is not differentiable, and with a rectangular kernel is not even continuous. However, if a certain smoothness is guaranteed (continuity at least), the *choice of the kernel has little importance in practice* (at least compared with the choice of $h$). Figure \@ref(fig:kdeconst) illustrates the construction of the kde, and the bandwidth and kernel effects.
+
+It is useful to recall the kde with the normal kernel. If that is the case, then $K_h(x-X_i)=\phi_h(x-X_i)$ and the kernel is a the density of a $\mathcal{N}(X_i,h^2)$. Thus the bandwidth $h$ can be thought as the standard deviation of the normal densities that have mean zero.
+
+(ref:kdeconsttitle) Construction of the kernel density estimator. The animation shows how the bandwidth and kernel affect the density estimate, and how the kernels are rescaled densities with modes at the data points. Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/kde/).
+
+```{r, kdeconst, echo = FALSE, fig.cap = '(ref:kdeconsttitle)', screenshot.alt = "images/screenshots/kde.png", dev = 'png', cache = TRUE, fig.pos = 'h!', out.width = '90%'}
+knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/kde/', height = '1000px')
+```
+
+Implementation of kde in `R` is built-in through the `density` function. The function automatically chooses the bandwidth $h$ using a *bandwidth selector*.
+
+```{r, kdeR, echo = TRUE, eval = TRUE, collapse = TRUE, cache = TRUE}
+# Sample 100 points from a N(0, 1)
+set.seed(1234567)
+samp <- rnorm(n = 100, mean = 0, sd = 1)
+
+# Quickly compute a kde and plot the density object
+# Automatically chooses bandwidth and uses normal kernel
+plot(density(x = samp))
+
+# Select a particular bandwidth (0.5) and kernel (Epanechnivok)
+lines(density(x = samp, bw = 0.5, kernel = "epanechnikov"), col = 2)
+
+# density automatically chooses the interval for plotting the kde
+# (observe that the black line goes to roughly between -3 and 3)
+# This can be tuned using "from" and "to"
+plot(density(x = samp, from = -4, to = 4), xlim = c(-5, 5))
+
+# The density object is a list
+kde <- density(x = samp, from = -5, to = 5, n = 1024)
+str(kde)
+# Note that the evaluation grid "x"" is not directly controlled, only through
+# "from, "to", and "n" (better use powers of 2)
+plot(kde$x, kde$y, type = "l")
+curve(dnorm(x), col = 2, add = TRUE) # True density
+rug(samp)
+```
+
+```{block, exfaithful, type = 'rmdexercise', cache = TRUE}
+Load the dataset `faithful`. Then:
+
+- Estimate and plot the density of `faithful$eruptions`.
+- Create a new plot and superimpose different density estimations with bandwidths equal to $0.1$, $0.5$, and $1$.
+- Get the density estimate at *exactly* the point $x=3.1$ using $h=0.15$ and the Epanechnikov kernel.
+
+```
+
+The kde can be extended to a multivariate setting by  using *product kernels*. For a sample $\mathbf{X}_1,\ldots,\mathbf{X}_n$ in $\mathbb{R}^p$, the multivariate kde employing product kernels is
+\begin{align}
+\hat f(\mathbf{x};\mathbf{h})=\frac{1}{n}\sum_{i=1}^nK_{h_1}(x_1-X_{i,1})\cdots\stackrel{p}{\times}\cdots\times K_{h_p}(x_p-X_{i,p}),(\#eq:multkde)
+\end{align}
+where $\mathbf{x}=(x_{1},\ldots,x_{p})$, $\mathbf{X}_i=(X_{i,1},\ldots,X_{i,p})$, and $\mathbf{h}=(h_1,\ldots,h_p)$ is a vector of bandwidths.
+
+## Kernel regression estimation {#npreg-kre}
+
+### Nadaraya-Watson estimator {#npreg-nw}
+
+Our objective is to estimate the regression function $m$ nonparametrically. Due to its definition, we can rewrite it as follows:
+\begin{align*}
+m(x)=&\,\mathbb{E}[Y| X=x]\nonumber\\
+=&\,\int y f_{Y| X=x}(y)\mathrm{d}y\nonumber\\
+=&\,\frac{\int y f(x,y)\mathrm{d}y}{f_X(x)}.
+\end{align*}
+This expression shows an interesting point: the regression function can be computed from the joint density $f$ and the marginal $f_X$. Therefore, given a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$, an estimate of $m$ follows by replacing the previous densities by their kdes. To that aim, recall that in \@ref(eq:multkde) we defined a multivariate extension of the kde based on product kernels. For the two dimensional case, the kde with equal bandwidths $\mathbf{h}=(h,h)$ is
+\begin{align}
+\hat f(x,y;h)=\frac{1}{n}\sum_{i=1}^nK_{h}(x_1-X_{i})K_{h}(y-Y_{i}).(\#eq:kdem)
+\end{align}
+Using \@ref(eq:kdem),
+\begin{align*}
+m(x)\approx&\,\frac{\int y \hat f(x,y;h)\mathrm{d}y}{\hat f_X(x;h)}\\
+=&\,\frac{\int y \hat f(x,y;h)\mathrm{d}y}{\hat f_X(x;h)}\\
+=&\,\frac{\int y \frac{1}{n}\sum_{i=1}^nK_h(x-X_i)K_h(y-Y_i)\mathrm{d}y}{\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)}\\
+=&\,\frac{\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)\int y K_h(y-Y_i)\mathrm{d}y}{\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)}\\
+=&\,\frac{\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)Y_i}{\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)}.
+\end{align*}
+This yields the so-called **Nadaraya-Watson**^[Termed due to the coetaneous proposals by @Nadaraya1964 and @Watson1964.] estimate:
+\begin{align}
+\hat m(x;0,h):=\frac{1}{n}\sum_{i=1}^n\frac{K_h(x-X_i)}{\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)}Y_i=\sum_{i=1}^nW^0_{i}(x)Y_i, (\#eq:nw)
+\end{align}
+where $W^0_{i}(x):=\frac{K_h(x-X_i)}{\sum_{i=1}^nK_h(x-X_i)}$. This estimate can be seen as a weighted average of $Y_1,\ldots,Y_n$ by means of the set of weights $\{W_{n,i}(x)\}_{i=1}^n$ (check that they add to one). The set of weights depends on the evaluation point $x$. That means that the Nadaraya-Watson estimator is a **local mean of $Y_1,\ldots,Y_n$ around $X=x$** (see Figure \@ref(fig:kreg)).
+
+Let's implement the Nadaraya-Watson estimate to get a feeling of how it works in practice.
+
+```{r, nw-1, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Nadaraya-Watson
+mNW <- function(x, X, Y, h, K = dnorm) {
+
+  # Arguments
+  # x: evaluation points
+  # X: vector (size n) with the predictors
+  # Y: vector (size n) with the response variable
+  # h: bandwidth
+  # K: kernel
+
+  # Matrix of size n x length(x)
+  Kx <- sapply(X, function(Xi) K((x - Xi) / h) / h)
+
+  # Weights
+  W <- Kx / rowSums(Kx) # Column recycling!
+
+  # Means at x ("drop" to drop the matrix attributes)
+  drop(W %*% Y)
+
+}
+
+# Generate some data to test the implementation
+set.seed(12345)
+n <- 100
+eps <- rnorm(n, sd = 2)
+m <- function(x) x^2 * cos(x)
+X <- rnorm(n, sd = 2)
+Y <- m(X) + eps
+xGrid <- seq(-10, 10, l = 500)
+
+# Bandwidth
+h <- 0.5
+
+# Plot data
+plot(X, Y)
+rug(X, side = 1); rug(Y, side = 2)
+lines(xGrid, m(xGrid), col = 1)
+lines(xGrid, mNW(x = xGrid, X = X, Y = Y, h = h), col = 2)
+legend("topright", legend = c("True regression", "Nadaraya-Watson"),
+       lwd = 2, col = 1:2)
+```
+
+```{block, exnadwat, type = 'rmdexercise', cache = TRUE}
+Implement your own version of the Nadaraya-Watson estimator in `R` and compare it with `mNW`. You may focus only on the normal kernel and reduce the accuracy of the final computation up to `1e-7` to achieve better efficiency. Are you able to improve the speed of `mNW`? Use `system.time` or the `microbenchmark` package to measure the running times for a sample size of $n=10000$.
+```
+
+The code below illustrates the effect of varying $h$ for the Nadaraya-Watson estimator using `manipulate`.
+
+```{r, nw-2, echo = TRUE, eval = FALSE, collapse = TRUE, cache = TRUE}
+# Simple plot of N-W for varying h's
+library(manipulate)
+manipulate({
+
+  # Plot data
+  plot(X, Y)
+  rug(X, side = 1); rug(Y, side = 2)
+  lines(xGrid, m(xGrid), col = 1)
+  lines(xGrid, mNW(x = xGrid, X = X, Y = Y, h = h), col = 2)
+  legend("topright", legend = c("True regression", "Nadaraya-Watson"),
+         lwd = 2, col = 1:2)
+
+}, h = slider(min = 0.01, max = 2, initial = 0.5, step = 0.01))
+```
+
+### Local polynomial regression {#npreg-locpoly}
+
+Nadaraya-Watson can be seen as a particular case of a *local polynomial fit*, specifically, the one corresponding to a *local constant fit*. The motivation for the local polynomial fit comes from attempting to the minimize the RSS
+\begin{align}
+\sum_{i=1}^n(Y_i-m(X_i))^2.(\#eq:mrss)
+\end{align}
+This is not achievable directly, since no knowledge on $m$ is available. However, by a $p$-th order Taylor expression it is possible to obtain that, for $x$ close to $X_i$,
+\begin{align}
+m(X_i)\approx&\, m(x)+m'(x)(X_i-x)+\frac{m''(x)}{2}(X_i-x)^2\nonumber\\
+&+\cdots+\frac{m^{(p)}(x)}{p!}(X_i-x)^p.(\#eq:mtay)
+\end{align}
+Replacing \@ref(eq:mtay) in \@ref(eq:mrss), we have that
+\begin{align}
+\sum_{i=1}^n\left(Y_i-\sum_{j=0}^p\frac{m^{(j)}(x)}{j!}(X_i-x)^j\right)^2.(\#eq:mder)
+\end{align}
+This expression is still not workable: it depends on $m^{(j)}(x)$, $j=0,\ldots,p$, which of course are unknown! The *great idea* is to set $\beta_j:=\frac{m^{(j)}(x)}{j!}$ and turn \@ref(eq:mder) into a linear regression problem where the unknown parameters are $\boldsymbol{\beta}=(\beta_0,\beta_1,\ldots,\beta_p)'$:
+\begin{align}
+\sum_{i=1}^n\left(Y_i-\sum_{j=0}^p\beta_j(X_i-x)^j\right)^2.(\#eq:minbe)
+\end{align}
+While doing so, an estimate of $\boldsymbol{\beta}$ automatically will yield estimates for $m^{(j)}(x)$, $j=0,\ldots,p$, and we know how to obtain $\hat{\boldsymbol{\beta}}$ by minimizing \@ref(eq:minbe). The final touch is to make the contributions of $X_i$ dependent on the distance to $x$ by weighting with kernels:
+\begin{align}
+\hat{\boldsymbol{\beta}}:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\sum_{i=1}^n\left(Y_i-\sum_{j=0}^p\beta_j(X_i-x)^j\right)^2K_h(x-X_i).(\#eq:hatb)
+\end{align}
+Denoting
+$$
+\mathbf{X}:=\begin{pmatrix}
+1 & X_1-x & \cdots & (X_1-x)^p\\
+\vdots & \vdots & \ddots & \vdots\\
+1 & X_n-x & \cdots & (X_n-x)^p\\
+\end{pmatrix}_{n\times(p+1)}
+$$
+and
+$$
+\mathbf{W}:=\mathrm{diag}(K_h(X_1-x),\ldots, K_h(X_n-x)),\quad
+\mathbf{Y}:=\begin{pmatrix}
+Y_1\\
+\vdots\\
+Y_n
+\end{pmatrix}_{n\times 1},
+$$
+we can re-express \@ref(eq:hatb) into a *weighted least squares problem* whose exact solution is
+\begin{align}
+\hat{\boldsymbol{\beta}}&=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}} (\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})'\mathbf{W}(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})\\
+&=(\mathbf{X}'\mathbf{W}\mathbf{X})^{-1}\mathbf{X}'\mathbf{W}\mathbf{Y}.(\#eq:betaw)
+\end{align}
+
+The estimate for $m(x)$ is then computed as
+\begin{align*}
+\hat m(x;p,h):&=\hat\beta_0\\
+&=\mathbf{e}_1'(\mathbf{X}'\mathbf{W}\mathbf{X})^{-1}\mathbf{X}'\mathbf{W}\mathbf{Y}\\
+&=\sum_{i=1}^nW^p_{i}(x)Y_i,
+\end{align*}
+where $W^p_{i}(x):=\mathbf{e}_1'(\mathbf{X}'\mathbf{W}\mathbf{X})^{-1}\mathbf{X}'\mathbf{W}\mathbf{e}_i$ and $\mathbf{e}_i$ is the $i$-th canonical vector. Just as the Nadaraya-Watson, the local polynomial estimator is a *linear combination of the responses*. Two cases deserve special attention:
+
+- $p=0$ is the *local constant estimator* or the Nadaraya-Watson estimator. In this situation, the estimator has explicit weights, as we saw before:
+$$
+W_i^0(x)=\frac{K_h(x-X_i)}{\sum_{j=1}^nK_h(x-X_j)}.
+$$
+- $p=1$ is the *local linear estimator*, which has weights equal to:
+\begin{align}
+W_i^1(x)=\frac{\hat s_2(x;h)-\hat s_1(x;h)(X_i-x)}{\hat s_2(x;h)\hat s_0(x;h)-\hat s_1(x;h)^2}K_h(x-X_i),(\#eq:we)
+\end{align}
+where $\hat s_r(x;h):=\frac{1}{n}\sum_{i=1}^n(X_i-x)^rK_h(x-X_i)$.
+
+Figure \@ref(fig:kreg) illustrates the construction of the local polynomial estimator (up to cubic degree) and shows how $\hat\beta_0=\hat m(x;p,h)$, the intercept of the local fit, estimates $m$ at $x$.
+
+(ref:kregtitle) Construction of the local polynomial estimator. The animation shows how local polynomial fits in a neighborhood of $x$ are combined to provide an estimate of the regression function, which depends on the polynomial degree, bandwidth, and kernel (gray density at the bottom). The data points are shaded according to their weights for the local fit at $x$. Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/kreg/).
+
+```{r, kreg, echo = FALSE, fig.cap = '(ref:kregtitle)', screenshot.alt = "images/screenshots/kreg.png", dev = 'png', cache = TRUE, fig.pos = 'h!', out.width = '100%'}
+knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/kreg/', height = '1000px')
+```
+
+`KernSmooth`'s `locpoly` implements the local polynomial estimator. Below are some examples of its usage.
+
+```{r, lp-1, echo = TRUE, collapse = TRUE, cache = TRUE}
+# Generate some data to test the implementation
+set.seed(123456)
+n <- 100
+eps <- rnorm(n, sd = 2)
+m <- function(x) x^3 * sin(x)
+X <- rnorm(n, sd = 1.5)
+Y <- m(X) + eps
+xGrid <- seq(-10, 10, l = 500)
+
+# Bandwidth
+h <- 0.25
+lp0 <- locpoly(x = X, y = Y, bandwidth = h, degree = 0, range.x = c(-10, 10),
+               gridsize = 500)
+lp1 <- locpoly(x = X, y = Y, bandwidth = h, degree = 1, range.x = c(-10, 10),
+               gridsize = 500)
+
+# Plot data
+plot(X, Y)
+rug(X, side = 1); rug(Y, side = 2)
+lines(xGrid, m(xGrid), col = 1)
+lines(lp0$x, lp0$y, col = 2)
+lines(lp1$x, lp1$y, col = 3)
+legend("bottom", legend = c("True regression", "Local constant",
+                         "Local linear"),
+       lwd = 2, col = 1:3)
+```
+
+```{r, lp-2, echo = TRUE, eval = FALSE, collapse = TRUE, cache = TRUE}
+# Simple plot of local polynomials for varying h's
+library(manipulate)
+manipulate({
+
+  # Plot data
+  lpp <- locpoly(x = X, y = Y, bandwidth = h, degree = p, range.x = c(-10, 10),
+                 gridsize = 500)
+  plot(X, Y)
+  rug(X, side = 1); rug(Y, side = 2)
+  lines(xGrid, m(xGrid), col = 1)
+  lines(lpp$x, lpp$y, col = p + 2)
+  legend("bottom", legend = c("True regression", "Local polynomial fit"),
+         lwd = 2, col = c(1, p + 2))
+
+}, h = slider(min = 0.01, max = 2, initial = 0.5, step = 0.01),
+p = slider(min = 0, max = 4, initial = 0, step = 1))
+
+```
+
+## Asymptotic properties {#npreg-asymp}
+
+The purpose of this section is to provide some key asymptotic results for the bias, variance, and asymptotic normality of the local linear and local constant estimators. These provide useful insights on the effect of $p$, $m$, $f$, and $\sigma^2$ in the performance of the estimators.
+
+Along this section we will make the following assumptions:
+
+- **A1**. $m$ is twice continuously differentiable.
+- **A2**. $\sigma^2$ is continuous and positive.
+- **A3**. $f$ is continuously differentiable and positive.
+- **A4**. The kernel $K$ is a symmetric and bounded pdf with finite second moment and is square integrable.
+- **A5**. $h=h_n$ is a deterministic sequence of bandwidths such that, when $n\to\infty$, $h\to0$ and $nh\to\infty$.
+
+The bias and variance are expanded in their *conditional* versions on the predictor's sample $X_1,\ldots,X_n$. The reason of analyzing the conditional instead of the *unconditional* versions is avoiding technical difficulties that integration with respect to the predictor's density may pose.
+
+```{theorem, thbvloc, label = "biasvarloc", cache = TRUE}
+Under **A1**--**A5**, the conditional bias and variance of the local constant ($p=0$) and local linear ($p=1$) estimators are
+\begin{align}
+\mathrm{Bias}[\hat m(x;p,h)| X_1,\ldots,X_n]&=B_p(x)h^2+o_\mathbb{P}(h^2),(\#eq:mbias)\\
+\mathbb{V}\mathrm{ar}[\hat m(x;p,h)| X_1,\ldots,X_n]&=\frac{R(K)}{nhf(x)}\sigma^2(x)+o_\mathbb{P}((nh)^{-1}),(\#eq:mvar)
+\end{align}
+where
+$$
+B_p(x)=\frac{\mu_2(K)}{2}\left\{m''(x)+2\frac{m'(x)f'(x)}{f(x)}1_{\{p=0\}}\right\}.
+$$
+```
+
+The bias and variance expressions \@ref(eq:mbias) and \@ref(eq:mvar) yield interesting insights:
+
+- The bias decreases with $h$ *quadratically* for $p=0,1$. The bias at $x$ is directly proportional to $m''(x)$ if $p=1$ and affected by $m''(x)$ if $p=0$. This has the same interpretation as in the density setting:
+
+    - The bias is negative in concave regions, *i.e.* $\{x\in\mathbb{R}:m(x)''<0\}$. These regions correspond to *peaks and modes of $m$*
+    - Conversely, the bias is positive in convex regions, *i.e.* $\{x\in\mathbb{R}:m(x)''>0\}$. These regions correspond to *valleys of $m$*.
+    - **The wilder the curvature $m''$, the harder to estimate $m$**.
+
+- The bias for $p=0$ at $x$ is affected by $m'(x)$, $f'(x)$, and $f(x)$. Precisely, **the lower the density $f(x)$, the larger the bias**. And **the faster $m$ and $f$ change at $x$, the larger the bias**. Thus the bias of the local constant estimator is much more sensible to $m(x)$ and $f(x)$ than the local linear (which is only sensible to $m''(x)$). Particularly, the fact that it depends on $f'(x)$ and $f(x)$ is referred as the *design bias* since it depends merely on the predictor's distribution.
+
+- The variance depends directly on $\frac{\sigma^2(x)}{f(x)}$ for $p=0,1$. As a consequence, **the lower the density and larger the conditional variance, the more variable is $\hat m(\cdot;p,h)$.** The variance decreases at a factor of $(nh)^{-1}$ due to the effective sample size.
+
+An extended version of Theorem \@ref(thm:biasvarloc), given in Theorem 3.1 of @Fan1996, shows that **odd order polynomial fits are preferable to even order polynomial fits**. The reason is that odd orders introduce an extra coefficient for the polynomial fit that allows to reduce the bias, while at the same time they keep the variance unchanged. In summary, the conclusions of the above analysis of $p=0$ vs. $p=1$, namely that $p=1$ has smaller bias than $p=0$ (but of the same order) and the same variance as $p=0$, extend to the case $p=2\nu$ vs. $p=2\nu+1$, $\nu\in\mathbb{N}$. This allows to claim that local polynomial fitting *is an odd world* (@Fan1996).
+
+Finally, we have the asymptotic pointwise normality of the estimator.
+
+```{theorem, thapn}
+Assume that $\mathbb{E}[(Y-m(x))^{2+\delta}| X=x]<\infty$ for some $\delta>0$. Then, under **A1**--**A5**,
+\begin{align}
+&\sqrt{nh}(\hat m(x;p,h)-\mathbb{E}[\hat m(x;p,h)])\stackrel{d}{\longrightarrow}\mathcal{N}\left(0,\frac{R(K)\sigma^2(x)}{f(x)}\right),(\#eq:mnorm1)\\
+&\sqrt{nh}\left(\hat m(x;p,h)-m(x)-B_p(x)h^2\right)\stackrel{d}{\longrightarrow}\mathcal{N}\left(0,\frac{R(K)\sigma^2(x)}{f(x)}\right).(\#eq:mnorm2)
+\end{align}
+
+```
+
+## Bandwidth selection {#npreg-bwd}
+
+Bandwidth selection is of key practical importance. Several bandwidth selectors have been proposed for kernel regression but, for simplicity, we will focus only on the **cross-validation** bandwidth selector.
+
+Following an analogy with the fit of the linear model, we could look for the bandwidth $h$ such that it minimizes the RSS of the form
+\begin{align}
+\frac{1}{n}\sum_{i=1}^n(Y_i-\hat m(X_i;p,h))^2.(\#eq:badcv)
+\end{align}
+However, this is a bad idea. Attempting to minimize \@ref(eq:badcv) always leads to $h\approx 0$ that results in a useless interpolation of the data. Let's see an example.
+
+```{r, bwd-1, echo = TRUE, eval = TRUE, collapse = TRUE, cache = TRUE}
+# Grid for representing (3.22)
+hGrid <- seq(0.1, 1, l = 200)^2
+error <- sapply(hGrid, function(h)
+  mean((Y - mNW(x = X, X = X, Y = Y, h = h))^2))
+
+# Error curve
+plot(hGrid, error, type = "l")
+rug(hGrid)
+abline(v = hGrid[which.min(error)], col = 2)
+```
+The root of the problem is the comparison of $Y_i$ with $\hat m(X_i;p,h)$, since there is nothing that forbids $h\to0$ and as a consequence $\hat m(X_i;p,h)\to Y_i$. We can change this behavior if we compare $Y_i$ with $\hat m_{-i}(X_i;p,h)$, the **leave-one-out estimate** computed without the $i$-th datum $(X_i,Y_i)$:
+\begin{align*}
+\mathrm{CV}(h)&:=\frac{1}{n}\sum_{i=1}^n(Y_i-\hat m_{-i}(X_i;p,h))^2,\\
+h_\mathrm{CV}&:=\arg\min_{h>0}\mathrm{CV}(h).
+\end{align*}
+The optimization of the above criterion might seem to be computationally expensive, since it is required to compute $n$ regressions for a *single* evaluation of the objective function.
+
+```{proposition, thbwdcv, label = "cv"}
+The weights of the leave-one-out estimator $\hat m_{-i}(x;p,h)=\sum_{\substack{j=1\\j\neq i}}^nW_{-i,j}^p(x)Y_j$ can be obtained from $\hat m(x;p,h)=\sum_{i=1}^nW_{i}^p(x)Y_i$:
+\begin{align*}
+W_{-i,j}^p(x)=\frac{W^p_j(x)}{\sum_{\substack{k=1\\k\neq j}}^nW_k^p(x)}.
+\end{align*}
+This implies that
+\begin{align*}
+\mathrm{CV}(h)=\frac{1}{n}\sum_{i=1}^n\left(\frac{Y_i-\hat m(X_i;p,h)}{1-W_i^p(X_i)}\right)^2.
+\end{align*}
+
+```
+
+Let's implement this simple bandwidth selector in `R`.
+
+```{r, bwd-2, echo = TRUE, eval = TRUE, collapse = TRUE, cache = TRUE}
+# Generate some data to test the implementation
+set.seed(12345)
+n <- 100
+eps <- rnorm(n, sd = 2)
+m <- function(x) x^2 + sin(x)
+X <- rnorm(n, sd = 1.5)
+Y <- m(X) + eps
+xGrid <- seq(-10, 10, l = 500)
+
+# Objective function
+cvNW <- function(X, Y, h, K = dnorm) {
+  	sum(((Y - mNW(x = X, X = X, Y = Y, h = h, K = K)) /
+  	       (1 - K(0) / colSums(K(outer(X, X, "-") / h))))^2)
+}
+
+# Find optimum CV bandwidth, with sensible grid
+bw.cv.grid <- function(X, Y,
+                       h.grid = diff(range(X)) * (seq(0.1, 1, l = 200))^2,
+                       K = dnorm, plot.cv = FALSE) {
+	obj <- sapply(h.grid, function(h) cvNW(X = X, Y = Y, h = h, K = K))
+  h <- h.grid[which.min(obj)]
+  if (plot.cv) {
+    plot(h.grid, obj, type = "o")
+    rug(h.grid)
+    abline(v = h, col = 2, lwd = 2)
+  }
+  h
+}
+
+# Bandwidth
+h <- bw.cv.grid(X = X, Y = Y, plot.cv = TRUE)
+h
+
+# Plot result
+plot(X, Y)
+rug(X, side = 1); rug(Y, side = 2)
+lines(xGrid, m(xGrid), col = 1)
+lines(xGrid, mNW(x = xGrid, X = X, Y = Y, h = h), col = 2)
+legend("topright", legend = c("True regression", "Nadaraya-Watson"),
+       lwd = 2, col = 1:2)
+```
+
