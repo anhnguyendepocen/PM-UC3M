@@ -1,177 +1,204 @@
 
-# Sample size
+# Plotting function
 n <- 200
+plotFun <- function(x, eta, y, n = 200, ind = 1, fam = "poisson") {
+  
+  if (missing(y)) {
+    y <- switch(fam,
+      "poisson" = rpois(n, lambda = exp(eta)),
+      "binomial" = rbinom(n, prob = 1 / (1 + exp(-eta)), size = 1))
+  }
+  mod <- glm(y ~ x, family = fam)
+  plot(x, y, pch = 16, main = "Data scatterplot")
+  t <- seq(-100, 100, l = 1e4)
+  lines(t, predict(mod, newdata = data.frame(x = t), type = "response"), 
+        col = 2)
+  if (ind < 7) {
+    plot(mod, which = ind,
+         main = list("Residuals vs Fitted", "Normal Q-Q", "Scale-Location", 
+                     "Cook's distance", "Residuals vs Leverage", 
+                     expression("Cook's dist vs Leverage  " 
+                                * h[ii]/(1 - h[ii])))[ind], caption = "")
+  } else {
+    plot(mod$residuals, type = "o", ylab = "Residuals", 
+         main = "Residuals series")
+  }
+  
+}
 
 ## Linearity
 
-png("poisdiagnostics1.png", width = 10, height = 15, res = 200, units = "in")
-par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
-fam <- "poisson"
-rs <- function(n, eta) rpois(n, lambda = exp(eta))
-set.seed(1233132)
+# Poisson
+
 # Good
+png("poisdiag1-good.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
 x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
-plot(glm(y ~ x, family = fam), 1)
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = 2 * x)
-plot(glm(y ~ x, family = fam), 1)
-x <- rpois(n, 10)
-y <- rs(n, eta = -1 + x)
-plot(glm(y ~ x, family = fam), 1)
-# Bad
-x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x^2)
-plot(glm(y ~ x, family = fam), 1)
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = x - sin(x))
-plot(glm(y ~ x, family = fam), 1)
+plotFun(x = x, eta = 1 + 0.5 * x, n = n, ind = 1, fam = "poisson")
+x <- sample(c(rnorm(n, 3, 0.5), rnorm(n, -3, 0.5)), size = n)
+plotFun(x = x, eta = -0.5 * x, n = n, ind = 1, fam = "poisson")
 x <- rpois(n, 5)
-y <- rs(n, eta = x + 0.1 * x^3)
-plot(glm(y ~ x, family = fam), 1)
+plotFun(x = x, eta = -3 + 0.5 * x, n = n, ind = 1, fam = "poisson")
 dev.off()
 
-png("logdiagnostics1.png", width = 10, height = 15, res = 200, units = "in")
-par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
-fam <- "binomial"
-rs <- function(n, eta) rbinom(n, prob = 1 / (1 + exp(-eta)), size = 1)
-set.seed(1233132)
-# Good
-x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
-plot(glm(y ~ x, family = fam), 1)
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = 2 * x)
-plot(glm(y ~ x, family = fam), 1)
-x <- rpois(n, 10)
-y <- rs(n, eta = -1 + x)
-plot(glm(y ~ x, family = fam), 1)
 # Bad
+png("poisdiag1-bad.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
 x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + x^2)
-plot(glm(y ~ x, family = fam), 1)
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = sin(x))
-plot(glm(y ~ x, family = fam), 1)
+plotFun(x = x, eta = 1 + 0.25 * x^2, n = n, ind = 1, fam = "poisson")
+x <- sample(c(rnorm(n, 3, 0.5), rnorm(n, -3, 0.5)), size = n)
+plotFun(x = x, eta = 0.5 * (x - sin(x)), n = n, ind = 1, fam = "poisson")
 x <- rpois(n, 5)
-y <- rs(n, eta = x - 0.5 * x^2)
-plot(glm(y ~ x, family = fam), 1)
+plotFun(x = x, eta = 5 - 0.1 * x - 0.1 * x^2, n = n, ind = 1, fam = "poisson")
+dev.off()
+
+# Binomial
+
+# Good
+png("logdiag1-good.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
+x <- rnorm(n, 0, 1)
+plotFun(x = x, eta = 1 + 0.5 * x, n = n, ind = 1, fam = "binomial")
+x <- sample(c(rnorm(n, 3, 0.5), rnorm(n, -3, 0.5)), size = n)
+plotFun(x = x, eta = 1.5 * x, n = n, ind = 1, fam = "binomial")
+x <- rpois(n, 10)
+plotFun(x = x, eta = -5 + x, n = n, ind = 1, fam = "binomial")
+dev.off()
+
+# Bad
+png("logdiag1-bad.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
+x <- rnorm(n, 0, 1)
+plotFun(x = x, eta = 1 + x^2, n = n, ind = 1, fam = "binomial")
+x <- sample(c(rnorm(n, 3, 0.5), rnorm(n, -3, 0.5)), size = n)
+plotFun(x = x, eta = 2 * sin(x), n = n, ind = 1, fam = "binomial")
+x <- rpois(n, 10)
+plotFun(x = x, eta = 0.1 * (x - 10) * (x - 5) * (x - 20), n = n, ind = 1, fam = "binomial")
 dev.off()
 
 ## Distribution response
 
-png("poisdiagnostics2.png", width = 10, height = 15, res = 200, units = "in")
-par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
-fam <- "poisson"
-rs <- function(n, eta) rpois(n, lambda = exp(eta))
-set.seed(1233132)
+# Poisson
+
 # Good
+png("poisdiag2-good.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
 x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
-plot(glm(y ~ x, family = fam), 2)
+plotFun(x = x, eta = 1 + 0.5 * x, n = n, ind = 2, fam = "poisson")
 x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = 2 * x)
-plot(glm(y ~ x, family = fam), 2)
-x <- rpois(n, 10)
-y <- rs(n, eta = -1 + x)
-plot(glm(y ~ x, family = fam), 2)
-# Bad
-x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x^2)
-plot(glm(y ~ x, family = fam), 2)
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = x - sin(x))
-plot(glm(y ~ x, family = fam), 2)
-x <- rpois(n, 5)
-y <- rs(n, eta = x + 0.1 * x^3)
-plot(glm(y ~ x, family = fam), 2)
+plotFun(x = x, eta = 0.8 * x, n = n, ind = 2, fam = "poisson")
+x <- rpois(n, 20)
+plotFun(x = x, eta = 1 - 0.1 * x, n = n, ind = 2, fam = "poisson")
 dev.off()
 
-png("logdiagnostics2.png", width = 10, height = 15, res = 200, units = "in")
-par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
-fam <- "binomial"
-rs <- function(n, eta) rbinom(n, prob = 1 / (1 + exp(-eta)), size = 1)
-set.seed(1233132)
-# Good
-x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
-plot(glm(y ~ x, family = fam), 2)
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = 2 * x)
-plot(glm(y ~ x, family = fam), 2)
-x <- rpois(n, 10)
-y <- rs(n, eta = -1 + x)
-plot(glm(y ~ x, family = fam), 2)
 # Bad
+png("poisdiag2-bad.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
 x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + x^2)
-plot(glm(y ~ x, family = fam), 2)
+plotFun(x = x, y = round(rnorm(n, exp(1 + 0.5 * x))), n = n, ind = 2, 
+        fam = "poisson")
 x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = sin(x))
-plot(glm(y ~ x, family = fam), 2)
+plotFun(x = x, eta = 0.5 * sample(c(x, -x), size = n), n = n, ind = 2,
+        fam = "poisson")
+x <- rpois(n, 10)
+plotFun(x = x, y = rbinom(n = n, size = 5, prob = 1 / (1 + exp(-(-10 + x)))),
+        n = n, ind = 2, fam = "poisson")
+dev.off()
+
+# Binomial
+
+# Good
+png("logdiag2-good.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
+x <- rnorm(n, 0, 1)
+plotFun(x = x, eta = 1 + 0.5 * x, n = n, ind = 2, fam = "binomial")
+x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
+plotFun(x = x, eta = 2 * x, n = n, ind = 2, fam = "binomial")
+x <- rpois(n, 10)
+plotFun(x = x, eta = -5 + x, n = n, ind = 2, fam = "binomial")
+dev.off()
+
+# Bad
+png("logdiag2-bad.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
+x <- rnorm(n, 0, 1)
+plotFun(x = x, eta = 1 + x^2, n = n, ind = 2, fam = "binomial")
+x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
+plotFun(x = x, eta = 3 * sin(x), n = n, ind = 2, fam = "binomial")
 x <- rpois(n, 5)
-y <- rs(n, eta = x - 0.5 * x^2)
-plot(glm(y ~ x, family = fam), 2)
+plotFun(x = x, eta = x - 0.5 * x^2, n = n, ind = 2, fam = "binomial")
 dev.off()
 
 ## Independence
 
-png("poisdiagnostics3.png", width = 10, height = 15, res = 200, units = "in")
-par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
-fam <- "poisson"
-rs <- function(n, eta) rpois(n, lambda = exp(eta))
-set.seed(1233132)
+# Poisson
+
 # Good
+png("poisdiag3-good.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
 x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
-x <- c(rnorm(n/2, 1, 0.5), rnorm(n/2, -1, 0.5))
-y <- rs(n, eta = 2 * x)
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
+plotFun(x = x, eta = 1 + 0.5 * x, n = n, ind = 7, fam = "poisson")
+x <- sample(c(rnorm(n, 1, 0.5), rnorm(n, -1, 0.5)), size = n)
+plotFun(x = x, eta = 2 * x, n = n, ind = 7, fam = "poisson")
 x <- rpois(n, 5)
-y <- rs(n, eta = -1 + 0.25 * x)
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
-# Bad
-x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
-y <- rep(y, each = 5)[1:n] # Repeats observations
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- 3
-for (i in 2:n) y[i] <- rpois(1, lambda = y[i - 1] + 1) # Positive correlation
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
-x <- rpois(n, 5)
-y <- 1
-for (i in 2:n) y[i] <- rpois(1, lambda = 1 / (y[i - 1] + 1)) # Negative correlation
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
+plotFun(x = x, eta = 1 - 0.25 * x, n = n, ind = 7, fam = "poisson")
 dev.off()
 
-png("logdiagnostics3.png", width = 10, height = 15, res = 200, units = "in")
-par(mfcol = c(3, 2), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
-fam <- "binomial"
-rs <- function(n, eta) rbinom(n, prob = 1 / (1 + exp(-eta)), size = 1)
-set.seed(1233132)
-# Good
-x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
-x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- rs(n, eta = 2 * x)
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
-x <- rpois(n, 10)
-y <- rs(n, eta = -1 + x)
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
 # Bad
+png("poisdiag3-bad.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
 x <- rnorm(n, 0, 1)
-y <- rs(n, eta = 1 + 0.5 * x)
+y <- rpois(n, lambda = exp(1 + 0.5 * x))
 y <- rep(y, each = 5)[1:n] # Repeats observations
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
+plotFun(x = x, y = y, n = n, ind = 7, fam = "poisson")
 x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
-y <- 1
-for (i in 2:n) y[i] <- rbinom(1, size = 1, prob = 0.1 + 0.75 * y[i - 1]) # Positive correlation
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
+y <- 3
+for (i in 2:n) y[i] <- rpois(1, lambda = y[i - 1] + 1) 
+plotFun(x = x, y = y, n = n, ind = 7, fam = "poisson") # Positive correlation
 x <- rpois(n, 5)
 y <- 1
-for (i in 2:n) y[i] <- rbinom(1, size = 1, prob = 1 - 0.75 * y[i - 1]) # Negative correlation
-plot(glm(y ~ x)$residuals, type = "o", ylab = "Residuals")
+for (i in 2:n) y[i] <- rpois(1, lambda = 2 / (y[i - 1] + 1)) 
+plotFun(x = x, y = y, n = n, ind = 7, fam = "poisson") # Negative correlation
+dev.off()
+
+# Binomial
+
+# Good
+png("logdiag3-good.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
+x <- rnorm(n, 0, 1)
+plotFun(x = x, eta = 1 + 0.5 * x, n = n, ind = 7, fam = "binomial")
+x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
+plotFun(x = x, eta = 2 * x, n = n, ind = 7, fam = "binomial")
+x <- rpois(n, 10)
+plotFun(x = x, eta = -5 + x, n = n, ind = 7, fam = "binomial")
+dev.off()
+
+# Bad
+png("logdiag3-bad.png", width = 15, height = 10, res = 200, units = "in")
+par(mfcol = c(2, 3), mar = c(4, 4, 2, 1) + 0.1, lwd = 2)
+set.seed(1233132)
+x <- rnorm(n, 0, 1)
+y <- rbinom(n, size = 1, prob = 1 + 0.5 * x)
+y <- rep(y, each = 5)[1:n] # Repeats observations
+plotFun(x = x, y = y, n = n, ind = 7, fam = "binomial")
+x <- c(rnorm(n/2, 3, 1), rnorm(n/2, -3, 1))
+y <- 1
+for (i in 2:n) y[i] <- rbinom(1, size = 1, prob = 0.1 + 0.75 * y[i - 1]) 
+plotFun(x = x, y = y, n = n, ind = 7, fam = "binomial") # Positive correlation
+x <- rpois(n, 5)
+y <- 1
+for (i in 2:n) y[i] <- rbinom(1, size = 1, prob = 1 - 0.75 * y[i - 1])
+plotFun(x = x, y = y, n = n, ind = 7, fam = "binomial") # Negative correlation
 dev.off()

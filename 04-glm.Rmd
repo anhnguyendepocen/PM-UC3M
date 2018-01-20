@@ -390,7 +390,7 @@ The following table lists some useful generalized linear models. Recall that the
 | Support of $Y$ | Distribution | Link $g(\mu)$ | $g^{-1}(\eta)$ | $\phi$ | $Y\vert(X_1=x_1,\ldots,X_p=x_p)$ |
 |:--------------:|:------------:|:-----------:|:-----------:|:----:|:-----------------------------:|
 | $\mathbb{R}$ | $\mathcal{N}(\mu,\sigma^2)$ | $\mu$ | $\eta$ | $\sigma^2$ | $\mathcal{N}(\eta,\sigma^2)$|
-| $0,1$ | $\mathrm{B}(1,p)$ | $\mathrm{logit}(\mu)$ | $\mathrm{logistic}(\eta)$ | $1$ | $\mathrm{B}\left(1,\mathrm{logistic}(\mu)\right)$ |
+| $0,1$ | $\mathrm{B}(1,p)$ | $\mathrm{logit}(\mu)$ | $\mathrm{logistic}(\eta)$ | $1$ | $\mathrm{B}\left(1,\mathrm{logistic}(\eta)\right)$ |
 | $0,1,2,\ldots$ | $\mathrm{Pois}(\lambda)$ | $\log(\mu)$ | $e^\eta$ | $1$ | $\mathrm{Pois}(e^{\eta})$ |
 
 The third model is known as **Poisson regression** and is usually employed for modelling **count data** that arises from the recording of the frequencies of a certain phenomenon. It considers that
@@ -760,7 +760,7 @@ For the `challenger` dataset, do the following:
 
 The **deviance** is a key concept in generalized linear models. Intuitively, it measures the *deviance of the fitted generalized linear model with respect to a perfect model for $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$*. This perfect model, known as the *saturated model*, is the model that fits perfectly the data, in the sense that it has as many parameters as observations and the fitted responses ($\hat Y_i$) are the same as the observed responses ($Y_i$). For example, in logistic regression this would be the model such that
 \[
-\hat{\mathbb{P}}[Y=1|X_1=X_{i1},\ldots,X_k=X_{ik}]=Y_i,\quad i=1,\ldots,n.
+\hat{\mathbb{P}}[Y=1|X_1=X_{i1},\ldots,X_k=X_{ip}]=Y_i,\quad i=1,\ldots,n.
 \]
 Figure \@ref(fig:saturated) shows a saturated model and a fitted logistic regression to a dataset.
 
@@ -791,7 +791,7 @@ If the canonical link function is employed, the deviance can be expressed as
 D&=-\frac{2}{a(\phi)}\sum_{i=1}^n\left(Y_i\hat\theta_i-b(\hat\theta_i)-Y_ig(Y_i)+b(g(Y_i))\right)\phi\nonumber\\
 &=\frac{2\phi}{a(\phi)}\sum_{i=1}^n\left(Y_i(Y_i-\hat\theta_i)-b(g(Y_i))+b(\hat\theta_i)\right).(\#eq:dev)
 \end{align}
-This is interesting, since it allows the following insight:
+In most of the cases, $a(\phi)\propto\phi$, so the deviance *does not depend on $\phi$*. Expression \@ref(eq:dev) is interesting, since it allows the following key insight:
 
 ```{block, insdeviance, type = 'rmdinsight', cache = TRUE}
 The deviance is a **generalization of the Residual Sum of Squares (RSS) of the linear model**. The generalization is driven by the likelihood and its equivalence with the RSS in the linear model.
@@ -804,7 +804,7 @@ D&=\frac{2\sigma^2}{\sigma^2}\sum_{i=1}^n\left(Y_i(Y_i-\hat\eta_i)-\frac{Y_i^2}{
 &=\sum_{i=1}^n\left(Y_i-\hat\eta_i\right)^2\\
 &=\mathrm{RSS}(\hat{\boldsymbol{\beta}}),(\#eq:devrss)
 \end{align*}
-since $\hat\eta_i=\hat\beta_0+\hat\beta_1x_{i1}+\ldots+\hat\beta_px_{ip}$. Remember that $\mathrm{SSE}=\mathrm{RSS}(\hat{\boldsymbol{\beta}})$.
+since $\hat\eta_i=\hat\beta_0+\hat\beta_1x_{i1}+\ldots+\hat\beta_px_{ip}$. Remember that $\mathrm{RSS}(\hat{\boldsymbol{\beta}})$ is just another name for the SSE.
 
 A benchmark for evaluating the magnitude of the deviance is the **null deviance**,
 \[
@@ -824,7 +824,7 @@ since $\hat\beta_0=\bar Y$ because there are no predictors.
 
 Using the deviance and the null deviance, we can compare how much the model has improved by adding the predictors $X_1,\ldots,X_p$ and quantify the *percentage of deviance* explained. This can be done by means of the **$R^2$ statistic**, which is a generalization of the determination coefficient for linear regression:
 \[
-R^2:=1-\frac{D}{D_0}\stackrel{\substack{\mathrm{Linear}\\ \mathrm{model}\\{}}}{=}1-\frac{\mathrm{SSE}}{\mathrm{SST}}.
+R^2:=1-\frac{D}{D_0}\stackrel{\substack{\mathrm{linear}\\ \mathrm{model}\\{}}}{=}1-\frac{\mathrm{SSE}}{\mathrm{SST}}.
 \]
 
 ```{block, caur2glm, type = 'rmdcaution', cache = TRUE}
@@ -836,6 +836,34 @@ However, this $R^2$ has a different interpretation than the one in linear regres
 - It is not related to any correlation coefficient.
 
 ```
+
+An illustrative pictorial representation of the deviance ($D$) and null deviance ($D_0$) is the following:
+\[
+\large
+\xrightarrow[
+\underbrace{
+\begin{array}{l}
+\bigg\downarrow \\
+\ell(\hat\beta_0) \\
+\text{Worst fit} \\
+\text{(intercept only)} 
+\end{array}
+\qquad
+\underbrace{\begin{array}{c}
+\bigg\downarrow\\
+\ell(\hat{\boldsymbol{\beta}})\\
+\text{Model}\\
+\text{analysed}
+\end{array}
+\qquad
+\begin{array}{r}
+\bigg\downarrow\\
+\ell_s\\
+\text{Perfect fit} & \\
+\text{(interpolation)} & 
+\end{array}\\}_{D}\\}_{D_0}
+]{\text{Likelihood sorting of the model space}}
+\]
 
 The deviance is returned by `summary`:
 ```{r, deviance-1, collapse = TRUE, cache = TRUE}
@@ -863,7 +891,7 @@ r2glm(nasa)
 r2glm(null)
 ```
 
-A related quantity with the deviance is the **scaled deviance**, which removes the effects of the scale parameter $\phi$:
+A related quantity with the deviance is the **scaled deviance**:
 \[
 D^*:=\frac{D}{\phi}=-2\left[\ell(\hat{\boldsymbol{\beta}})-\ell_s\right].
 \]
@@ -871,7 +899,7 @@ If $\phi=1$, such as in the logistic or Poisson regression models, then both the
 \begin{align}
 D^*\sim\chi^2_{n-p-1},(\#eq:dp)
 \end{align}
-where $\chi^2_{k}$ is the *Chi-squared distribution with $k$ degrees of freedom*. In the case of the linear model, $D^*=\frac{1}{\sigma^2}\mathrm{RSS}$ is *exactly* distributed as a $\chi^2_{n-p-1}$. The result \@ref(eq:dp) provides a way of estimating $\phi$ when it is unknown: match $D^*$ with the expectation $\mathbb{E}\left[\chi^2_{n-p-1}\right]=n-p-1$. This provides
+where $\chi^2_{k}$ is the *Chi-squared distribution with $k$ degrees of freedom*. In the case of the linear model, $D^*=\frac{1}{\sigma^2}\mathrm{RSS}$ is *exactly* distributed as a $\chi^2_{n-p-1}$. The result \@ref(eq:dp) provides a way of estimating $\phi$ when it is unknown: match $D^*=\frac{D}{\phi}$ with the expectation $\mathbb{E}\left[\chi^2_{n-p-1}\right]=n-p-1$. This provides
 \[
 \hat\phi_D:=\frac{D}{n-p-1}=\frac{-2\ell(\hat{\boldsymbol{\beta}})}{n-p-1},
 \]
@@ -883,15 +911,15 @@ H_0:\beta_{p_1+1}=\ldots=\beta_{p_2}=0\quad\text{vs.}\quad H_1:\beta_j\neq 0\tex
 \end{align*}
 This can be done by means of the statistic^[Note that $D_{p_1}^*>D^*_{p_2}$ because $\ell(\hat{\boldsymbol{\beta}}_{p_1})<\ell(\hat{\boldsymbol{\beta}}_{p_2})$.]
 \begin{align}
-D_{p_1}^*-D^*_{p_2}\stackrel{H_0}{\sim}\chi^2_{p_2-p_1}.(\#eq:d12)
+D^*_{p_1}-D^*_{p_2}\stackrel{H_0}{\sim}\chi^2_{p_2-p_1}.(\#eq:d12)
 \end{align}
-If $H_0$ is true, then $D_{p_1}^*-D^*_{p_2}$ is expected to be *small*, thus we will reject $H_0$ if the value of the statistic is above the *$\alpha$-upper quantile of the $\chi^2_{p_2-p_1}$*, $\chi^2_{\alpha;p_2-p_1}$.
+If $H_0$ is true, then $D_{p_1}^*-D^*_{p_2}$ is expected to be *small*, thus we will reject $H_0$ if the value of the statistic is above the *$\alpha$-upper quantile of the $\chi^2_{p_2-p_1}$*, denoted as $\chi^2_{\alpha;p_2-p_1}$.
 
-Note that $D^*$ depends on $\phi$, which may be unknown. Hopefully, this dependence is removed by employing \@ref(eq:dp) and \@ref(eq:d12) and assuming that are asymptotically independent. This gives the $F$-test for $H_0$:
+Note that $D^*$ apparently removes the effects of $\phi$, but it is still dependent on $\phi$, since this is hidden in the likelihood (see \@ref(eq:dev)). Therefore, $D^*$ cannot be computed unless $\phi$ is know, which forbids using \@ref(eq:d12). Hopefully, this dependence is removed by employing \@ref(eq:dp) and \@ref(eq:d12) and assuming that are asymptotically independent. This gives the $F$-test for $H_0$:
 \begin{align*}
-F=\frac{(D_{p_1}-D_{p_2})/(p_2-p_1)}{D_{p_2}/(n-p_2-1)}=\frac{(D^*_{p_1}-D^*_{p_2})/(p_2-p_1)}{D^*_{p_2}/(n-p_2-1)}\stackrel{H_0}{\sim} F_{p_2-p_1,n-p_2-1}.
+F=\frac{(D^*_{p_1}-D^*_{p_2})/(p_2-p_1)}{D^*_{p_2}/(n-p_2-1)}=\frac{(D_{p_1}-D_{p_2})/(p_2-p_1)}{D_{p_2}/(n-p_2-1)}=\stackrel{H_0}{\sim} F_{p_2-p_1,n-p_2-1}.
 \end{align*}
-Note that the LHS is perfectly computable, since $\phi$ cancels due to the quotient. Note also that this is an extension of the $F$-test as we saw it in Section \@ref(lm-i-anova): take $p_1=0$ and $p_2=p$ and you test for the significance of all the predictors included in the model (both models contain intercept).
+Note that the LHS is perfectly computable, since $\phi$ cancels due to the quotient (and because we assume that $a(\phi)\propto\phi$). Note also that this is an extension of the $F$-test as we saw it in Section \@ref(lm-i-anova): take $p_1=0$ and $p_2=p$ and you test for the significance of all the predictors included in the model (both models contain intercept).
 
 The computation of deviances and associated tests is done through `anova`, which implements the *Analysis of Deviance*.
 ```{r, deviance-2, collapse = TRUE, cache = TRUE}
@@ -929,8 +957,8 @@ anova(nasa1, test = "F")
 anova(nasa1, nasa2, nasa3, test = "Chisq")
 # Quadratic effects are not significative
 
-# Test for all coefficients being zero
-anova(nasa3, test = "Chisq")
+# Cubic vs linear
+anova(nasa1, nasa3, test = "Chisq")
 
 # Example in Poisson regression
 species1 <- glm(Species ~ ., data = species, family = poisson)
@@ -944,13 +972,13 @@ r2glm(species2)
 
 ## Model selection {#glm-modsel}
 
-The same discussion we did in Section \@ref(lm-ii-modsel) is applicable to logistic regression with small changes:
+The same discussion we did in Section \@ref(lm-ii-modsel) is applicable to generalized linear models with small changes:
 
 1. The **deviance** of the model (reciprocally the likelihood and the $R^2$) **always decreases** (increase) with the inclusion of more predictors -- no matter whether they are significant or not.
 2. The **excess of predictors** in the model is paid by a larger variability in the estimation of the model which results in less precise prediction.
 3. **Multicollinearity** may hide significant variables, change the sign of them and result in an increase of the variability of the estimation.
 
-The use of information criteria, `stepAIC`, and `vif` allow to fight back these issues^[The `leaps` package does not support generalized linear models directly. There are, however, other packages for performing best subset selection with generalized linear models, but we do not cover them here.]. Let's review them quickly from the perspective of logistic regression.
+Stepwise selection can be done through `stepAIC` as in linear models^[The `leaps` package does not support generalized linear models directly. There are, however, other packages for performing best subset selection with generalized linear models, but we do not cover them here.]. Conveniently `summary` also reports the AIC:
 
 ```{r, glmmodsel-1, collapse = TRUE, cache = TRUE}
 # Models
@@ -958,17 +986,13 @@ nasa1 <- glm(fail.field ~ temp, family = "binomial", data = challenger)
 nasa2 <- glm(fail.field ~ temp + pres.field, family = "binomial",
              data = challenger)
 
-# nasa1
-summary1 <- summary(nasa)
-summary1
-AIC(nasa)
-summary1$deviance + 2 * 2
+# Summaries
+summary(nasa1)
+summary(nasa2)
 
-# nasa2
-summary2 <- summary(nasa2)
-summary2
-BIC(nasa2)
-summary2$deviance + 3 * log(nrow(challenger))
+# AICs
+AIC(nasa1) # Better
+AIC(nasa2)
 ```
 
 `stepAIC` works analogously to the linear regression situation. Here is an illustration for a binary variable that measures whether a Boston suburb (`Boston` dataset from Section \@ref(lm-ii-lab-boston)) is wealth or not. The binary variable is `medv > 25`: it is `TRUE` (`1`) for suburbs with median house value larger than 25000\$) and `FALSE` (`0`) otherwise. The cutoff 25000\$ corresponds to the 25\% richest suburbs.
@@ -988,7 +1012,7 @@ summary(modBIC)
 r2glm(modBIC)
 ```
 
-The logistic model is at the intersection between *regression models* and *classification methods*. Therefore, the search for adequate predictors to be included in the model can also be done in terms of the **classification accuracy**. Although we do not explore in detail this direction, we simply mention how the overall predictive accuracy can be summarized with the *hit matrix* (also called *confusion matrix*)
+The logistic model is at the intersection between *regression models* and *classification methods*. Therefore, the search for adequate predictors to be included in the model can also be done in terms of the **classification performance**. Although we do not explore in detail this direction, we simply mention how the overall predictive accuracy can be summarized with the *hit matrix* (also called *confusion matrix*)
 
 | Reality vs. classified | $\hat Y=0$ | $\hat Y=1$ |
 |----------|----------|----------|
@@ -1080,21 +1104,21 @@ Recall that:
 
 Checking the assumptions of a generalized linear model is more complicated than what we did in \@ref(lm-ii-diagnostics). The reason is the **heterogeneity and heteroskedasticity of the responses**, which makes the inspection of the residuals $Y_i-\hat Y_i$ complicated. The first step is to construct some residuals $\hat\varepsilon_i$ that are simpler to analyze.
 
-The **deviance residuals** are the generalization of the residuals $Y_i-\hat Y_i$ from the linear model. They are constructed using the analogy between the deviance and the RSS saw in \@ref(eq:devrss). The deviance can be expressed into a sum of terms associated to each datum (recall e.g. \@ref(eq:dev)):
+The **deviance residuals** are the generalization of the residuals $\hat\varepsilon_i=Y_i-\hat Y_i$ from the linear model. They are constructed using the analogy between the deviance and the RSS saw in \@ref(eq:devrss). The deviance can be expressed into a sum of terms associated to each datum (recall e.g. \@ref(eq:dev)):
 \[
 D=\sum_{i=1}^n d_i.
 \]
-For the linear model, $d_i=\hat\varepsilon_i^2$. Therefore, we can define the deviance residuals as the folowing generalization of $\hat\varepsilon_i$:
+For the linear model, $d_i=\hat\varepsilon_i^2$, since $D=\mathrm{RSS}(\hat{\boldsymbol{\beta}})$. Based on this, we can define the deviance residuals as
 \[
-\hat\varepsilon_i^D:=\mathrm{sign}(Y_i-\hat \mu_i)\sqrt{d_i},\quad i=1,\ldots,n.
+\hat\varepsilon_i^D:=\mathrm{sign}(Y_i-\hat \mu_i)\sqrt{d_i},\quad i=1,\ldots,n
 \]
-This definition has interesting distributional consequences. From \@ref(eq:dp), we know that, asymptotically, $D^*\sim\chi_{n-p-1}^2$. This *suggests* that^[Remember: a $\chi^2_k$ random variable has the same distribution as the sum of $k$ independent squared $\mathcal{N}(0,1)$ variables.] (practical counterexamples are possible, see e.g. Figure \@ref(fig:logdiagnostics2))
+and have a generalization of $\hat\varepsilon_i$ for generalized linear models. This definition has interesting distributional consequences. From \@ref(eq:dp), we know that, asymptotically, $D^*\sim\chi_{n-p-1}^2$. This *suggests* that^[Remember: a $\chi^2_k$ random variable has the same distribution as the sum of $k$ independent squared $\mathcal{N}(0,1)$ variables.] (practical counterexamples are possible, see Figures \@ref(fig:poisdiagnostics2-good) and \@ref(fig:logdiagnostics2-good))
 \[
-\frac{\hat\varepsilon_i^D}{\sqrt{\phi}}\text{ behaves like a } \mathcal{N}(0,1).
+\hat\varepsilon_i^D\text{ are approximately normal}.
 \]
-The previous statement is of variable accuracy, depending on the model, sample size, and distribution of the predictors. In the linear model, it is exact.
+The previous statement is of variable accuracy, depending on the model, sample size, and distribution of the predictors. In the linear model, it is exact and $(\hat\varepsilon_1^D,\ldots,\hat\varepsilon_n^D)$ are distributed *exactly* as a $\mathcal{N}_n(\mathbf{0},\sigma^2\mathbf{X}'(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X})$.
 
-The deviance residuals are key for the diagnostics of generalized linear models. Whenever we refer to "residuals", we understand that we refer to the deviance residuals (several are possible). They are also theresiduals returned in `R`, either by `glm$residuals` or by `residuals(glm)`.
+The deviance residuals are key for the diagnostics of generalized linear models. Whenever we refer to "residuals", we understand that we refer to the deviance residuals (several are possible). They are also the residuals returned in `R`, either by `glm$residuals` or by `residuals(glm)`.
 
 ```{block2, insdevres, type = 'rmdinsight', cache = TRUE}
 This generalization has interesting connexions:
@@ -1109,20 +1133,38 @@ This generalization has interesting connexions:
 When one assumption fails, it is likely that this failure will affect to other assumptions. For example, if linearity fails, then most likely the response distribution will fail also. The key point is to identify the **root cause** of the assumptions failure in order to try to find a patch.
 ```
 
+The script used for generating the following Figures \@ref(fig:poisdiagnostics1-good)--\@ref(fig:logdiagnostics3-bad) is available [here](https://github.com/egarpor/PM-UC3M/blob/master/images/R/hypothesisGlm.R).
+
 ### Linearity {#glm-diagnostics-1}
 
 Linearity between the *transformed expectation* of $Y$ and the predictors $X_1,\ldots,X_p$ is the building block of generalized linear models. If this assumption fails, then all the conclusions we might extract from the analysis are suspected to be flawed. Therefore it is a **key assumption**.
 
 #### How to check it {-}
 
-We use the *residuals vs. fitted values plot*, which for generalized linear models is the scatterplot of $(\hat\eta_i,\hat \varepsilon_i)$, $i=1,\ldots,n$. Recall that it is **not** the scatterplot of $(\hat Y_i,\hat \varepsilon_i)$. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i$ with respect to $\hat \eta_i$. If nonlinearities are observed, it is worth to plot the regression terms of the model via `termplot`.
+We use the *residuals vs. fitted values plot*, which for generalized linear models is the scatterplot of $(\hat\eta_i,\hat \varepsilon_i^D)$, $i=1,\ldots,n$. Recall that it is **not** the scatterplot of $(\hat Y_i,\hat \varepsilon_i)$. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i^D$ with respect to $\hat \eta_i$. If nonlinearities are observed, it is worth to plot the regression terms of the model via `termplot`.
 
-```{r, poisdiagnostics1, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Residuals vs. fitted values plots for datasets respecting (left column) and violating (right column) the linearity assumption in Poisson regression.', cache = TRUE}
-knitr::include_graphics("images/R/poisdiagnostics1.png")
+(ref:poisdiagnostics1-good-title) Residuals vs. fitted values plots (first row) for datasets (second row) **respecting** the linearity assumption in **Poisson** regression.
+
+(ref:poisdiagnostics1-bad-title) Residuals vs. fitted values plots (first row) for datasets (second row) **violating** the linearity assumption in **Poisson** regression.
+
+(ref:logdiagnostics1-good-title) Residuals vs. fitted values plots (first row) for datasets (second row) **respecting** the linearity assumption in **logistic** regression.
+
+(ref:logdiagnostics1-bad-title) Residuals vs. fitted values plots (first row) for datasets (second row) **violating** the linearity assumption in **logistic** regression.
+
+```{r, poisdiagnostics1-good, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:poisdiagnostics1-good-title)', cache = TRUE}
+knitr::include_graphics("images/R/poisdiag1-good.png")
 ```
 
-```{r, logdiagnostics1, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Residuals vs. fitted values plots for datasets respecting (left column) and violating (right column) the linearity assumption in logistic regression.', cache = TRUE}
-knitr::include_graphics("images/R/logdiagnostics1.png")
+```{r, poisdiagnostics1-bad, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:poisdiagnostics1-bad-title)', cache = TRUE}
+knitr::include_graphics("images/R/poisdiag1-bad.png")
+```
+
+```{r, logdiagnostics1-good, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:logdiagnostics1-good-title)', cache = TRUE}
+knitr::include_graphics("images/R/logdiag1-good.png")
+```
+
+```{r, logdiagnostics1-bad, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:logdiagnostics1-bad-title)', cache = TRUE}
+knitr::include_graphics("images/R/logdiag1-bad.png")
 ```
 
 #### What to do if fails {-}
@@ -1137,12 +1179,28 @@ The *approximate* normality in the deviance residuals allows to evaluate how wel
 
 The *QQ-plot* allows to check if the standardized (by $\phi$) residuals follow a $\mathcal{N}(0,1)$. **Under the correct distribution of the response, we expect the points to align with the diagonal line**. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal. Unfortunately, it is also possible to have severe departures from normality *even* if the model is correct, see below.
 
-```{r, poisdiagnostics2, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'QQ-plots for the deviance residuals of datasets respecting (left column) and violating (right column) the response distribution assumption for Poisson regression.', cache = TRUE}
-knitr::include_graphics("images/R/poisdiagnostics2.png")
+(ref:poisdiagnostics2-good-title) QQ-plots for the deviance residuals (first row) for datasets (second row) **respecting** the response distribution assumption for **Poisson** regression.
+
+(ref:poisdiagnostics2-bad-title) QQ-plots for the deviance residuals (first row) for datasets (second row) **violating** the response distribution assumption for **Poisson** regression.
+
+(ref:logdiagnostics2-good-title) QQ-plots for the deviance residuals (first row) for datasets (second row) **respecting** the response distribution assumption for **logistic** regression.
+
+(ref:logdiagnostics2-bad-title) QQ-plots for the deviance residuals (first row) for datasets (second row) **violating** the response distribution assumption for **logistic** regression.
+
+```{r, poisdiagnostics2-good, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:poisdiagnostics2-good-title)', cache = TRUE}
+knitr::include_graphics("images/R/poisdiag2-good.png")
 ```
 
-```{r, logdiagnostics2, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'QQ-plots for the deviance residuals of datasets respecting (left column) and violating (right column) the response distribution assumption for logistic regression.', cache = TRUE}
-knitr::include_graphics("images/R/logdiagnostics2.png")
+```{r, poisdiagnostics2-bad, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:poisdiagnostics2-bad-title)', cache = TRUE}
+knitr::include_graphics("images/R/poisdiag2-bad.png")
+```
+
+```{r, logdiagnostics2-good, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:logdiagnostics2-good-title)', cache = TRUE}
+knitr::include_graphics("images/R/logdiag2-good.png")
+```
+
+```{r, logdiagnostics2-bad, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:logdiagnostics2-bad-title)', cache = TRUE}
+knitr::include_graphics("images/R/logdiag2-bad.png")
 ```
 
 Formal normality tests are available through `shapiro.test` and `lillie.test`.
@@ -1159,15 +1217,31 @@ Independence is also a key assumption: it guarantees that the amount of informat
 
 The presence of *autocorrelation* in the residuals can be examined by means of a **serial plot of the residuals**.
 
-```{r, poisdiagnostics3, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Serial plots of the residuals for datasets respecting (left column) and violating (right column) the independence assumption for Poisson regression.', cache = TRUE}
-knitr::include_graphics("images/R/poisdiagnostics3.png")
+(ref:poisdiagnostics3-good-title) Serial plots of the residuals (first row) for datasets (second row) **respecting** the independence assumption for **Poisson** regression.
+
+(ref:poisdiagnostics3-bad-title) Serial plots of the residuals (first row) for datasets (second row) **violating** the independence assumption for **Poisson** regression.
+
+(ref:logdiagnostics3-good-title) Serial plots of the residuals (first row) for datasets (second row) **respecting** the independence assumption for **logistic** regression.
+
+(ref:logdiagnostics3-bad-title) Serial plots of the residuals (first row) for datasets (second row) **violating** the independence assumption for **logistic** regression.
+
+```{r, poisdiagnostics3-good, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:poisdiagnostics3-good-title)', cache = TRUE}
+knitr::include_graphics("images/R/poisdiag3-good.png")
 ```
 
-```{r, logdiagnostics3, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = 'Serial plots of the residuals for datasets respecting (left column) and violating (right column) the independence assumption for logistic regression.', cache = TRUE}
-knitr::include_graphics("images/R/logdiagnostics3.png")
+```{r, poisdiagnostics3-bad, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:poisdiagnostics3-bad-title)', cache = TRUE}
+knitr::include_graphics("images/R/poisdiag3-bad.png")
 ```
 
-**Under uncorrelation, we expect the series to show no *tracking* of the residuals**, which is a sign of positive serial correlation. Negative serial correlation can be identified with systematic switching in the series between two states.
+```{r, logdiagnostics3-good, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:logdiagnostics3-good-title)', cache = TRUE}
+knitr::include_graphics("images/R/logdiag3-good.png")
+```
+
+```{r, logdiagnostics3-bad, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:logdiagnostics3-bad-title)', cache = TRUE}
+knitr::include_graphics("images/R/logdiag3-bad.png")
+```
+
+**Under uncorrelation, we expect the series to show no *tracking* of the residuals**, which is a sign of positive serial correlation. Negative serial correlation can be identified in the form of a small-large or positive-negative systematic alternation of the residuals. This can be explored better with `lag.plot`, as saw in Section \@ref(lm-ii-diagnostics-4).
 
 #### What to do if fails {-}
 

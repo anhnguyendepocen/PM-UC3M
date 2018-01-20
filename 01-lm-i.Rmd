@@ -1161,7 +1161,7 @@ summary(modWine2)
 summary(modWine3)
 ```
 
-`modWine2` is the model with the largest $R^2_\text{Adj}$. It is a model that explains the $82.75\%$ of the variability in a nonredundant way and with all its coefficients significant. Therefore, we have a formula for effectively explaining and predicting the quality of a vintage (answers Q1). Prediction and, importantly, quantification of the uncertainty in the prediction, can be done with `predict`.
+`modWine2` is the model with the largest $R^2_\text{Adj}$. It is a model that explains the $82.75\%$ of the variability in a non-redundant way and with all its coefficients significant. Therefore, we have a formula for effectively explaining and predicting the quality of a vintage (answers Q1). Prediction and, importantly, quantification of the uncertainty in the prediction, can be done with `predict`.
 
 Furthermore, the interpretation of `modWine2` agrees with well-known facts in viticulture that make perfect sense (Q2):
 

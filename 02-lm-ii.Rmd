@@ -897,10 +897,16 @@ The set of possible dependence structures is immense, and there is no simple way
 plot(mod$residuals, type = "o")
 ```
 
-**Under uncorrelation, we expect the series to show no *tracking* of the residuals**. This is, that the closer observations do not take similar values, but rather change without any kind of distinguishable pattern.
+**Under uncorrelation, we expect the series to show no *tracking* of the residuals**. This is, that the closer observations do not take similar values, but rather change without any kind of distinguishable pattern. Tracking is associated to positive autocorrelation, but negative, manifested as alternating small-large or positive-negative residuals, is also possible. The **lagged plots** of $(\hat\varepsilon_{i-l},\hat\varepsilon_i)$, $i=l+1,\ldots,n$, obtained through `lag.plot`, allow to detect both kind of autocorrelations for a given lag $l$. Under independence, we expect no trend in such plot. Here is an example:
+
+```{r, diag-10, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
+lag.plot(mod$residuals, lags = 1, do.lines = FALSE) 
+# No serious serial trend, but some negative autocorrelation is appreaciated
+cor(mod$residuals[-1], mod$residuals[-length(mod$residuals)])
+```
 
 There are also formal tests for testing for the absence of autocorrelation (null hypothesis):
-```{r, diag-10, collapse = TRUE, cache = TRUE}
+```{r, diag-11, collapse = TRUE, cache = TRUE}
 # Durbin-Watson test
 durbinWatsonTest(mod)
 # Does not reject at alpha = 0.05
@@ -1002,7 +1008,7 @@ plot(mod, 5)
 
 The rule of thumb for declaring outliers and high-leverage points are:
 
-> - If the standardised residual of an observation is larger than $3$ in absolute value, then it it may be an outlier.
+> - If the standardized residual of an observation is larger than $3$ in absolute value, then it it may be an outlier.
 > - If the leverage statistic is *greatly exceeding* $(p+1)/n$, then it may be suspected of having a high leverage.
 
 Let's see an artificial example.
