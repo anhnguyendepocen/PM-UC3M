@@ -1,6 +1,6 @@
 Package: PMUC3M
 Title: PM-UC3M
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: person("Eduardo", "García-Portugués", role = c("aut", "cre"), email = "edgarcia@est-econ.uc3m.es")
 Description: Notes for Predictive Modeling
 Depends:
@@ -19,6 +19,7 @@ Depends:
     viridis,
     ffbase,
     KernSmooth,
+    np,
     locfit,
     mice,
     VIM,

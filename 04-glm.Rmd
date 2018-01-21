@@ -859,10 +859,10 @@ An illustrative pictorial representation of the deviance ($D$) and null deviance
 \begin{array}{r}
 \bigg\downarrow\\
 \ell_s\\
-\text{Perfect fit} & \\
-\text{(interpolation)} & 
-\end{array}\\}_{D}\\}_{D_0}
-]{\text{Likelihood sorting of the model space}}
+\text{Perfect fit} \\
+\text{(interpolation)} 
+\end{array}\\}_{\LARGE D}\\}_{\LARGE D_0}
+]{\Large\text{Likelihood sorting of the model space}}
 \]
 
 The deviance is returned by `summary`:

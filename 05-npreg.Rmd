@@ -1,33 +1,27 @@
 
 # Nonparametric regression {#npreg}
 
-The relation of two random variables $X$ and $Y$ can be completely characterized by their joint cdf $F$, or equivalently, by the joint pdf $f$ if $(X,Y)$ is continuous, the case we will address. In the regression setting, we are interested in predicting/explaining the *response* $Y$ by means of the *predictor* $X$ from a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$.
+The models we saw in the previous chapters share a common root: all of them are **parametric**. This means that they *assume* a certain structure on the regression function $m$, which is controlled by *parameters*. For example, generalized linear models assume that $m$ is of the form $m(\mathbf{x})=g^{-1}(\beta_0+\beta_1x_1+\ldots+\beta_px_p)$ for some unknown coefficients $\boldsymbol{\beta}$ that have to be estimated. *If* this assumption holds (*i.e.*, if $m$ truly has the assumed form), then parametric methods are the best approach for estimating $m$. As we have seen, in practice it is rarely the case where parametric methods work out-of-the box, and several tricks are needed in order to expand their degree of flexibility in a case-by-case basis. This is the strongest point of **nonparametric** methods: they do not assume major hard-to-satisfy hypothesis on the regression function, but just minimal assumptions. Their weak points: they are more challenging to estimate and to interpret.
 
-The complete knowledge of $Y$ when $X=x$ is given by the conditional pdf: $f_{Y| X=x}(y)=\frac{f(x,y)}{f_X(x)}$. While this pdf provides full knowledge about $Y| X=x$, it is also a challenging task to estimate it: for each $x$ we have to estimate a *curve*! A simpler approach, yet still challenging, is to estimate the conditional mean (a scalar) for each $x$. This is the so-called *regression function*^[Recall that we assume that $(X,Y)$ is continuous.]
+In this chapter we will focus mainly on the situation with only **one continuous predictor** $X$ for predicting the response $Y$. The extension to more predictors is possible, but requires some extra work on notation that we do not address in full generality. In this case, the complete knowledge of $Y$ when $X=x$ is given by the conditional pdf $f_{Y| X=x}(y)=\frac{f(x,y)}{f_X(x)}$. While this pdf provides full knowledge about $Y| X=x$, it is also a challenging task to estimate it: for each $x$ we have to estimate a *curve*! A simpler approach, yet still challenging, is to estimate the conditional mean (a scalar) for each $x$ through the regression function
 $$
-m(x):=\mathbb{E}[Y| X=x]=\int y\mathrm{d}F_{Y| X=x}(y)=\int yf_{Y| X=x}(y)\mathrm{d}y.
+m(x)=\mathbb{E}[Y| X=x]=\int yf_{Y| X=x}(y)\mathrm{d}y.
 $$
-Thus we aim to provide information about $Y$'s expectation, not distribution, by $X$.
+This density-based view of the regression function is useful in order to construct estimators, as we will see.
 
 Finally, recall that $Y$ can expressed in terms of $m$ by means of the *location-scale model*:
 $$
 Y=m(X)+\sigma(X)\varepsilon,
 $$
-where $\sigma^2(x):=\mathbb{V}\mathrm{ar}[Y| X=x]$ and $\varepsilon$ is independent from $X$ and such that $\mathbb{E}[\varepsilon]=0$ and $\mathbb{V}\mathrm{ar}[\varepsilon]=0$.
+where $\sigma^2(x):=\mathbb{V}\mathrm{ar}[Y| X=x]$ is the *conditional variance* and $\varepsilon$ is independent from $X$ and such that $\mathbb{E}[\varepsilon]=0$ and $\mathbb{V}\mathrm{ar}[\varepsilon]=1$.
 
 ## Kernel density estimation {#npreg-kde}
 
-TODO
-
-Then $K$ is known as a *kernel*, a density that is typically symmetric and unimodal at $0$. This generalization provides the definition of **kernel density estimator** (kde)^[Also known as the *Parzen-Rosemblatt estimator* to hounour the proposals by @Parzen1962 and @Rosenblatt1956.]:
+In order to introduce a nonparametric estimator for the $m$, we need to introduce first a nonparametric *density* estimator for the *density* of the predictor $X$. This estimator is aimed to estimate $f$, the density of $X$, from a sample $X_1,\ldots,X_n$ and without assuming any specific form for $f$. The **kernel density estimator**^[Also known as the *Parzen-Rosemblatt estimator* to honor the proposals by @Parzen1962 and @Rosenblatt1956.] does this job with the estimate
 \begin{align}
-\hat f(x;h):=\frac{1}{nh}\sum_{i=1}^nK\left(\frac{x-X_i}{h}\right). (\#eq:kde)
+\hat f(x;h):=\frac{1}{nh}\sum_{i=1}^nK\left(\frac{x-X_i}{h}\right), (\#eq:kde)
 \end{align}
-A common notation is $K_h(z):=\frac{1}{h}K\left(\frac{z}{h}\right)$, so $\hat f(x;h)=\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)$.
-
-Several types of kernels are possible. The most popular is the *normal kernel* $K(z)=\phi(z)$, although the *Epanechnikov kernel*, $K(z)=\frac{3}{4}(1-z^2)1_{\{|z|<1\}}$, is the most efficient. The *rectangular kernel* $K(z)=\frac{1}{2}1_{\{|z|<1\}}$ yields the moving histogram as a particular case. The kde inherits the smoothness properties of the kernel. That means, for example, \@ref(eq:kde) with a normal kernel is infinitely differentiable. But with an Epanechnikov kernel, \@ref(eq:kde) is not differentiable, and with a rectangular kernel is not even continuous. However, if a certain smoothness is guaranteed (continuity at least), the *choice of the kernel has little importance in practice* (at least compared with the choice of $h$). Figure \@ref(fig:kdeconst) illustrates the construction of the kde, and the bandwidth and kernel effects.
-
-It is useful to recall the kde with the normal kernel. If that is the case, then $K_h(x-X_i)=\phi_h(x-X_i)$ and the kernel is a the density of a $\mathcal{N}(X_i,h^2)$. Thus the bandwidth $h$ can be thought as the standard deviation of the normal densities that have mean zero.
+where $K$ is known as a *kernel*, a density that is typically symmetric and unimodal at $0$, and $h>0$ is the *bandwidth*. A common notation is $K_h(z):=\frac{1}{h}K\left(\frac{z}{h}\right)$, so $\hat f(x;h)=\frac{1}{n}\sum_{i=1}^nK_h(x-X_i)$. It is useful to recall \@ref(eq:kde) with the normal kernel. If that is the case, then $K_h(x-X_i)=\phi_h(x-X_i)$ and the kernel is the density of a $\mathcal{N}(X_i,h^2)$. Thus the bandwidth $h$ can be thought as the *standard deviation of the normal densities that have mean zero*. Figure \@ref(fig:kdeconst) illustrates the construction of the kernel density estimator, and the bandwidth and kernel effects.
 
 (ref:kdeconsttitle) Construction of the kernel density estimator. The animation shows how the bandwidth and kernel affect the density estimate, and how the kernels are rescaled densities with modes at the data points. Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/kde/).
 
@@ -35,22 +29,24 @@ It is useful to recall the kde with the normal kernel. If that is the case, then
 knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/kde/', height = '1000px')
 ```
 
-Implementation of kde in `R` is built-in through the `density` function. The function automatically chooses the bandwidth $h$ using a *bandwidth selector*.
+Several types of kernels are possible. The most popular is the *normal kernel* $K(z)=\phi(z)$, although the *Epanechnikov kernel*, $K(z)=\frac{3}{4}(1-z^2)1_{\{|z|<1\}}$, is the most efficient. The *rectangular kernel* $K(z)=\frac{1}{2}1_{\{|z|<1\}}$ yields the moving histogram as a particular case. The kernel density estimator inherits the smoothness properties of the kernel. That means, for example, \@ref(eq:kde) with a normal kernel is infinitely differentiable. But with an Epanechnikov kernel, \@ref(eq:kde) is not differentiable, and with a rectangular kernel is not even continuous. However, if a certain smoothness is guaranteed (continuity at least), the *choice of the kernel has little importance in practice* (at least compared with the choice of $h$). 
+
+Implementation of the kernel density estimator in `R` is built-in through the `density` function. The function automatically chooses the bandwidth $h$ using a *bandwidth selector*.
 
 ```{r, kdeR, echo = TRUE, eval = TRUE, collapse = TRUE, cache = TRUE}
 # Sample 100 points from a N(0, 1)
 set.seed(1234567)
 samp <- rnorm(n = 100, mean = 0, sd = 1)
 
-# Quickly compute a kde and plot the density object
+# Quickly compute a kernel density estimator and plot the density object
 # Automatically chooses bandwidth and uses normal kernel
 plot(density(x = samp))
 
-# Select a particular bandwidth (0.5) and kernel (Epanechnivok)
+# Select a particular bandwidth (0.5) and kernel (Epanechnikov)
 lines(density(x = samp, bw = 0.5, kernel = "epanechnikov"), col = 2)
 
-# density automatically chooses the interval for plotting the kde
-# (observe that the black line goes to roughly between -3 and 3)
+# density automatically chooses the interval for plotting the kernel density 
+# estimator (observe that the black line goes to roughly between -3 and 3)
 # This can be tuned using "from" and "to"
 plot(density(x = samp, from = -4, to = 4), xlim = c(-5, 5))
 
@@ -73,11 +69,11 @@ Load the dataset `faithful`. Then:
 
 ```
 
-The kde can be extended to a multivariate setting by  using *product kernels*. For a sample $\mathbf{X}_1,\ldots,\mathbf{X}_n$ in $\mathbb{R}^p$, the multivariate kde employing product kernels is
+The kernel density estimator can be extended to the multivariate setting by using *product kernels*. For a sample $\mathbf{X}_1,\ldots,\mathbf{X}_n$ in $\mathbb{R}^p$, the multivariate kernel density estimator employing product kernels is defined as
 \begin{align}
-\hat f(\mathbf{x};\mathbf{h})=\frac{1}{n}\sum_{i=1}^nK_{h_1}(x_1-X_{i,1})\cdots\stackrel{p}{\times}\cdots\times K_{h_p}(x_p-X_{i,p}),(\#eq:multkde)
+\hat f(\mathbf{x};\mathbf{h})=\frac{1}{n}\sum_{i=1}^nK_{h_1}(x_1-X_{i,1})\times\stackrel{p}{\cdots}\times K_{h_p}(x_p-X_{i,p}),(\#eq:multkde)
 \end{align}
-where $\mathbf{x}=(x_{1},\ldots,x_{p})$, $\mathbf{X}_i=(X_{i,1},\ldots,X_{i,p})$, and $\mathbf{h}=(h_1,\ldots,h_p)$ is a vector of bandwidths.
+where $\mathbf{x}=(x_{1},\ldots,x_{p})$, $\mathbf{X}_i=(X_{i,1},\ldots,X_{i,p})$, and $\mathbf{h}=(h_1,\ldots,h_p)$ is a vector of bandwidths (if the variables $X_1,\ldots,X_p$ have been standardized, then a simple choice is to consider $h=h_1=\ldots=h_p$). The interpretation of \@ref(eq:multkde) is analogous to the one of \@ref(eq:kde): build a mixture of densities with each density centered at the each data point.
 
 ## Kernel regression estimation {#npreg-kre}
 
@@ -89,7 +85,7 @@ m(x)=&\,\mathbb{E}[Y| X=x]\nonumber\\
 =&\,\int y f_{Y| X=x}(y)\mathrm{d}y\nonumber\\
 =&\,\frac{\int y f(x,y)\mathrm{d}y}{f_X(x)}.
 \end{align*}
-This expression shows an interesting point: the regression function can be computed from the joint density $f$ and the marginal $f_X$. Therefore, given a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$, an estimate of $m$ follows by replacing the previous densities by their kdes. To that aim, recall that in \@ref(eq:multkde) we defined a multivariate extension of the kde based on product kernels. For the two dimensional case, the kde with equal bandwidths $\mathbf{h}=(h,h)$ is
+This expression shows an interesting point: the regression function can be computed from the joint density $f$ and the marginal $f_X$. Therefore, given a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$, an estimate of $m$ follows by replacing the previous densities by their kernel density estimators To that aim, recall that in \@ref(eq:multkde) we defined a multivariate extension of \@ref(eq:kde) based on product kernels. For the two dimensional case, the kernel density estimator with equal bandwidths $\mathbf{h}=(h,h)$ is
 \begin{align}
 \hat f(x,y;h)=\frac{1}{n}\sum_{i=1}^nK_{h}(x_1-X_{i})K_{h}(y-Y_{i}).(\#eq:kdem)
 \end{align}
@@ -258,12 +254,17 @@ X <- rnorm(n, sd = 1.5)
 Y <- m(X) + eps
 xGrid <- seq(-10, 10, l = 500)
 
-# Bandwidth
+# Fits
 h <- 0.25
 lp0 <- locpoly(x = X, y = Y, bandwidth = h, degree = 0, range.x = c(-10, 10),
                gridsize = 500)
 lp1 <- locpoly(x = X, y = Y, bandwidth = h, degree = 1, range.x = c(-10, 10),
                gridsize = 500)
+
+# Prediction at x = 2
+x <- 2
+lp1$y[which.min(abs(lp1$x - x))] # Prediction
+m(x) # Reality
 
 # Plot data
 plot(X, Y)
@@ -296,11 +297,17 @@ p = slider(min = 0, max = 4, initial = 0, step = 1))
 
 ```
 
+A more sophisticated framework for performing nonparametric estimation of the regression function, for **multiple predictors** that are continuous or **discrete**, is the `np` package. The code below illustrates the usage of the function that implements nonparametric regression, `npreg`.
+
+```{r, lp-3, echo = TRUE, collapse = TRUE, cache = TRUE}
+# TODO
+```
+
 ## Asymptotic properties {#npreg-asymp}
 
-The purpose of this section is to provide some key asymptotic results for the bias, variance, and asymptotic normality of the local linear and local constant estimators. These provide useful insights on the effect of $p$, $m$, $f$, and $\sigma^2$ in the performance of the estimators.
+The purpose of this section is to provide some highlights on the asymptotic bias and variance of the local linear and local constant estimators. These provide useful insights on the effect of $p$, $m$, $f$, and $\sigma^2$ in the performance of the estimators.
 
-Along this section we will make the following assumptions:
+Along this section we will make the following assumptions^[These are the only assumptions done do far in the model (in addition to $\varepsilon$ independent from $X$).]:
 
 - **A1**. $m$ is twice continuously differentiable.
 - **A2**. $\sigma^2$ is continuous and positive.
@@ -308,10 +315,10 @@ Along this section we will make the following assumptions:
 - **A4**. The kernel $K$ is a symmetric and bounded pdf with finite second moment and is square integrable.
 - **A5**. $h=h_n$ is a deterministic sequence of bandwidths such that, when $n\to\infty$, $h\to0$ and $nh\to\infty$.
 
-The bias and variance are expanded in their *conditional* versions on the predictor's sample $X_1,\ldots,X_n$. The reason of analyzing the conditional instead of the *unconditional* versions is avoiding technical difficulties that integration with respect to the predictor's density may pose.
+The bias and variance are expanded in their *conditional* versions on the predictor's sample $X_1,\ldots,X_n$. The reason of analyzing the conditional instead of the *unconditional* versions is avoiding technical difficulties that integration with respect to the predictor's density may pose. The main result is the following.
 
 ```{theorem, thbvloc, label = "biasvarloc", cache = TRUE}
-Under **A1**--**A5**, the conditional bias and variance of the local constant ($p=0$) and local linear ($p=1$) estimators are
+Under **A1**--**A5**, the conditional bias and variance of the local constant ($p=0$) and local linear ($p=1$) estimators are^[The notation $o_\mathbb{P}(a_n)$ stands for a random variable that converges in probability to zero at a rate faster than $a_n$. It is motsly employed for denoting non-important terms in asymptotic expansions, like the ones in \@ref(eq:mbias)--\@ref(eq:mvar).]
 \begin{align}
 \mathrm{Bias}[\hat m(x;p,h)| X_1,\ldots,X_n]&=B_p(x)h^2+o_\mathbb{P}(h^2),(\#eq:mbias)\\
 \mathbb{V}\mathrm{ar}[\hat m(x;p,h)| X_1,\ldots,X_n]&=\frac{R(K)}{nhf(x)}\sigma^2(x)+o_\mathbb{P}((nh)^{-1}),(\#eq:mvar)
@@ -322,30 +329,19 @@ B_p(x)=\frac{\mu_2(K)}{2}\left\{m''(x)+2\frac{m'(x)f'(x)}{f(x)}1_{\{p=0\}}\right
 $$
 ```
 
-The bias and variance expressions \@ref(eq:mbias) and \@ref(eq:mvar) yield interesting insights:
+The bias and variance expressions \@ref(eq:mbias) and \@ref(eq:mvar) yield very interesting insights:
 
-- The bias decreases with $h$ *quadratically* for $p=0,1$. The bias at $x$ is directly proportional to $m''(x)$ if $p=1$ and affected by $m''(x)$ if $p=0$. This has the same interpretation as in the density setting:
+- The bias decreases with $h$ *quadratically* for $p=0,1$. The bias at $x$ is directly proportional to $m''(x)$ if $p=1$ and affected by $m''(x)$ if $p=0$. Therefore:
 
     - The bias is negative in concave regions, *i.e.* $\{x\in\mathbb{R}:m(x)''<0\}$. These regions correspond to *peaks and modes of $m$*
     - Conversely, the bias is positive in convex regions, *i.e.* $\{x\in\mathbb{R}:m(x)''>0\}$. These regions correspond to *valleys of $m$*.
     - **The wilder the curvature $m''$, the harder to estimate $m$**.
 
-- The bias for $p=0$ at $x$ is affected by $m'(x)$, $f'(x)$, and $f(x)$. Precisely, **the lower the density $f(x)$, the larger the bias**. And **the faster $m$ and $f$ change at $x$, the larger the bias**. Thus the bias of the local constant estimator is much more sensible to $m(x)$ and $f(x)$ than the local linear (which is only sensible to $m''(x)$). Particularly, the fact that it depends on $f'(x)$ and $f(x)$ is referred as the *design bias* since it depends merely on the predictor's distribution.
+- The bias for $p=0$ at $x$ is affected by $m'(x)$, $f'(x)$, and $f(x)$. Precisely, **the lower the density $f(x)$, the larger the bias**. And **the faster $m$ and $f$ change at $x$, the larger the bias**. Thus the bias of the local constant estimator is much more sensible to $m(x)$ and $f(x)$ than the local linear (which is only sensible to $m''(x)$).Particularly, the fact that it depends on $f'(x)$ and $f(x)$ is referred as the *design bias* since it depends merely on the predictor's distribution.
 
-- The variance depends directly on $\frac{\sigma^2(x)}{f(x)}$ for $p=0,1$. As a consequence, **the lower the density and larger the conditional variance, the more variable is $\hat m(\cdot;p,h)$.** The variance decreases at a factor of $(nh)^{-1}$ due to the effective sample size.
+- The variance depends directly on $\frac{\sigma^2(x)}{f(x)}$ for $p=0,1$. As a consequence, **the lower the density and larger the conditional variance, the more variable is $\hat m(\cdot;p,h)$.** The variance decreases at a factor of $(nh)^{-1}$ due to the *effective sample size*, which can be thought as the amount of data in the neighborhood of $x$ for performing the estimation.
 
-An extended version of Theorem \@ref(thm:biasvarloc), given in Theorem 3.1 of @Fan1996, shows that **odd order polynomial fits are preferable to even order polynomial fits**. The reason is that odd orders introduce an extra coefficient for the polynomial fit that allows to reduce the bias, while at the same time they keep the variance unchanged. In summary, the conclusions of the above analysis of $p=0$ vs. $p=1$, namely that $p=1$ has smaller bias than $p=0$ (but of the same order) and the same variance as $p=0$, extend to the case $p=2\nu$ vs. $p=2\nu+1$, $\nu\in\mathbb{N}$. This allows to claim that local polynomial fitting *is an odd world* (@Fan1996).
-
-Finally, we have the asymptotic pointwise normality of the estimator.
-
-```{theorem, thapn}
-Assume that $\mathbb{E}[(Y-m(x))^{2+\delta}| X=x]<\infty$ for some $\delta>0$. Then, under **A1**--**A5**,
-\begin{align}
-&\sqrt{nh}(\hat m(x;p,h)-\mathbb{E}[\hat m(x;p,h)])\stackrel{d}{\longrightarrow}\mathcal{N}\left(0,\frac{R(K)\sigma^2(x)}{f(x)}\right),(\#eq:mnorm1)\\
-&\sqrt{nh}\left(\hat m(x;p,h)-m(x)-B_p(x)h^2\right)\stackrel{d}{\longrightarrow}\mathcal{N}\left(0,\frac{R(K)\sigma^2(x)}{f(x)}\right).(\#eq:mnorm2)
-\end{align}
-
-```
+An extended version of Theorem \@ref(thm:biasvarloc), given in Theorem 3.1 of @Fan1996, shows that **odd order polynomial fits are preferable to even order polynomial fits**. The reason is that odd orders introduce an extra coefficient for the polynomial fit that allows to reduce the bias, while at the same time they keep the variance unchanged. In summary, the conclusions of the above analysis of $p=0$ vs. $p=1$, namely that **$p=1$ has smaller bias than $p=0$ (but of the same order) and the same variance as $p=0$**, extend to the case $p=2\nu$ vs. $p=2\nu+1$, $\nu\in\mathbb{N}$. This allows to claim that local polynomial fitting *is an odd world* (@Fan1996).
 
 ## Bandwidth selection {#npreg-bwd}
 
@@ -375,10 +371,10 @@ h_\mathrm{CV}&:=\arg\min_{h>0}\mathrm{CV}(h).
 \end{align*}
 The optimization of the above criterion might seem to be computationally expensive, since it is required to compute $n$ regressions for a *single* evaluation of the objective function.
 
-```{proposition, thbwdcv, label = "cv"}
+```{proposition, thbwdcv, label = "cv", cache = TRUE}
 The weights of the leave-one-out estimator $\hat m_{-i}(x;p,h)=\sum_{\substack{j=1\\j\neq i}}^nW_{-i,j}^p(x)Y_j$ can be obtained from $\hat m(x;p,h)=\sum_{i=1}^nW_{i}^p(x)Y_i$:
 \begin{align*}
-W_{-i,j}^p(x)=\frac{W^p_j(x)}{\sum_{\substack{k=1\\k\neq j}}^nW_k^p(x)}.
+W_{-i,j}^p(x)=\frac{W^p_j(x)}{\sum_{\substack{k=1\\k\neq i}}^nW_k^p(x)}=\frac{W^p_j(x)}{1-W_i^p(x)}.
 \end{align*}
 This implies that
 \begin{align*}
@@ -389,7 +385,7 @@ This implies that
 
 Let's implement this simple bandwidth selector in `R`.
 
-```{r, bwd-2, echo = TRUE, eval = TRUE, collapse = TRUE, cache = TRUE}
+```{r, bwd-2, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Generate some data to test the implementation
 set.seed(12345)
 n <- 100
@@ -430,6 +426,12 @@ lines(xGrid, m(xGrid), col = 1)
 lines(xGrid, mNW(x = xGrid, X = X, Y = Y, h = h), col = 2)
 legend("topright", legend = c("True regression", "Nadaraya-Watson"),
        lwd = 2, col = 1:2)
+```
+
+A more sophisticated bandwidth selection can be achieved by `npregbw` in the `np` package. The code below illustrates the usage of this function.
+
+```{r, bwd-3, echo = TRUE, collapse = TRUE, cache = TRUE}
+# TODO
 ```
 
 ## Local likelihood {#npreg-loclik}
@@ -495,7 +497,7 @@ Note that the dependence of $\hat\beta_0$ on $x$ and $h$ is omitted. From $\hat\
 \begin{align}
 \hat m_{\ell}(x;h,p):=g^{-1}\left(\hat\eta(x)\right)=\mathrm{logistic}(\hat\beta_0).(\#eq:glmloc)
 \end{align}
-Each evluation of $\hat m_{\ell}(x;h,p)$ in a different fit requires, thus, from a fit of the underlying logistic model.
+Each evaluation of $\hat m_{\ell}(x;h,p)$ in a different $x$ requires, thus, from a fit of the underlying logistic model.
 
 The code below shows three different ways of implementing the local logistic regression (of first degree) in `R`.
 
@@ -547,11 +549,11 @@ legend("topright", legend = c("p(x)", "glm", "nlm", "locfit"), lwd = 2,
        col = c(1, 2, 2, 4), lty = c(1, 2, 1, 1))
 ```
 
-Bandwidth selection can be done by means of *likelihood cross-validation*. The objective is to maximize the local likelihood fit at $(Y_i,X_i)$ but removing the influence by the datum itself. That is, maximizing
+Bandwidth selection can be done by means of *likelihood cross-validation*. The objective is to maximize the local likelihood fit at $(X_i,Y_i)$ but removing the influence by the datum itself. That is, maximizing
 \begin{align}
-\mathrm{LCV}(h)=\sum_{i=1}^n\ell(Y_i,\hat\eta{-i}(X_i)),(\#eq:cvloclik)
+\mathrm{LCV}(h)=\sum_{i=1}^n\ell(Y_i,\hat\eta_{-i}(X_i)),(\#eq:cvloclik)
 \end{align}
-where $\hat\eta{-i}(X_i)$ represents the local fit at $X_i$ without the $i$-th datum $(X_i,Y_i)$. Unfortunately, the nonlinearity of \@ref(eq:glmloc) forbids a simplifying result as Proposition \@ref(prp:cv). Thus, in principle, it is required to fit $n$ local likelihoods for sample size $n-1$ for obtaining a single evaluation of \@ref(eq:cvloclik). The interested reader is referred to  Sections 4.3.3 and 4.4.3 of @Loader1999 for an approximation of \@ref(eq:cvloclik) that only requires a local likelihood fit for a single sample.
+where $\hat\eta{-i}(X_i)$ represents the local fit at $X_i$ without the $i$-th datum $(X_i,Y_i)$. Unfortunately, the nonlinearity of \@ref(eq:glmloc) forbids a simplifying result as Proposition \@ref(prp:cv). Thus, in principle, it is required to fit $n$ local likelihoods for sample size $n-1$ for obtaining a single evaluation of \@ref(eq:cvloclik). The interested reader is referred to Sections 4.3.3 and 4.4.3 of @Loader1999 for an approximation of \@ref(eq:cvloclik) that only requires a local likelihood fit for a single sample.
 
 We conclude by illustrating how to compute the LCV function and optimize it (keep in mind that much more efficient implementations are possible!).
 

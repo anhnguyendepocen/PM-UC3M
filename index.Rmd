@@ -2,7 +2,7 @@
 title: "Notes for Predictive Modeling"
 subtitle: "MSc in Big Data Analytics at Carlos III University of Madrid"
 author: "Eduardo García Portugués"
-date: "`r Sys.Date()`, v6.1"
+date: "`r Sys.Date()`, v6.2"
 knit: "bookdown::render_book"
 documentclass: book
 bibliography: PM-UC3M.bib
@@ -43,8 +43,8 @@ We will employ several packages that are not contained in `R` (*note: list to be
 # Installation of required packages
 install.packages(c("MASS", "car", "readxl", "rgl", "nortest", "pca3d", 
                    "ISLR", "pls", "glmnet", "biglm", "leaps", "viridis",
-                   "ffbase", "KernSmooth", "locfit", "manipulate", "mice", 
-                   "VIM", "nnet"))
+                   "ffbase", "KernSmooth", "np", "locfit", "manipulate", 
+                   "mice", "VIM", "nnet"))
 ```
 
 The codes in the notes may assume that the packages have been loaded, so it is better to do it now (*note: list to be updated*):
@@ -64,6 +64,7 @@ library(leaps)
 library(viridis)
 library(ffbase)
 library(KernSmooth)
+library(np)
 library(locfit)
 library(mice)
 library(VIM)
@@ -257,7 +258,7 @@ Several great reference books have been used for preparing these notes. The foll
 - @Loader1999 <!-- (Section \@ref(npreg-loclik)). -->
 - @Wood2006 <!-- (Section \@ref(glm-model-general)) -->
 - @Wand1995 <!-- (Sections \@ref(npreg-loclik)). -->
-- @Wasserman2004 <!-- (Sections \@ref(npreg-param), \@ref(npreg-loclik)). -->
+- @Wasserman2004 <!-- (Sections \@ref(npreg-loclik)). -->
 - @Wasserman2006 <!-- (Sections \@ref(npreg-bwd)). -->
 
 In addition, these notes are possible due to the existence of these incredible pieces of software: @R-bookdown, @R-knitr, @R-rmarkdown, and @R-base.
