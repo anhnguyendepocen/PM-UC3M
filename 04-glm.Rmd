@@ -1177,7 +1177,7 @@ The *approximate* normality in the deviance residuals allows to evaluate how wel
 
 #### How to check it {-}
 
-The *QQ-plot* allows to check if the standardized (by $\phi$) residuals follow a $\mathcal{N}(0,1)$. **Under the correct distribution of the response, we expect the points to align with the diagonal line**. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal. Unfortunately, it is also possible to have severe departures from normality *even* if the model is correct, see below.
+The *QQ-plot* allows to check if the standardized residuals follow a $\mathcal{N}(0,1)$. **Under the correct distribution of the response, we expect the points to align with the diagonal line**. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal. Unfortunately, it is also possible to have severe departures from normality *even* if the model is correct, see below.
 
 (ref:poisdiagnostics2-good-title) QQ-plots for the deviance residuals (first row) for datasets (second row) **respecting** the response distribution assumption for **Poisson** regression.
 
