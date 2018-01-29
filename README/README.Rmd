@@ -31,7 +31,7 @@ The course is designed to have, roughly, **one lesson and one lab for each main 
 
 Here is a broad view of the **syllabus**:
 
-1.  [Introduction](https://bookdown.org/egarpor/PM-UC3M/intro.html) (first lesson)
+1.  [Introduction](https://bookdown.org/egarpor/PM-UC3M) (first lesson)
 2.  [Linear models I](https://bookdown.org/egarpor/PM-UC3M/lm-i.html) (first/second lesson)
 3.  [Linear models II](https://bookdown.org/egarpor/PM-UC3M/lm-ii.html) (second/third lesson)
 4.  [Linear models III](https://bookdown.org/egarpor/PM-UC3M/lm-iii.html) (third/fourth lesson)
