@@ -30,7 +30,7 @@ The way they enforce sparsity in the estimates is by minimizing the RSS plus a p
 \begin{align}
 \text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(2-\alpha)}.(\#eq:pen1)
 \end{align}
-**Ridge regression corresponds to $\alpha=1$** (quadratic penalty) and **lasso to $\alpha=0$** (linear penalty). Obviously, if $\lambda=0$, we are back to the least squares problem and theory. The optimization of \@ref(eq:pen1) gives
+**Ridge regression corresponds to $\alpha=0$** (quadratic penalty) and **lasso to $\alpha=1$** (linear penalty). Obviously, if $\lambda=0$, we are back to the least squares problem and theory. The optimization of \@ref(eq:pen1) gives
 \begin{align}
 \hat{\boldsymbol{\beta}}_\lambda:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}}\left\{ \text{RSS}(\boldsymbol{\beta})+\lambda\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\right\},(\#eq:pen2)
 \end{align}
@@ -42,7 +42,7 @@ An equivalent way of viewing \@ref(eq:pen2) that helps on visualizing the differ
 \end{align}
 where $s_\lambda$ is certain scalar that does not depend on $\boldsymbol{\beta}$.
 
-(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3) with $p=2$. The elliptical contours show the regions with equal $\mathrm{RSS}(\beta_1,\beta_2)$, the objective function, for $(\beta_1,\beta_2)\in\mathbb{R}^2$ ($\beta_0=0$ is assumed). The diamond ($\alpha=0$) and circular ($\alpha=1$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(2\alpha-1)}\leq s_\lambda$ for the optimization problem. The *sharpeness* of the diamond makes the lasso to attain solutions with many coefficients *exactly* zero, in a similar situation to the one depicted. Extracted from @James2013. 
+(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3) with $p=2$. The elliptical contours show the regions with equal $\mathrm{RSS}(\beta_1,\beta_2)$, the objective function, for $(\beta_1,\beta_2)\in\mathbb{R}^2$ ($\beta_0=0$ is assumed). The diamond ($\alpha=1$) and circular ($\alpha=0$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\leq s_\lambda$ for the optimization problem. The *sharpeness* of the diamond makes the lasso to attain solutions with many coefficients *exactly* zero, in a similar situation to the one depicted. Extracted from @James2013. 
 
 ```{r, ridgelasso, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:ridgelassotitle)', fig.show = 'hold', cache = TRUE}
 knitr::include_graphics("images/figures/ridgelasso.png")
