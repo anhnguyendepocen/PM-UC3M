@@ -1,7 +1,7 @@
 
 # Linear models I: multiple linear model {#lm-i}
 
-The multiple linear model is a simple but useful statistical model. In short, it allows to analyse the (assumed) linear relation between a response $Y$ and *multiple* predictors, $X_1,\ldots,X_p$ in a proper way:
+The multiple linear model is a simple but useful statistical model. In short, it allows us to analyse the (assumed) linear relation between a response $Y$ and *multiple* predictors, $X_1,\ldots,X_p$ in a proper way:
 \[
 Y=\beta_0+\beta_1X_1+\beta_2X_2+\ldots+\beta_pX_p+\varepsilon
 \]
@@ -30,14 +30,14 @@ knitr::include_url("https://www.youtube.com/embed/Ec8hPHLMyzY")
 >
 > --- "Wine Equation Puts Some Noses Out of Joint", [The New York Times](http://www.nytimes.com/1990/03/04/us/wine-equation-puts-some-noses-out-of-joint.html), 04/03/1990
 
-This case study is motivated by the study of Princeton professor Orley Ashenfelter [@Ashenfelter1995] on the quality of red Bordeaux vintages. The study became mainstream after disputes with the wine press, especially with Robert Parker, Jr., one of the most influential wine critic in America. See a short review of the story at the [Financial Times](http://www.ft.com/cms/s/0/1e9cb152-5824-11dc-8c65-0000779fd2ac.html) ([Google's cache](https://webcache.googleusercontent.com/search?q=cache:1mRF68v_Uz4J:https://www.ft.com/content/1e9cb152-5824-11dc-8c65-0000779fd2ac)) and at the video in Figure \@ref(fig:video1).
+This case study is motivated by the study of Princeton professor Orley Ashenfelter [@Ashenfelter1995] on the quality of red Bordeaux vintages. The study became mainstream after disputes with the wine press, especially with Robert Parker, Jr., one of the most influential wine critics in America. See a short review of the story at the [Financial Times](http://www.ft.com/cms/s/0/1e9cb152-5824-11dc-8c65-0000779fd2ac.html) ([Google's cache](https://webcache.googleusercontent.com/search?q=cache:1mRF68v_Uz4J:https://www.ft.com/content/1e9cb152-5824-11dc-8c65-0000779fd2ac)) and at the video in Figure \@ref(fig:video1).
 
-Red Bordeaux wines have been produced in Bordeaux, one of most famous and prolific wine regions in the world, in a very similar way for hundreds of years. However, *the quality of vintages is largely variable* from one season to another due to a long list of random factors, such as the weather conditions. Because Bordeaux wines taste better when they are older (young wines are astringent, when the wines age they lose their astringency), there is an incentive to store the young wines until they are mature. Due to the important difference in taste, it is hard to determine the quality of the wine when it is so young just by tasting it, because it is going to change substantially when the aged wine is in the market. Therefore, being able to *predict the quality of a vintage* is a valuable information for investing resources, for determining a fair price for vintages, and for understanding what factors are affecting the wine quality. The purpose of this case study is to answer:
+Red Bordeaux wines have been produced in Bordeaux, one of most famous and prolific wine regions in the world, in a very similar way for hundreds of years. However, *the quality of vintages is largely variable* from one season to another due to a long list of random factors, such as the weather conditions. Because Bordeaux wines taste better when they are older (young wines are astringent, when the wines age they lose their astringency), there is an incentive to store the young wines until they are mature. Due to the important difference in taste, it is hard to determine the quality of the wine when it is so young just by tasting it, because it is going to change substantially when the aged wine is in the market. Therefore, being able to *predict the quality of a vintage* is valuable information for investing resources, for determining a fair price for vintages, and for understanding what factors are affecting the wine quality. The purpose of this case study is to answer:
 
 - Q1. *Can we predict the quality of a vintage effectively?*
 - Q2. *What is the interpretation of such prediction?*
 
-The `wine.csv` file ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/wine.csv)) contains 27 red Bordeaux vintages. The data is the originally employed by @Ashenfelter1995, except for the inclusion of the variable `Year`, the exclusion of `NA`s and the reference price used for the wine. The original source is [here](http://www.liquidasset.com/winedata.html). Each row has the following variables:
+The `wine.csv` file ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/wine.csv)) contains 27 red Bordeaux vintages. The data is the same data originally employed by @Ashenfelter1995, except for the inclusion of the variable `Year`, the exclusion of `NA`s and the reference price used for the wine. The original source is [here](http://www.liquidasset.com/winedata.html). Each row has the following variables:
 
 - `Year`: year in which grapes were harvested to make wine.
 - `Price`: *logarithm* of the average market price for Bordeaux vintages according to 1990--1991 auctions. The price is relative to the price of the 1961 vintage, regarded as the best one ever recorded.
@@ -95,7 +95,7 @@ In other words, we look for the estimators $(\hat\beta_0,\hat\beta_1)$ such that
 
 The motivation for minimizing the RSS is geometrical, as shown by Figure \@ref(fig:leastsquares). We look to minimize the squares of the distances of points projected vertically onto the line determined by $(\hat\beta_0,\hat\beta_1)$.
 
-(ref:leastsquarestitle) The effect of the kind of distance in the error criterion. The choices of intercept and slope that minimize the sum of squared distances for a kind of distance are not the optimal for a different kind of distance. Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/least-squares/).
+(ref:leastsquarestitle) The effect of the kind of distance in the error criterion. The choices of intercept and slope that minimize the sum of squared distances for one kind of distance are not the optimal choices for a different kind of distance. Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/least-squares/).
 
 ```{r, leastsquares, echo = FALSE, fig.cap = '(ref:leastsquarestitle)', screenshot.alt = "images/screenshots/least-squares.png", dev = 'png', cache = TRUE, fig.pos = 'h!', out.width = '90%'}
 knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/least-squares/', height = '900px')
@@ -186,7 +186,7 @@ In an abuse of notation, the term *regression line* is often used to denote both
 
 #### Case study application {#lm-i-model-simp-case}
 
-Let's get back to the `wine` dataset and compute some simple linear regressions. Prior to that, let's begin by summarizing the information in Table \@ref(tab:winetable) to get a grasp of the structure of the data. For that, we first import correctly the dataset into `R`:
+Let's get back to the `wine` dataset and compute some simple linear regressions. Prior to that, let's begin by summarizing the information in Table \@ref(tab:winetable) to get a grasp of the structure of the data. For that, we first correctly import the dataset into `R`:
 ```{r, wintab-1, collapse = TRUE, cache = TRUE, eval = FALSE}
 # Read data
 wine <- read.table(file = "wine.csv", header = TRUE, sep = ",")
@@ -201,14 +201,14 @@ summary(wine)
 scatterplotMatrix(wine)
 ```
 
-As we can see, `Year` and `FrancePop` are very dependent, and `Year` and `Age` are *perfectly* dependent. This is so because `Age` = 1983 - `Year`. Therefore, we opt to the remove the predictor `Year` and use it to set the case names, which can be helpful later for identifying outliers:
+As we can see, `Year` and `FrancePop` are very dependent, and `Year` and `Age` are *perfectly* dependent. This is so because `Age` = 1983 - `Year`. Therefore, we opt to remove the predictor `Year` and use it to set the case names, which can be helpful later for identifying outliers:
 ```{r, wintab-3, collapse = TRUE, cache = TRUE, fig.asp = 1}
 # Set row names to Year - useful for outlier identification
 row.names(wine) <- wine$Year
 wine$Year <- NULL
 ```
 
-Remember that the objective is to **predict** `Price`. Based on the above matrix scatterplot, the best we can predict `Price` by a simple linear regression seems to be with `AGST` or `HarvestRain`. Let's see which one yields the larger $R^2$, which, as we will see later in the chapter, is an indicative of the performance of the linear model.
+Remember that the objective is to **predict** `Price`. Based on the above matrix scatterplot, the best we can predict `Price` by a simple linear regression seems to be with `AGST` or `HarvestRain`. Let's see which one yields the larger $R^2$, which, as we will see later in the chapter, is indicative of the performance of the linear model.
 ```{r, pred, collapse = TRUE, cache = TRUE}
 # Price ~ AGST
 modAGST <- lm(Price ~ AGST, data = wine)
@@ -363,7 +363,7 @@ leastSquares3D <- data.frame(x1 = x1, x2 = x2, yLin = yLin,
 ```{r, lscheck3d-2, echo = TRUE, cache = TRUE, eval = FALSE}
 load(file = "leastSquares3D.RData")
 ```
-Let's compute the coefficients of the regression of `yLin` into the predictors `x1` and `x2`, which is denoted by `yLin ~ x1 + x2`. Note the use of `+` for including all the predictors. This does *not* mean that they are all summed and then the regression is done on the sum!^[If you wanted to do so, you will need the function `I()` for indicating that `+` is not including predictors in the model, but is acting as a sum operator.]. Instead of, this notation is designed to resemble the multiple linear model.
+Let's compute the coefficients of the regression of `yLin` into the predictors `x1` and `x2`, which is denoted by `yLin ~ x1 + x2`. Note the use of `+` for including all the predictors. This does *not* mean that they are all summed and then the regression is done on the sum!^[If you wanted to do so, you will need the function `I()` for indicating that `+` is not including predictors in the model, but is acting as a sum operator.]. Instead, this notation is designed to resemble the multiple linear model.
 ].
 ```{r, ls3dcheck-3, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Output from lm
@@ -423,7 +423,7 @@ mod$residuals
 We conclude with an insight on the relation of multiple and simple linear regressions. It is illustrated in Figure \@ref(fig:multmarg).
 
 ```{block, insjointmargcoef, type = 'rmdinsight', cache = TRUE}
-Consider the multiple linear model $Y=\beta_0+\beta_1X_1+\beta_2X_2+\varepsilon$ and its associated simple linear models $Y=\alpha_0+\alpha_1X_1+\varepsilon$ and $Y=\gamma_0+\gamma_1X_2+\varepsilon$. Assume that we have a sample $(X_{11},X_{12},Y_1),\ldots, (X_{n1},X_{n2},Y_n)$. Then, in general, $\hat\alpha_0\neq\hat\beta_0$, $\hat\alpha_1\neq\hat\beta_1$, $\hat\gamma_0\neq\hat\beta_0$, and $\hat\gamma_1\neq\hat\beta_1$. This is, in general, **the inclusion of a new predictor changes the coefficient estimates**.
+Consider the multiple linear model $Y=\beta_0+\beta_1X_1+\beta_2X_2+\varepsilon$ and its associated simple linear models $Y=\alpha_0+\alpha_1X_1+\varepsilon$ and $Y=\gamma_0+\gamma_1X_2+\varepsilon$. Assume that we have a sample $(X_{11},X_{12},Y_1),\ldots, (X_{n1},X_{n2},Y_n)$. Then, in general, $\hat\alpha_0\neq\hat\beta_0$, $\hat\alpha_1\neq\hat\beta_1$, $\hat\gamma_0\neq\hat\beta_0$, and $\hat\gamma_1\neq\hat\beta_1$. That is, in general, **the inclusion of a new predictor changes the coefficient estimates**.
 ```
 
 ```{r, multmarg, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = 'The regression plane (blue) and its relation with the simple linear regressions (green lines). The red points represent the sample for $(X_1,X_2,Y)$ and the black points the subsamples for $(X_1,X_2)$ (bottom), $(X_1,Y)$ (left), and $(X_2,Y)$ (right).', cache = TRUE}
@@ -464,13 +464,13 @@ The fitted regression is `Price` $= -2.343 + 0.013\,\times$ `Age` $+ 0.614\,\tim
 
 Why do we need assumptions? To make **inference** on the model parameters. In other words, to infer properties about the *unknown* population coefficients $\boldsymbol{\beta}$ from the sample $(\mathbf{X}_1, Y_1),\ldots,(\mathbf{X}_n, Y_n)$.
 
-(ref:linearmodeltitle) The key concepts of the simple linear model. The yellow band denotes where the $95\%$ of the data is, according to the model.
+(ref:linearmodeltitle) The key concepts of the simple linear model. The yellow band denotes where $95\%$ of the data is, according to the model.
 
 ```{r, linearmodel, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:linearmodeltitle)', cache = TRUE}
 knitr::include_graphics("images/R/linearmodel.png")
 ```
 
-(ref:linearmodeltitle2) The key concepts of the multiple linear model when $p=2$. The space between the yellow planes denotes where the $95\%$ of the data is, according to the model.
+(ref:linearmodeltitle2) The key concepts of the multiple linear model when $p=2$. The space between the yellow planes denotes where $95\%$ of the data is, according to the model.
 
 ```{r, linearmodel2, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:linearmodeltitle2)', cache = TRUE}
 knitr::include_graphics("images/R/linearmodel2.png")
@@ -571,7 +571,7 @@ Therefore, some important remarks on \@ref(eq:norm1) and \@ref(eq:se1) are
 - **Variance**. The variances $\mathrm{SE}(\hat\beta_0)^2$ and $\mathrm{SE}(\hat\beta_1)^2$ have an interesting interpretation in terms of its components:
 
     - *Sample size $n$*. As the sample size grows, the precision of the estimators increases, since both variances decrease.
-    - *Error variance $\sigma^2$*. The more disperse the error is, the less precise the estimates are, since the more vertical variability is present.
+    - *Error variance $\sigma^2$*. The more disperse the error is, the less precise the estimates are, since more vertical variability is present.
     - *Predictor variance $s_x^2$*. If the predictor is spread out (large $s_x^2$), then it is easier to fit a regression line: we have information about the data trend over a long interval. If $s_x^2$ is small, then all the data is concentrated on a narrow vertical band, so we have a much more limited view of the trend.
 
     - *Mean $\bar X$*. It has influence only on the precision of $\hat\beta_0$. The larger $\bar X$ is, the less precise $\hat\beta_0$ is.
@@ -623,11 +623,11 @@ knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/ci
 
 ### Testing on the coefficients {#lm-i-inference-tests}
 
-The distributions in \@ref(eq:normp2) also allow to conduct a formal *hypothesis test* on the coefficients $\beta_j$, $j=0,\ldots,p$. For example the test for *significance* (shortcut for *significantly difference from zero*) is especially important, that is, the test of the hypotheses
+The distributions in \@ref(eq:normp2) also allow us to conduct a formal *hypothesis test* on the coefficients $\beta_j$, $j=0,\ldots,p$. For example the test for *significance* (shortcut for *significantly difference from zero*) is especially important, that is, the test of the hypotheses
 \begin{align*}
 H_0:\beta_j=0
 \end{align*}
-for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is especially interesting, since it allows to answer whether *the variable $X_j$ has a significant linear effect on $Y$*. The statistic used for testing for significance is the $t$-statistic
+for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is especially interesting, since it allows us to answer whether *the variable $X_j$ has a significant linear effect on $Y$*. The statistic used for testing for significance is the $t$-statistic
 \begin{align*}
 \frac{\hat\beta_j-0}{\hat{\mathrm{SE}}(\hat\beta_j)},
 \end{align*}
@@ -665,7 +665,7 @@ The connection of a $t$-test for $H_0:\beta_j=0$ and the CI for $\beta_j$, both 
 > - **Yes $\leftrightarrow$ do not reject $H_0$**.
 > - **No $\leftrightarrow$ reject $H_0$**.
 
-The unilateral test $H_0:\beta_j\geq 0$ (respectively, $H_0:\beta_j\leq 0$) vs $H_1:\beta_j<0$ ($H_1:\beta_j>0$) can be done by means of the CI for $\beta_j$. If $H_0$ is rejected, they allow to conclude that *$\hat\beta_j$ is significantly negative (positive)* and that *for the considered regression model, $X_j$ has a significant negative (positive) effect on $Y$*. The rule of thumb is the following:
+The unilateral test $H_0:\beta_j\geq 0$ (respectively, $H_0:\beta_j\leq 0$) vs $H_1:\beta_j<0$ ($H_1:\beta_j>0$) can be done by means of the CI for $\beta_j$. If $H_0$ is rejected, they allow us to conclude that *$\hat\beta_j$ is significantly negative (positive)* and that *for the considered regression model, $X_j$ has a significant negative (positive) effect on $Y$*. The rule of thumb is the following:
 
 > **Is the CI for $\beta_j$ below (above) $0$ at level $\alpha$?**
 >
@@ -705,7 +705,7 @@ Then, the model without `FrancePop` (notice the use of `-` for *excluding* a par
 modWine2 <- lm(Price ~ . - FrancePop, data = wine)
 summary(modWine2)
 ```
-All the coefficients are significant at level $\alpha=0.05$. Therefore, there is no clear redundant information. In addition, the $R^2$ is very similar to the full model, but the `'Adjusted R-squared'`, a weighting of the $R^2$ to account for the number of predictors used by the model, is slightly larger. As we will see in Section \@ref(lm-i-modfit-R2Adj), this means that, comparatively to the number of predictors used, `modWine2` explains more variability of `Price` than `modWine1`.
+All the coefficients are significant at level $\alpha=0.05$. Therefore, there is no clear redundant information. In addition, the $R^2$ is very similar to the full model, but the `'Adjusted R-squared'`, a weighting of the $R^2$ to account for the number of predictors used by the model, is slightly larger. As we will see in Section \@ref(lm-i-modfit-R2Adj), this means that, compared to the number of predictors used, `modWine2` explains more variability of `Price` than `modWine1`.
 
 A handy way of comparing the coefficients of both models is `compareCoefs`:
 ```{r, case1-4, collapse = TRUE, cache = TRUE}
@@ -742,7 +742,7 @@ Compute and interpret the CIs for the coefficients, at levels $\alpha=0.10,0.05,
 ```
 
 ```{block, exassump-2, type = 'rmdexercise', cache = TRUE}
-For the `assumptions` dataset, do the next:
+For the `assumptions` dataset, do the following:
 
 - Regression `y7 ~ x7`. Check that:
     - The intercept of  is not significant for the regression at any reasonable level $\alpha$.
@@ -777,7 +777,7 @@ The inspection of the CIs for the conditional mean and conditional response in t
 \left(\hat y \pm t_{n-2:\alpha/2}\sqrt{\hat\sigma^2+\frac{\hat\sigma^2}{n}\left(1+\frac{(x-\bar x)^2}{s_x^2}\right)}\right).(\#eq:ci2)
 \end{align}
 
-Notice the dependence of both CIs in $x$, $n$, and $\sigma^2$, each of them with a clear effect on the resulting length of the interval. Figure \@ref(fig:cipred) helps visualizing these concepts interactively and the difference between CIs.
+Notice the dependence of both CIs in $x$, $n$, and $\sigma^2$, each of them with a clear effect on the resulting length of the interval. Figure \@ref(fig:cipred) helps visualize these concepts and the difference between CIs interactively.
 
 (ref:cipredtitle) Illustration of the CIs for the conditional mean and response. Note how the width of the CIs is influenced by $x$, especially for the conditional mean (the conditional response has a constant term affecting the width). Application also available [here](https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/ci-prediction/).
 
@@ -845,7 +845,7 @@ For the `wine` dataset, do the following:
 - Regress `WinterRain` on `HarvestRain` and `AGST`. Name the fitted model `modExercise`.
 - Compute the estimate for the conditional mean of `WinterRain` for `HarvestRain`$=123.0$ and `AGST`$=16.15$. What is the CI at $\alpha=0.01$?
 - Compute the estimate for the conditional response for `HarvestRain`$=125.0$ and `AGST`$=15$. What is the CI at $\alpha=0.10$?
-- Check that `modExercise$fitted.values` is the same as `predict(modExercise, newdata = data.frame(HarvestRain = wine$HarvestRain, AGST = wine$AGST))`. Why is so?
+- Check that `modExercise$fitted.values` is the same as `predict(modExercise, newdata = data.frame(HarvestRain = wine$HarvestRain, AGST = wine$AGST))`. Why is this so?
 
 ```
 
@@ -853,7 +853,7 @@ For the `wine` dataset, do the following:
 
 The variance of the error, $\sigma^2$, plays a fundamental role in the inference for the model coefficients and prediction. In this section we will see how the variance of $Y$ is decomposed into two parts, each one corresponding to the regression and to the error, respectively. This decomposition is called the *ANalysis Of VAriance* (ANOVA).
 
-An important fact to highlight prior to introduce the ANOVA decomposition is that $\bar Y=\bar{\hat{Y}}$. This is an important result that can be checked if we use matrix notation. The ANOVA decomposition considers the following measures of variation related with the response:
+An important fact to highlight prior to introducing the ANOVA decomposition is that $\bar Y=\bar{\hat{Y}}$. This is an important result that can be checked if we use matrix notation. The ANOVA decomposition considers the following measures of variation related with the response:
 
 - $\text{SST}:=\sum_{i=1}^n\left(Y_i-\bar Y\right)^2$, the **total sum of squares**. This is the *total variation* of $Y_1,\ldots,Y_n$, since $\text{SST}=ns_y^2$, where $s_y^2$ is the sample variance of $Y_1,\ldots,Y_n$.
 - $\text{SSR}:=\sum_{i=1}^n\left(\hat Y_i-\bar Y\right)^2$, the **regression sum of squares**. This is the variation explained by the regression plane, that is, *the variation from $\bar Y$ that is explained by the estimated conditional mean $\hat Y_i=\hat\beta_0+\hat\beta_1X_{i1}+\ldots+\hat\beta_pX_{ip}$*. $\text{SSR}=ns_{\hat y}^2$, where $s_{\hat y}^2$ is the sample variance of $\hat Y_1,\ldots,\hat Y_n$.
@@ -975,7 +975,7 @@ Compute the ANOVA table for the regression `Price ~ WinterRain + AGST + HarvestR
 ```
 
 ```{block, exassump-3, type = 'rmdexercise', cache = TRUE}
-For the `y6 ~ x6` and `y7 ~ x7` in the `assumptions` dataset, compute their ANOVA tables. Check that the $p$-values of the $t$-test for $\beta_1$ and the $F$-test are the same (any explanation of why is so?).
+For the `y6 ~ x6` and `y7 ~ x7` in the `assumptions` dataset, compute their ANOVA tables. Check that the $p$-values of the $t$-test for $\beta_1$ and the $F$-test are the same (any explanation of why this is so?).
 ```
 
 ## Model fit {#lm-i-modfit}
@@ -1007,7 +1007,7 @@ and as a consequence $r^2_{y\hat y}=r^2_{xy}=R^2$ when $p=1$.
 Show that $R^2=r^2_{xy}$ when $p=1$. *Hint*: start from the definition of $R^2$ and use \@ref(eq:3) to arrive to $r^2_{xy}$.
 ```
 
-Trusting blindly the $R^2$ can lead to catastrophic conclusions, since the model may not be correct. Here are a couple of counterexamples of a linear regression performed in a data that clearly does not satisfy the assumptions discussed in Section \@ref(lm-i-assumps), but despite so it has a large $R^2$. As a consequence, **inference built on the validity of the assumptions** (which do not hold!) **will be problematic, no matter what is the value of $R^2$**. For example, recall how biased will be the predictions for $x=0.35$ and $x=0.65$!
+Trusting the $R^2$ blindly can lead to catastrophic conclusions, since the model may not be correct. Here are a couple of counterexamples of a linear regression performed in a data that clearly does not satisfy the assumptions discussed in Section \@ref(lm-i-assumps), but despite that, still has a large $R^2$. As a consequence, **inference built on the validity of the assumptions** (which do not hold!) **will be problematic, no matter what is the value of $R^2$**. For example, recall how biased the predictions will be for $x=0.35$ and $x=0.65$!
 
 ```{r, R2bad-1, collapse = TRUE, cache = TRUE, echo = TRUE}
 # Simple linear model
@@ -1080,7 +1080,7 @@ As we saw, these are equivalent forms for $R^2$:
 R^2:=&\,\frac{\text{SSR}}{\text{SST}}=\frac{\text{SST}-\text{SSE}}{\text{SST}}=1-\frac{\text{SSE}}{\text{SST}}\nonumber\\
 =&\,1-\frac{\hat\sigma^2}{\text{SST}}\times(n-p-1).(\#eq:R2)
 \end{align}
-The SSE on the numerator always decreases as more predictors are added to the model, even if these are no significant. As a consequence, the **$R^2$ always increases with $p$**. Why is so? Intuitively, because the complexity -- hence the flexibility -- of the model increases when we use more predictors to explain $Y$. Mathematically, because when $p$ approaches $n-1$ the second term in \@ref(eq:R2) is reduced and, as a consequence, $R^2$ grows.
+The SSE on the numerator always decreases as more predictors are added to the model, even if these are not significant. As a consequence, the **$R^2$ always increases with $p$**. Why is this so? Intuitively, because the complexity -- hence the flexibility -- of the model increases when we use more predictors to explain $Y$. Mathematically, because when $p$ approaches $n-1$ the second term in \@ref(eq:R2) is reduced and, as a consequence, $R^2$ grows.
 
 The *adjusted $R^2$* is an important quantity specifically designed to cover this $R^2$'s flaw, which is ubiquitous in multiple linear regression. The purpose is to have a better tool for **comparing models without systematically favoring complexer models**. This alternative coefficient is defined as
 \begin{align}
@@ -1101,7 +1101,7 @@ with $j=1,\ldots,p$ and we plot them as the curves $(j,R^2(j))$ and $(j,R_\text{
 
 (ref:R2title) Comparison of $R^2$ and $R^2_{\text{Adj}}$ for $n=200$ and $p$ ranging from $1$ to $198$. $M=100$ datasets were simulated with **only the first two** predictors being significant. The thicker curves are the mean of each color's curves.
 
-Figure \@ref(fig:R2) contains the results of this experiment. As you can see $R^2$ increases linearly with the number of predictors considered, although only the first two ones were important! On the contrary, $R^2_\text{Adj}$ only increases in the first two variables and then is flat on average, but it has a huge variability when $p$ approaches $n-2$. This is a consequence of the explosive variance of $\hat\sigma^2$ in that *degenerate case*. The experiment evidences that **$R^2_\text{Adj}$ is more adequate than the $R^2$ for evaluating the fit of a multiple linear regression**.
+Figure \@ref(fig:R2) contains the results of this experiment. As you can see $R^2$ increases linearly with the number of predictors considered, although only the first two ones were important! On the contrary, $R^2_\text{Adj}$ only increases in the first two variables and then is flat on average, but it has a huge variability when $p$ approaches $n-2$. This is a consequence of the explosive variance of $\hat\sigma^2$ in that *degenerate case*. The experiment demonstrates that **$R^2_\text{Adj}$ is more adequate than the $R^2$ for evaluating the fit of a multiple linear regression**.
 
 ```{r, R2, echo = FALSE, out.width = '70%', fig.pos = 'h!', fig.cap = '(ref:R2title)', fig.show = 'hold', cache = TRUE}
 knitr::include_graphics("images/R/R2vsAdjR2.png")

@@ -1,7 +1,7 @@
 
 # Linear models II: model selection, extensions, and diagnostics {#lm-ii}
 
-Given the response $Y$ and the predictors $X_1,\ldots,X_p$, many linear models can be build for predicting and explaining $Y$. In this chapter we will see how to address the problem of selecting the *best subset of predictors* $X_1,\ldots,X_p$ for explaining $Y$. Among others, we will also see how to extend the linear model to account for nonlinear relations between $Y$ and $X_1,\ldots,X_p$, and how to check whether the assumptions of the model are realistic in practice.
+Given the response $Y$ and the predictors $X_1,\ldots,X_p$, many linear models can be built for predicting and explaining $Y$. In this chapter we will see how to address the problem of selecting the *best subset of predictors* $X_1,\ldots,X_p$ for explaining $Y$. Among others, we will also see how to extend the linear model to account for nonlinear relations between $Y$ and $X_1,\ldots,X_p$, and how to check whether the assumptions of the model are realistic in practice.
 
 ## Case study: *Housing values in Boston* {#lm-ii-lab-boston}
 
@@ -48,18 +48,18 @@ The diagonal panels are showing an estimate of the unknown density of each varia
 
 ## Model selection {#lm-ii-modsel}
 
-In Chapter \@ref(lm-i) we briefly saw that **the inclusion of more predictors is not for free**: there is a price to pay in terms of more variability on the coefficients estimates, harder interpretation, and possible inclusion of highly-dependent predictors. Indeed, there is a **maximum number of predictors $p$** that can be considered in a linear model for a sample size $n$: **$p\leq n-2$**. Or equivalently, there is a **minimum sample size $n$** required for fitting a model with $p$ predictors: **$n\geq p + 2$**.
+In Chapter \@ref(lm-i) we briefly saw that **the inclusion of more predictors is not for free**: there is a price to pay in terms of more variability in the coefficients estimates, harder interpretation, and possible inclusion of highly-dependent predictors. Indeed, there is a **maximum number of predictors $p$** that can be considered in a linear model for a sample size $n$: **$p\leq n-2$**. Or equivalently, there is a **minimum sample size $n$** required for fitting a model with $p$ predictors: **$n\geq p + 2$**.
 
 The interpretation of this fact is simple if we think on the geometry for $p=1$ and $p=2$:
 
-- If $p=1$, we need at least $n=2$ points to fit uniquely a line. However, this line gives no information on the vertical variation around it and hence $\hat\sigma^2$ can not be estimated (applying its formula, we would have $\hat\sigma^2=\infty$). Therefore we need at least $n=3$ points, or in other words $n\geq p + 2=3$.
-- If $p=2$, we need at least $n=3$ points to fit uniquely a plane. But this plane gives no information on the variation of the data around it and hence $\hat\sigma^2$ can not be estimated. Therefore we need $n\geq p + 2=4$.
+- If $p=1$, we need at least $n=2$ points to uniquely fit a line. However, this line gives no information on the vertical variation around it and hence $\hat\sigma^2$ can not be estimated (applying its formula, we would have $\hat\sigma^2=\infty$). Therefore we need at least $n=3$ points, or in other words $n\geq p + 2=3$.
+- If $p=2$, we need at least $n=3$ points to uniquely fit a plane. But this plane gives no information on the variation of the data around it and hence $\hat\sigma^2$ cannot be estimated. Therefore we need $n\geq p + 2=4$.
 
 Another interpretation is the following:
 
 > The fitting of a linear model with $p$ predictors involves the estimation the $p+2$ parameters $(\boldsymbol{\beta},\sigma^2)$ from $n$ data points. The closer $p+2$ and $n$ are, the more variable the estimates $(\hat{\boldsymbol{\beta}},\hat\sigma^2)$ will be, since less information is available for estimating each one. In the limit case $n=p+2$, each sample point determines a parameter estimate.
 
-The *degrees of freedom* $n-p-1$ quantify the increasing on the variability of $(\hat{\boldsymbol{\beta}},\hat\sigma^2)$ when $n-p-1$ decreases. For example:
+The *degrees of freedom* $n-p-1$ quantify the increase in the variability of $(\hat{\boldsymbol{\beta}},\hat\sigma^2)$ when $n-p-1$ decreases. For example:
 
 - $t_{n-p-1;\alpha/2}$ appears in \@ref(eq:normp2) and influences the length of the CIs for $\beta_j$, see \@ref(eq:cip). It also influences the length of the CIs for the prediction. As Figure \@ref(fig:dft) shows, when the degrees of freedom $n-p-1$ decrease, $t_{n-p-1;\alpha/2}$ increases, thus the intervals become wider.
 - $\hat\sigma^2=\frac{1}{n-p-1}\sum_{i=1}^n\hat\varepsilon_i^2$ influences the $R^2$ and $R^2_\text{Adj}$. If no relevant variables are added to the model then $\sum_{i=1}^n\hat\varepsilon_i^2$ will not change substantially. However, the reducing factor $\frac{1}{n-p-1}$ will decrease as $p$ augments, inflating $\hat\sigma^2$ and its variance. This is exactly what happened in Figure \@ref(fig:R2).
@@ -80,13 +80,13 @@ legend("topright", lwd = 2, col = rainbow(3),
        legend = expression(alpha == 0.10, alpha == 0.05, alpha == 0.01))
 ```
 
-Now that we have added more light into the problem of having an excess of predictors, we turn the focus into **selecting the most adequate predictors for a multiple regression model**. This is a challenging task without a unique solution, and what is worse, without a method that is guaranteed to work in all the cases. However, there is a well-established procedure that usually gives good results: the **stepwise model selection**. Its principle is to compare multiple linear regression models with different predictors (and, of course, with the same responses).
+Now that we have shed more light on the problem of having an excess of predictors, we turn the focus on **selecting the most adequate predictors for a multiple regression model**. This is a challenging task without a unique solution, and what is worse, without a method that is guaranteed to work in all the cases. However, there is a well-established procedure that usually gives good results: the **stepwise model selection**. Its principle is to compare multiple linear regression models with different predictors (and, of course, with the same responses).
 
 Before introducing the method, we need to understand what is an **information criterion**. An information criterion balances the fitness of a model with the number of predictors employed. Hence, it determines objectively the best model as the one that *minimizes the information criterion*. Two common criteria are the *Bayesian Information Criterion* (BIC) and the *Akaike Information Criterion* (AIC). Both are based on a **balance between the model fitness and its complexity**:
 \begin{align}
 \text{BIC}(\text{model}) = \underbrace{-2\ell(\text{model})}_{\text{Model fitness}} + \underbrace{\text{npar(model)}\times\log n}_{\text{Complexity}}, (\#eq:bic)
 \end{align}
-where $\ell(\text{model})$ is the *log-likelihood of the model* (how well the model fits the data) and $\text{npar(model)}$ is the number of parameters of the model, $p+2$ in the case of a multiple linear regression model with $p$ predictors. The AIC replaces $\log n$ by $2$ in \@ref(eq:bic) so, compared with BIC, it **penalizes less the more complex models** (recall that $\log n>2$ if $n\geq8$). This is one of the reasons why BIC is preferred by some practitioners for model comparison. Also, because is *consistent* in selecting the true model: if enough data is provided, the BIC is guaranteed to select the data-generating model among a list of candidate models.
+where $\ell(\text{model})$ is the *log-likelihood of the model* (how well the model fits the data) and $\text{npar(model)}$ is the number of parameters of the model, $p+2$ in the case of a multiple linear regression model with $p$ predictors. The AIC replaces $\log n$ by $2$ in \@ref(eq:bic) so, compared with BIC, it **penalizes the more complex models less** (recall that $\log n>2$ if $n\geq8$). This is one of the reasons why BIC is preferred by some practitioners for model comparison. Also, because it is *consistent* in selecting the true model: if enough data is provided, the BIC is guaranteed to select the data-generating model among a list of candidate models.
 
 The BIC and AIC can be computed in `R` through the functions `BIC` and `AIC`. They take a model as the input.
 ```{r, case2-4, collapse = TRUE, cache = TRUE}
@@ -155,7 +155,7 @@ modAICBack
 `stepAIC` assumes that no `NA`'s (missing values) are present in the data. It is advised to remove the missing values in the data before. Their presence might lead to errors. To do so, employ `data = na.omit(dataset)` in the call to `lm` (if your dataset is `dataset`). Also, see Appendix \@ref(app-nas).
 ```
 
-We conclude highlighting a caveat on the use of the BIC and AIC: they are constructed assuming that the sample size $n$ is much larger than the number of parameters in the model ($p+2$). Therefore, they will work reasonably well if $n>>p+2$, but if this is not true they may favor unrealistic complex models. An illustration of this phenomena is Figure \@ref(fig:bic), which is the BIC/AIC version of Figure \@ref(fig:R2) for the experiment done in Section \@ref(lm-i-anova). The BIC and AIC curves tend to have local minimums close to $p=2$ and then increase. But when $p+2$ gets close to $n$, they quickly drop down. Note also how the BIC penalizes more the complexity than the AIC, which is more flat.
+We conclude by highlighting a caveat on the use of the BIC and AIC: they are constructed assuming that the sample size $n$ is much larger than the number of parameters in the model ($p+2$). Therefore, they will work reasonably well if $n>>p+2$, but if this is not true they may favor unrealistic complex models. An illustration of this phenomena is Figure \@ref(fig:bic), which is the BIC/AIC version of Figure \@ref(fig:R2) for the experiment done in Section \@ref(lm-i-anova). The BIC and AIC curves tend to have local minimums close to $p=2$ and then increase. But when $p+2$ gets close to $n$, they quickly drop down. Note also how the BIC penalizes the complexity more than the AIC, which is more flat.
 
 (ref:bictitle) Comparison of BIC and AIC for $n=200$ and $p$ ranging from $1$ to $198$. $M=100$ datasets were simulated with **only the first two** predictors being significant. The thicker curves are the mean of each color's curves.
 
@@ -170,9 +170,9 @@ We want to build a linear model for predicting and explaining `medv`. There are 
 modHouse <- lm(medv ~ ., data = Boston)
 summary(modHouse)
 ```
-There are a couple of non significant variables, but so far the model has an $R^2=0.74$ and the fitted coefficients are sensible with what it would be expected. For example, `crim`, `tax`, `ptratio`, and `nox` have negative effects on `medv`, while `rm`, `rad`, and `chas` have positive. However, the non significant coefficients are not significantly the model, but only adding artificial noise and decreasing the overall accuracy of the coefficient estimates.
+There are a couple of non significant variables, but so far the model has an $R^2=0.74$ and the fitted coefficients are sensible with what would be expected. For example, `crim`, `tax`, `ptratio`, and `nox` have negative effects on `medv`, while `rm`, `rad`, and `chas` have positive. However, the non significant coefficients are not significantly affecting the model, but only adding artificial noise and decreasing the overall accuracy of the coefficient estimates.
 
-Let's polish a little bit the previous model. Instead of removing manually each non significant variable to reduce the complexity, we employ `stepAIC` for selecting a candidate *best model*:
+Let's polish the previous model a little bit. Instead of manually removing each non significant variable to reduce the complexity, we employ `stepAIC` for selecting a candidate *best model*:
 ```{r, case2-8, collapse = TRUE, cache = TRUE}
 # Best models
 modBIC <- stepAIC(modHouse, k = log(nrow(Boston)))
@@ -195,7 +195,7 @@ We have quantified the influence of the predictor variables in the housing price
 ```{block2, exadddrop, type = 'rmdexercise', cache = TRUE}
 The `MASS` functions `addterm` and `dropterm` allow to add and remove all individual predictors to a given mode, and inform the BICs / AICs of the possible combinations. Check that:
 - `modBIC` can not be improved in terms of BIC by removing predictors. Use `dropterm(modBIC, k = log(nobs(modBIC)))` for that.
-- `modBIC` can not be improved in terms of BIC by adding predictors. Use `addterm(modBIC, scope = lm(medv ~ ., data  = Boston), k = log(nobs(modBIC)))` for that. `scope` must specify the maximal model or formula^[However, be careful because `addterm(modBIC, scope = medv ~ ., k = log(nobs(modBIC)))` will understand that `.` refers to all the predictors *in* `modBIC`, not in the `Boston` dataset, and will return an error. Calling `addterm(modBIC, scope = medv ~ . + indus + age, k = log(nobs(modBIC)))` gives the required result, at expenses of manually adding the remaining predictors.] to compare additions with.
+- `modBIC` can not be improved in terms of BIC by adding predictors. Use `addterm(modBIC, scope = lm(medv ~ ., data  = Boston), k = log(nobs(modBIC)))` for that. `scope` must specify the maximal model or formula^[However, be careful because `addterm(modBIC, scope = medv ~ ., k = log(nobs(modBIC)))` will understand that `.` refers to all the predictors *in* `modBIC`, not in the `Boston` dataset, and will return an error. Calling `addterm(modBIC, scope = medv ~ . + indus + age, k = log(nobs(modBIC)))` gives the required result, at the expense of manually adding the remaining predictors.] to compare additions with.
 
 ```
 
@@ -218,7 +218,7 @@ The previous interpretation translates easily to the linear model. Assume that t
 \[
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p,D=d]=\beta_0+\beta_1X_1+\ldots+\beta_pX_p+\beta_{p+1}D.
 \]
-The coefficient associated to $D$ is easily interpretable. $\beta_{p+1}$ is the increment in mean of $Y$ associated to changing $D=0$ (reference) to $D=1$, while the rest of the predictors are fixed. Or in other words, $\beta_{p+1}$ is the increment in mean of $Y$ associated to changing of the level of the categorical variable from *a* to *b*.
+The coefficient associated to $D$ is easily interpretable. $\beta_{p+1}$ is the increment in mean of $Y$ associated to changing $D=0$ (reference) to $D=1$, while the rest of the predictors are fixed. Or in other words, $\beta_{p+1}$ is the increment in mean of $Y$ associated to changing the level of the categorical variable from *a* to *b*.
 
 `R` does the dummification automatically (translates a categorical variable $C$ into its dummy version $D$) if it detects that a factor variable is present in the regression model.
 
@@ -230,7 +230,7 @@ and
 \[
 D_2=\left\{\begin{array}{ll}1,&\text{if }C=c,\\0,& \text{if }C\neq c.\end{array}\right.
 \]
-Then $C=a$ is represented by $D_1=D_2=0$, $C=b$ is represented by $D_1=1,D_2=0$ and $C=c$ is represented by $D_1=0,D_2=1$. The interpretation of the regression models with the presence of $D_1$ and $D_2$ is the very similar to the one before. For example, for the linear model, the coefficient associated to $D_1$ gives the increment in mean of $Y$ when the category of $C$ changes from *a* to *b*. The coefficient for $D_2$ gives the increment in mean of $Y$ when it changes from *a* to *c*.
+Then $C=a$ is represented by $D_1=D_2=0$, $C=b$ is represented by $D_1=1,D_2=0$ and $C=c$ is represented by $D_1=0,D_2=1$. The interpretation of the regression models with the presence of $D_1$ and $D_2$ is very similar to the one before. For example, for the linear model, the coefficient associated to $D_1$ gives the increment in mean of $Y$ when the category of $C$ changes from *a* to *b*. The coefficient for $D_2$ gives the increment in mean of $Y$ when it changes from *a* to *c*.
 
 In general, if we have a categorical variable with $J$ levels, then the number of dummy variables required is $J-1$. Again, `R` does the dummification automatically for you if it detects that a factor variable is present in the regression model. Let's see an example with the `iris` dataset.
 
@@ -270,7 +270,7 @@ contrasts(iris$Species)
 ```
 
 ```{block, insdummy, type = 'rmdinsight', cache = TRUE}
-It may happen that one dummy variable, say $D_1$ is not significant, while other dummy variables, say $D_2$, are significant. For example, this happens in the example above at level $\alpha=0.01$.
+It may happen that one dummy variable, say $D_1$, is not significant, while other dummy variables, say $D_2$, are significant. For example, this happens in the example above at level $\alpha=0.01$.
 ```
 
 ```{block, caucateg, type = 'rmdcaution', cache = TRUE}
@@ -280,14 +280,14 @@ For example if you have a categorical variable `party` with levels `partyA`, `pa
 
 - You assume implicitly an order in the levels of `party`, since `partyA` is closer to `partyB` than to `partyC`.
 - You assume implicitly that `partyC` is three times larger than `partyA`.
-- The codification is completely arbitrary -- why not considering `1`, `1.5`, and `1.75` instead of?
+- The codification is completely arbitrary -- why not consider `1`, `1.5`, and `1.75` instead?
 
-The right way of dealing with categorical variables in regression is to set the variable as a factor and let `R` do internally the dummification.
+The right way of dealing with categorical variables in regression is to set the variable as a factor and let `R` do the dummification internally.
 ```
 
 ### Case study application {#lm-ii-qualpred-case}
 
-Let's see what are the dummy variables in the `Boston` dataset and what effect they have in `medv`.
+Let's see what the dummy variables are in the `Boston` dataset and what effect they have on `medv`.
 
 ```{r, case2-9, collapse = TRUE, cache = TRUE}
 # Load the Boston dataset
@@ -348,7 +348,7 @@ plot(x^2, y, xlab = "x^2", pch = 16)
 abline(mod2$coefficients, col = 2, lwd = 2)
 ```
 
-In conclusion, with a simple trick we have increased drastically the explanation of the response. However, there is a catch: knowing which transformation is required in order to linearise the relation between response and the predictor is a kind of art which requires some good eye. One first approach is to consider one of the usual transformations, which are displayed in Figure \@ref(fig:nonlineartransf), depending on the pattern of the data. Figure \@ref(fig:transf) illustrates how to choose an adequate transformation for linearizing nonlinear data patterns.
+In conclusion, with a simple trick we have drastically increased the explanation of the response. However, there is a catch: knowing which transformation is required in order to linearise the relation between response and the predictor is a kind of art which requires a good eye. One first approach is to consider one of the usual transformations, which are displayed in Figure \@ref(fig:nonlineartransf), depending on the pattern of the data. Figure \@ref(fig:transf) illustrates how to choose an adequate transformation for linearizing nonlinear data patterns.
 
 ```{r, nonlineartransf, echo = FALSE, warning = FALSE, results = 'hide', out.width = '45%', fig.show = 'hold', fig.asp = 1, fig.pos = 'h!', fig.cap = 'Some common nonlinear transformations and their negative counterparts. Recall the domain of definition of each transformation.', cache = TRUE}
 x <- seq(-2, 5, l = 200)
@@ -381,13 +381,13 @@ knitr::include_app('https://ec2-35-177-34-200.eu-west-2.compute.amazonaws.com/no
 ```
 
 ```{block2, instransf, type = 'rmdinsight', cache = TRUE}
-If you apply a nonlinear transformation, namely $f$, and fit the linear model $Y=\beta_0+\beta_1 f(X)+\varepsilon$, then there is no point in fit also the model resulting from the negative transformation $-f$. The model with $-f$ is exactly the same as the one with $f$ but with the sign of $\beta_1$ flipped!
+If you apply a nonlinear transformation, namely $f$, and fit the linear model $Y=\beta_0+\beta_1 f(X)+\varepsilon$, then there is no point in also fitting the model resulting from the negative transformation $-f$. The model with $-f$ is exactly the same as the one with $f$ but with the sign of $\beta_1$ flipped!
 
 As a rule of thumb, use Figure \@ref(fig:nonlineartransf) with the transformations to compare it with the data pattern, then choose the most similar curve, and finally apply the corresponding function with **positive sign**.
 ```
 
 <!-- ```{block2, insmultico-3, type = 'rmdinsight', cache = TRUE} -->
-<!-- As you might have realized, applying nonlinear transformations to the predictors is a **simple trick that extends enormously the functionality of the linear model**. This is particularly useful in real applications, where linearity is hardly verified. -->
+<!-- As you might have realized, applying nonlinear transformations to the predictors is a **simple trick that enormously extends the functionality of the linear model**. This is particularly useful in real applications, where linearity is hardly verified. -->
 <!-- ``` -->
 
 Let's see how we can compute transformations of our predictors and perform a linear regression with them. The data for Figure \@ref(fig:quadratic) is:
@@ -437,7 +437,7 @@ Load the dataset `assumptions.RData`. We are going to work with the regressions 
 Some hints:
 
 - `y2 ~ x2` has a negative dependence, so look at the right panel of Figure \@ref(fig:transf).
-- `y3 ~ x3` seems to have just a subtle nonlinearity... Will it be worth to attempt a transformation?
+- `y3 ~ x3` seems to have just a subtle nonlinearity... Will it be worth it to attempt a transformation?
 - For `y9 ~ x9`, try with also with `exp(-abs(x9))`, `log(abs(x9))`, and `2^abs(x9)`.
 
 ```
@@ -505,7 +505,7 @@ plot(cars, xlab = "Speed (mph)", ylab = "Stopping distance (ft)")
 lines(d, predict(mod2, new = data.frame(speed = d)), col = 1)
 lines(d, predict(mod2Raw, new = data.frame(speed = d)), col = 2)
 
-# However: different coefficient estimates, but same R^2. How is possible?
+# However: different coefficient estimates, but same R^2. How is this possible?
 summary(mod2)
 summary(mod2Raw)
 
@@ -518,16 +518,16 @@ cor(mod2Raw$model[, -1])
 ```
 
 ```{block2, insortho, type = 'rmdinsight', cache = TRUE}
-The use of **orthogonal polynomials** is advised for a high order polynomial fits, since it avoids numerical unstabilities and excessive linear dependencies between the predictors. However, the coefficients of orthogonal polynomials are less interpretable than the ones from raw polynomials.
+The use of **orthogonal polynomials** is advised for high order polynomial fits, since it avoids numerical instabilities and excessive linear dependencies between the predictors. However, the coefficients of orthogonal polynomials are less interpretable than the ones from raw polynomials.
 ```
 
 ### Interactions {#lm-ii-nonlin-ints}
 
-When two or more predictors $X_1$ and $X_2$ are present, it may be of interest to explore the **interaction** between them $X_1X_2$. This is a new variable that affects positively (negatively) the response $Y$ when both $X_1$ and $X_2$ are positive or negative at the same time (at different times):
+When two or more predictors $X_1$ and $X_2$ are present, it may be of interest to explore the **interaction** between them $X_1X_2$. This is a new variable that positively (negatively) affects the response $Y$ when both $X_1$ and $X_2$ are positive or negative at the same time (at different times):
 \[
 Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon
 \]
-The coefficient $\beta_3$ in $Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon$ can be interpreted as the **increment of the effect of the predictor $X_1$ in the mean of $Y$ for a unit increment in $X_2$** (the roles of $X_1$ and $X_2$ in can be interchanged). Significance testing on these coefficients can be carried as usual.
+The coefficient $\beta_3$ in $Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon$ can be interpreted as the **increment of the effect of the predictor $X_1$ on the mean of $Y$ for a unit increment in $X_2$** (the roles of $X_1$ and $X_2$ in can be interchanged). Significance testing on these coefficients can be carried out as usual.
 
 The way of adding these interactions in `lm` is through `:` and `*`. The operator `:` only adds the term $X_1X_2$ and `*` adds $X_1$, $X_2$, and $X_1X_2$. Let's see an example in the `Boston` dataset.
 ```{r, int-1, echo = TRUE, collapse = TRUE, cache = TRUE}
@@ -660,7 +660,7 @@ abline(a = mod7$coefficients[1], b = 0, col = 3, lwd = 2)
 abline(a = mod7$coefficients[1], b = mod7$coefficients[2], col = 4, lwd = 2)
 ```
 
-From the above illustration, it is clear that the effect of adding a dummy variable is to **fit simultaneously two linear models (with varying flexibility) to the two groups of data encoded by the dummy variable**, and merge this simultaneous fit within a single linear model. We can check this in more detail using the `subset` option of `lm`:
+From the above illustration, it is clear that the effect of adding a dummy variable is to **simultaneously fit two linear models (with varying flexibility) to the two groups of data encoded by the dummy variable**, and merge this simultaneous fit within a single linear model. We can check this in more detail using the `subset` option of `lm`:
 ```{r, int-4, echo = TRUE, collapse = TRUE, cache = TRUE}
 # Model using a dummy variable in the full dataset
 lm(medv ~ lstat + chas + lstat:chas, data = Boston)
@@ -763,7 +763,7 @@ The so-called **residuals vs. fitted values plot** is the scatterplot of $(\hat 
 plot(mod, 1)
 ```
 
-**Under linearity, we expect the red line** (a flexible fit of the mean of the residuals) **to capture no trend**. If nonlinearities are observed, it is worth to plot the *regression terms* of the model. These are the $p$ scatterplots $(X_{ij},Y_i)$, $i=1,\ldots,n$, that are accompanied by the regression lines $y=\hat\beta_0+\hat\beta_jx$ (important: $\hat\beta_j$, $j=1,\ldots,p$, come from the *multiple* linear fit that gives $\hat{\boldsymbol\beta}$, not from individual *simple* linear regressions). They help on detecting which predictor is having  nonlinear effects on $Y$.
+**Under linearity, we expect the red line** (a flexible fit of the mean of the residuals) **to capture no trend**. If nonlinearities are observed, it is worth to plot the *regression terms* of the model. These are the $p$ scatterplots $(X_{ij},Y_i)$, $i=1,\ldots,n$, that are accompanied by the regression lines $y=\hat\beta_0+\hat\beta_jx$ (important: $\hat\beta_j$, $j=1,\ldots,p$, come from the *multiple* linear fit that gives $\hat{\boldsymbol\beta}$, not from individual *simple* linear regressions). They help with detecting which predictor is having  nonlinear effects on $Y$.
 ```{r, diag-2, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 par(mfrow = c(2, 2)) # We have 4 predictors
 termplot(mod, partial.resid = TRUE)
@@ -783,18 +783,18 @@ plot(lm(y ~ I(x^2), data = nonLinear), 1) # Linear
 
 ### Normality {#lm-ii-diagnostics-2}
 
-The normality in the errors $\varepsilon_i$, $i=1,\ldots,n$, allows to make *exact* inference in the linear model, in the sense that the distribution of $\hat{\boldsymbol{\beta}}$ given in \@ref(eq:normp) is exact for $n$, is not asymptotic with $n\to\infty$ or approximate. If normality does not hold, then the inference we did (confidence intervals for $\beta_j$, hypothesis testing, confidence intervals for prediction) is to be *somehow* suspected. Why just *somehow*? Roughly speaking, the reason is that the central limit theorem will make $\hat{\boldsymbol{\beta}}$ *asymptotically* normal, even if the errors are not. However, the speed of this asymptotic convergence greatly depends on how non normal is the distribution of the errors.
+The normality in the errors $\varepsilon_i$, $i=1,\ldots,n$, allows us to make *exact* inference in the linear model, in the sense that the distribution of $\hat{\boldsymbol{\beta}}$ given in \@ref(eq:normp) is exact for $n$, is not asymptotic with $n\to\infty$ or approximate. If normality does not hold, then the inference we did (confidence intervals for $\beta_j$, hypothesis testing, confidence intervals for prediction) is to be *somehow* suspected. Why just *somehow*? Roughly speaking, the reason is that the central limit theorem will make $\hat{\boldsymbol{\beta}}$ *asymptotically* normal, even if the errors are not. However, the speed of this asymptotic convergence greatly depends on how non normal is the distribution of the errors.
 
 As a rule of thumb: **non severe^[Distributions that are not heavy tailed, not heavy multimodal, and not heavy skewed.] departures from normality yield valid (asymptotic) inference for relatively large sample sizes $n$**. Therefore, the failure of normality is less problematic than other assumptions.
 
 #### How to check it {-}
 
-The **QQ-plot** (Theoretical Quantile vs. Empirical Quantile) allows to check if the *standardized* residuals follow a $\mathcal{N}(0,1)$. What it does is to compare the theoretical quantiles of a $\mathcal{N}(0,1)$ with the quantiles of the sample of standardized residuals.
+The **QQ-plot** (Theoretical Quantile vs. Empirical Quantile) allows to check if the *standardized* residuals follow a $\mathcal{N}(0,1)$. What it does is compare the theoretical quantiles of a $\mathcal{N}(0,1)$ with the quantiles of the sample of standardized residuals.
 ```{r, diag-4, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 plot(mod, 2)
 ```
 
-**Under normality, we expect the points to align with the diagonal line**, which represents the ideal position of the points if those were sampled from a $\mathcal{N}(0,1)$. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal.
+**Under normality, we expect the points to align with the diagonal line**, which represents the ideal position of the points if they were sampled from a $\mathcal{N}(0,1)$. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal.
 
 There are formal tests to check the null hypothesis of normality in our residuals:
 ```{r, diag-5, echo = TRUE, cache = TRUE, collapse = TRUE}
@@ -814,7 +814,7 @@ knitr::include_graphics("images/R/diagnostics2.png")
 
 #### What to do if fails {-}
 
-Patching non-normality is not easy and most of the times requires from the consideration of other models, like the ones to be seen in Chapter \@ref(glm). One possibility is to transform $Y$ by means of a Box-Cox transformation of the form $\frac{Y^\lambda-1}{\lambda}$, $\lambda\neq0$ or $\log(Y)$, of course at the price of modelling the transformed response rather than $Y$. It is also possible to patch it if it is a consequence of the failure of linearity or homoscedasticity, which translates the problem into fixing those assumptions.
+Patching non-normality is not easy and most of the time requires the consideration of other models, like the ones to be seen in Chapter \@ref(glm). One possibility is to transform $Y$ by means of a Box-Cox transformation of the form $\frac{Y^\lambda-1}{\lambda}$, $\lambda\neq0$ or $\log(Y)$, of course at the price of modelling the transformed response rather than $Y$. It is also possible to patch it if it is a consequence of the failure of linearity or homoscedasticity, which translates the problem into fixing those assumptions.
 
 ### Homoscedasticity {#lm-ii-diagnostics-3}
 
@@ -864,7 +864,7 @@ The Breusch-Pagan test checks homoscedasticity against a nonconstant, *linearly 
 
 #### What to do if fails {-}
 
-Using a nonlinear transformation *for the response* $Y$ may help controlling the variance. Typical choices are $\log Y$ and $\sqrt{Y}$, which reduce the scale of the larger responses and leads to a reduction of heteroskedasticity. Let's see a quick example of this.
+Using a nonlinear transformation *for the response* $Y$ may help control the variance. Typical choices are $\log Y$ and $\sqrt{Y}$, which reduce the scale of the larger responses and leads to a reduction of heteroskedasticity. Let's see a quick example of this.
 ```{r, diag-8, collapse = TRUE, cache = TRUE, fig.asp = 1/2, out.width = '70%', fig.pos = 'h!'}
 # Artificial data with heteroskedasticity
 set.seed(12345)
@@ -897,7 +897,7 @@ The set of possible dependence structures is immense, and there is no simple way
 plot(mod$residuals, type = "o")
 ```
 
-**Under uncorrelation, we expect the series to show no *tracking* of the residuals**. This is, that the closer observations do not take similar values, but rather change without any kind of distinguishable pattern. Tracking is associated to positive autocorrelation, but negative, manifested as alternating small-large or positive-negative residuals, is also possible. The **lagged plots** of $(\hat\varepsilon_{i-l},\hat\varepsilon_i)$, $i=l+1,\ldots,n$, obtained through `lag.plot`, allow to detect both kind of autocorrelations for a given lag $l$. Under independence, we expect no trend in such plot. Here is an example:
+**Under uncorrelation, we expect the series to show no *tracking* of the residuals**. That is, that the closer observations do not take similar values, but rather change without any kind of distinguishable pattern. Tracking is associated to positive autocorrelation, but negative, manifested as alternating small-large or positive-negative residuals, is also possible. The **lagged plots** of $(\hat\varepsilon_{i-l},\hat\varepsilon_i)$, $i=l+1,\ldots,n$, obtained through `lag.plot`, allow us to detect both kinds of autocorrelations for a given lag $l$. Under independence, we expect no trend in such plot. Here is an example:
 
 ```{r, diag-10, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
 lag.plot(mod$residuals, lags = 1, do.lines = FALSE) 
@@ -919,7 +919,7 @@ knitr::include_graphics("images/R/diagnostics4.png")
 
 Little can be done if there is dependence in the data, once this has been collected. We must rely on the family of statistical models meant to deal with serial dependence: *time series*.
 
-However, there is a simple trick worth to mention. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovations* of the series of $Y$.
+However, there is a simple trick worth mentioning. If the observations of the response $Y$, say $Y_1,Y_2,\ldots,Y_n$, present serial dependence, a differentiation of the sample that yields $Y_1-Y_2,Y_2-Y_3,\ldots,Y_{n-1}-Y_n$ may lead to independent observations. These are called the *innovations* of the series of $Y$.
 
 ```{block, exassump3d, type = 'rmdexercise', cache = TRUE}
 Load the dataset `assumptions3D.RData`([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/assumptions3D.RData)) and compute the regressions `y.3 ~ x1.3 + x2.3`, `y.4 ~ x1.4 + x2.4`, `y.5 ~ x1.5 + x2.5`, and `y.8 ~ x1.8 + x2.8`. Use the presented diagnostic tools to test the assumptions of the linear model and look out for possible problems.
@@ -933,10 +933,10 @@ A common problem that arises in multiple linear regression is **multicollinearit
 - It is **difficult to determine how each of the highly related predictors affects the response**, since one masks the other. Also, this may result in numerical instabilities because $\mathbf{X}'\mathbf{X}$ will be close to being singular.
 
 ```{block, insmultico-1, type = 'rmdinsight', cache = TRUE}
-Intuitively, multicollinearity can be visualized as a card (fitting plane) that is hold on its opposite corners and that spins on its diagonal (where the data is concentrated). Then very different planes will fit almost equally good the data, which results in a large variability of the selected plane.
+Intuitively, multicollinearity can be visualized as a card (fitting plane) that is hold on its opposite corners and that spins on its diagonal (where the data is concentrated). Then very different planes will fit the data almost equally well, which results in a large variability of the selected plane.
 ```
 
-An approach is to detect multicollinearity is to compute the correlation matrix between the predictors by `cor`
+An approach to detect multicollinearity is to compute the correlation matrix between the predictors by `cor`
 ```{r, multico-1, collapse = TRUE, cache = TRUE}
 cor(wine)
 ```
@@ -968,7 +968,7 @@ where $R^2_{X_j|X_{-j}}$ represents the $R^2$ from the regression of $X_j$ into 
 > - VIF close to 1: absence of multicollinearity.
 > - **VIF larger than 5 or 10: problematic amount of multicollinearity**. Advised to remove the predictor with largest VIF.
 
-VIF is computed with the `vif` function and takes as argument a linear model. We continue with the previous example.
+VIF is computed with the `vif` function and takes as an argument a linear model. We continue with the previous example.
 ```{r, multico-3, collapse = TRUE, cache = TRUE}
 # Abnormal variance inflation factors: largest for x4, we remove it
 modMultiCo <- lm(y ~ x1 + x2 + x3 + x4)
@@ -999,7 +999,7 @@ Note that multicollinearity is another instance of the **model correctness vs. u
 Outliers and high-leverage points are particular observations that have a large impact in the final linear model, either on the estimates or on the properties of the model.
 
 - **Outliers** are the observations with a *response $Y_i$ far away from the regression plane*. They typically do not affect the estimate of the plane, unless one of the predictors is also extreme (see next point). But they affect $\hat\sigma$ and as a consequence the $R^2$ of the model (drawing it down) and the confidence intervals (expanding them).
-- **High-leverage points** are observations with an *extreme predictor $X_{ij}$ located far away from the rest of points*. These observations are highly influential and may drive the fitting of the linear model. the reason is the squared distance in the RSS: an individual extremal point contributes a large portion of the RSS.
+- **High-leverage points** are observations with an *extreme predictor $X_{ij}$ located far away from the rest of points*. These observations are highly influential and may drive the fitting of the linear model. The reason is the squared distance in the RSS: an individual extremal point contributes a large portion of the RSS.
 
 Both outliers and high-leverage points can be identified with the **residuals vs leverage plot**:
 ```{r, outl-1, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!'}
@@ -1120,7 +1120,7 @@ The dataset `gpus.txt` ([download](https://raw.githubusercontent.com/egarpor/PM-
 
 ## Dimension reduction techniques {#lm-ii-dimred}
 
-As we have seen in Section \@ref(lm-ii-modsel), the selection of the best linear model from a set of $p$ predictors is a challenging task that increases with the *dimension* of the problem, this is, with $p$. In addition to the expansion of the set of possible models as $p$ grows, the model space becomes more and more complicated to explore due to the potential multicollinearity among the predictors. We will see in this section two methods to deal simultaneously with these two problems.
+As we have seen in Section \@ref(lm-ii-modsel), the selection of the best linear model from a set of $p$ predictors is a challenging task that increases with the *dimension* of the problem, that is, with $p$. In addition to the expansion of the set of possible models as $p$ grows, the model space becomes more and more complicated to explore due to the potential multicollinearity among the predictors. We will see in this section two methods to deal with these two problems simultaneously.
 
 ### Review on principal component analysis {#lm-ii-dimred-pca}
 
@@ -1209,7 +1209,7 @@ summary(pcaLaliga)
 # Plot of variances of each component (screeplot)
 plot(pcaLaliga, type = "l")
 # Useful for detecting an "elbow" in the graph whose location gives the
-# "right" number of components to retain. Ideally, this elbow appears at
+# "right" number of components to retain. Ideally, this elbow appears
 # when the next variances are almost similar and notably smaller when
 # compared with the previous
 
@@ -1283,7 +1283,7 @@ Analogously:
 - If the arrow *points up* ($a_{j2}>0$), there is *positive correlation between $X_j$ and $\text{PC}_2$*. Analogous if the arrow points down.
 - If the arrow is *approximately horizontal* ($a_{j2}\approx0$), there is *uncorrelation between $X_j$ and $\text{PC}_2$*.
 
-In addition, the **magnitude of the arrow informs about the correlation**.
+In addition, the **magnitude of the arrow informs us about the correlation**.
 
 The biplot also provides the direct relation between variables, at sight of their expressions in $\text{PC}_1$ and $\text{PC}_2$. The **angle** of the arrows of variable $X_j$ and $X_k$ gives an **approximation to the correlation between them**, $\mathrm{Cor}(X_j,X_k)$:
 
@@ -1297,8 +1297,8 @@ The insights obtained on the correlations between the variables and principal co
 
 Some interesting insights in La Liga 2015/2016 biplot are:
 
-  - $\text{PC}_1$ can be regarded as the *non-performance of a team* during the season. It is negatively correlated with `Wins`, `Points`,\ldots and positively correlated with `Draws`, `Loses`, `Yellow.cards`,\ldots The best performing teams are not surprising: Barcelona, Real Madrid, and AtlÃ©tico Madrid. On the other hand, among the worst-performing teams are Levante, Getafe, and Granada.
-  - $\text{PC}_2$ can be seen as the *inefficiency of a team* (conceding points with little participation in the game). Using this interpretation we can see that Rayo Vallecano and Real Madrid were the most inefficient teams and AtlÃ©tico Madrid and Villareal were the most efficient.
+  - $\text{PC}_1$ can be regarded as the *non-performance of a team* during the season. It is negatively correlated with `Wins`, `Points`,\ldots and positively correlated with `Draws`, `Loses`, `Yellow.cards`,\ldots The best performing teams are not surprising: Barcelona, Real Madrid, and Atlético Madrid. On the other hand, among the worst-performing teams are Levante, Getafe, and Granada.
+  - $\text{PC}_2$ can be seen as the *inefficiency of a team* (conceding points with little participation in the game). Using this interpretation we can see that Rayo Vallecano and Real Madrid were the most inefficient teams and Atlético Madrid and Villareal were the most efficient.
   - `Offsides` is approximately uncorrelated with `Red.cards`.
   - $\text{PC}_3$ does not have a clear interpretation.
 
@@ -1325,10 +1325,10 @@ The main advantages of PCR are two:
 
 However, keep in mind that PCR affects the linear model in two fundamental ways:
 
-1. *Interpretation of the coefficients is not inmediatly related with the predictors*, but with the principal components. Hence, the interpretability of a given coefficient is inherited from the interpretability of the associated principal component.
-2. *Prediction needs from an extra step*, since it is required to obtain the scores of the new observations of the predictors in the principal components.
+1. *Interpretation of the coefficients is not immediatly related with the predictors*, but with the principal components. Hence, the interpretability of a given coefficient is inherited from the interpretability of the associated principal component.
+2. *Prediction needs an extra step*, since it is required to obtain the scores of the new observations of the predictors in the principal components.
 
-The first point is worth to discuss now. The PCR model \@ref(eq:pcr1) can be seen as a linear model expressed in terms of the original predictors. To make this point clearer, let re-express  \@ref(eq:pcr1) as
+The first point is worth discussing now. The PCR model \@ref(eq:pcr1) can be seen as a linear model expressed in terms of the original predictors. To make this point clearer, let re-express  \@ref(eq:pcr1) as
 \begin{align}
 Y=\alpha_0+\mathbf{PC}_{1:l}'\boldsymbol{\alpha}_{1:l}+\varepsilon,(\#eq:pcr2)
 \end{align}
@@ -1354,7 +1354,7 @@ Finally, remember that the **usefulness** of PCR relies on how well we are able 
 Keep in mind that PCR considers the **PCA done in the set of predictors**, this is, we exclude the response for obvious reasons (a perfect and useless fit). It is important to remove the response from the call to `princomp` if we want to use the output in `lm`.
 ```
 
-We see now two approaches for performing PCR, which we illustrate in `laliga` dataset. The objective is to predict `Points` using the remaining variables (except from the directly related variables `Wins`, `Draws`, and `Loses`) in order to quantify, explain, and predict the final points of a team from its performance.
+We see now two approaches for performing PCR, which we illustrate with the `laliga` dataset. The objective is to predict `Points` using the remaining variables (except from the directly related variables `Wins`, `Draws`, and `Loses`) in order to quantify, explain, and predict the final points of a team from its performance.
 
 The first approach combines the use of the `princomp` and `lm` functions. Its strong points are that is both able to predict and explain, and is linked with techniques we have employed so far. The weak point is that it requires some extra coding.
 ```{r, pcr-1, collapse = TRUE, cache = TRUE, out.width = '90%', fig.pos = 'h!'}
@@ -1517,13 +1517,13 @@ A less computationally expensive variation on leave-one-out cross-validation is 
 where $\hat m_{\lambda,-F_{j}}$ represents the fit of the model $\hat m_\lambda$ excluding the data from the $j$-th fold $F_{j}$. Recall that leave-one-out cross-validation is a particular case of $k$-fold cross-validation with $k=n$.
 
 ```{block2, caukfold, type = 'rmdcaution', cache = TRUE}
-$k$-fold cross validation with $k<n$ has an inconvenience to be aware of: it depends on the choice of the folds for splitting the data (*i.e.*, how each datum is assigned to each of the $k$ folds). Some statistical software do this assignment **randomly**, which means that the selection of $\hat{\lambda}_{k-\mathrm{CV}}$ may vary from one run to another. Thus, fixing the seed prior to the parameter selection is important to ensure reproducibility. Another alternative is to aggregate the results of several cross-validations in a convenient way.
+$k$-fold cross validation with $k<n$ has an inconvenience to be aware of: it depends on the choice of the folds for splitting the data (*i.e.*, how each datum is assigned to each of the $k$ folds). Some statistical softwares do this assignment **randomly**, which means that the selection of $\hat{\lambda}_{k-\mathrm{CV}}$ may vary from one run to another. Thus, fixing the seed prior to the parameter selection is important to ensure reproducibility. Another alternative is to aggregate the results of several cross-validations in a convenient way.
 
-Notice that this problematic is not present in leave-one-out cross-validation (where $k=n$).
+Notice that this problem is not present in leave-one-out cross-validation (where $k=n$).
 ```
 
 ```{block2, cauinference, type = 'rmdcaution', cache = TRUE}
-Inference in PCR can be carried out in the same way as it was done for the standard linear model. The key point is to realize that the inferences are about the coefficients $\boldsymbol{\alpha}_{0:l}$ associated to the $l$ principal components, and that it can be carried out by the `summary()` function on the output of `lm()`. These are the ones that are estimated by least squarest when considering the scores of the $l$ principal components as our data. The inference is **not about** $\boldsymbol{\gamma}$, which on the other hand is directly interpretable in terms of the predictors.
+Inference in PCR can be carried out in the same way as it was done for the standard linear model. The key point is to realize that the inferences are about the coefficients $\boldsymbol{\alpha}_{0:l}$ associated to the $l$ principal components, and that it can be carried out by the `summary()` function on the output of `lm()`. These are the ones that are estimated by least squares when considering the scores of the $l$ principal components as our data. The inference is **not about** $\boldsymbol{\gamma}$, which on the other hand is directly interpretable in terms of the predictors.
 ```
 
 ```{block2, insinference, type = 'rmdinsight', cache = TRUE}
@@ -1546,13 +1546,13 @@ As with PCA, the idea to find linear combinations of the predictors $X_1,\ldots,
 \[
 \mathrm{PLS}_1:=\sum_{j=1}^pa_{j1}X_j,\,\ldots,\,\mathrm{PLS}_p:=\sum_{j=1}^pa_{jp}X_j.
 \]
-The question is how to choose the coefficients $a_{jk}$, $j,k=1,\ldots,p$. PLS does it by *placing the most weight in the predictors that are most strongly correlated with $Y$*. After standardizing the variables, for $\mathrm{PLS}_1$ this is achieved by setting $a_{j1}$ equal to the theoretical slope coefficient of regressing $Y$ into $X_j$, this is (recall \@ref(eq:3) for the sample version):
+The question is how to choose the coefficients $a_{jk}$, $j,k=1,\ldots,p$. PLS does it by *placing the most weight in the predictors that are most strongly correlated with $Y$*. After standardizing the variables, for $\mathrm{PLS}_1$ this is achieved by setting $a_{j1}$ equal to the theoretical slope coefficient of regressing $Y$ into $X_j$, that is (recall \@ref(eq:3) for the sample version):
 \[
 a_{j1}:=\beta_{j1}:=\frac{\mathrm{Cov}[X_j,Y]}{\mathbb{V}\mathrm{ar}[X_j]},
 \]
 where $\beta_{j1}$ stems from $Y=\beta_{0}+\beta_{j1}X_j+\varepsilon$. The second partial least squares direction, $\mathrm{PLS}_2$, is computed in a similar way, but once the linear effects of the $\mathrm{PLS}_1$ are removed. This is achieved by:
 
-1. Regressing each of $X_1,\ldots,X_p$ on $\mathrm{PLS}_1$. This is, fit the $p$ simple linear models
+1. Regressing each of $X_1,\ldots,X_p$ on $\mathrm{PLS}_1$. That is, fit the $p$ simple linear models
 \[
 X_j=\beta_0+\beta_{j1}\mathrm{PLS}_1+\varepsilon_j,\quad j=1,\ldots,p.
 \]
@@ -1634,7 +1634,7 @@ Inference for PLS is more involved since, differently to what happens in PCR, th
 ```
 
 ```{block2, exapcrpls, type = 'rmdexercise', cache = TRUE}
-Let's perform PCR and PLS in the `iris` dataset. Recall that this dataset contains a factor variable, which can not be treated directly by `princomp` but can be used in PCR/PLS (it is transformed internally to two dummy variables). Do:
+Let's perform PCR and PLS in the `iris` dataset. Recall that this dataset contains a factor variable, which can not be treated directly by `princomp` but can be used in PCR/PLS (it is transformed internally to two dummy variables). Do the following:
 
 - Compute the PCA of `iris`, excluding `Species`. What is the percentage of variability explained with two components?
 - Draw the biplot and look for interpretations of the principal components.
