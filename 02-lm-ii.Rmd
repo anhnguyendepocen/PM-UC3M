@@ -1176,7 +1176,7 @@ In the sample case where $\mathbf{X}_1,\ldots,\mathbf{X}_n$ is given and $\bolds
 a transformation of the sample that makes the scores *centred*, *uncorrelated*, and with sample *variances* in each vector's entry *sorted* in a decreasing way.
 
 ```{block, caunp, type = 'rmdcaution', cache = TRUE}
-We implicitly assume that $n>p$. Otherwise, the maximum number of principal components is $\min(n-1,p)$.
+We implicitly assume that $n > p$. Otherwise, the maximum number of principal components is $\min(n-1,p)$.
 ```
 
 Let's see an example of these concepts in *La Liga 2015/2016* ([download](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx)) dataset. It contains the standings and team statistics for La Liga 2015/2016.
