@@ -205,7 +205,7 @@ Alternatively, taking logarithms, we have the *log-odds* (or logit)
 \begin{align}
 \log(\mathrm{odds}(Y|X_1=x_1,\ldots,X_p=x_p))=\beta_0+\beta_1x_1+\ldots+\beta_px_p.(\#eq:eq-odds-log2)
 \end{align}
-The conditional log-odds \@ref(eq:eq-odds-log2) here plays the role of the conditional mean for multiple linear regression. Therefore, we have an analogous interpretation for the coefficients:
+The conditional log-odds \@ref(eq:eq-odds-log2) plays the role of the conditional mean for multiple linear regression. Therefore, we have an analogous interpretation for the coefficients:
 
 - $\beta_0$: is the log-odds when $X_1=\ldots=X_p=0$.
 - $\beta_j$, $1\leq j\leq p$: is the **additive** increment of the log-odds for an increment of one unit in $X_j=x_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ *do not change*.

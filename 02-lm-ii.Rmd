@@ -1297,8 +1297,8 @@ The insights obtained on the correlations between the variables and principal co
 
 Some interesting insights in La Liga 2015/2016 biplot are:
 
-  - $\text{PC}_1$ can be regarded as the *non-performance of a team* during the season. It is negatively correlated with `Wins`, `Points`,\ldots and positively correlated with `Draws`, `Loses`, `Yellow.cards`,\ldots The best performing teams are not surprising: Barcelona, Real Madrid, and Atlético Madrid. On the other hand, among the worst-performing teams are Levante, Getafe, and Granada.
-  - $\text{PC}_2$ can be seen as the *inefficiency of a team* (conceding points with little participation in the game). Using this interpretation we can see that Rayo Vallecano and Real Madrid were the most inefficient teams and Atlético Madrid and Villareal were the most efficient.
+  - $\text{PC}_1$ can be regarded as the *non-performance of a team* during the season. It is negatively correlated with `Wins`, `Points`,\ldots and positively correlated with `Draws`, `Loses`, `Yellow.cards`,\ldots The best performing teams are not surprising: Barcelona, Real Madrid, and AtlÃ©tico Madrid. On the other hand, among the worst-performing teams are Levante, Getafe, and Granada.
+  - $\text{PC}_2$ can be seen as the *inefficiency of a team* (conceding points with little participation in the game). Using this interpretation we can see that Rayo Vallecano and Real Madrid were the most inefficient teams and AtlÃ©tico Madrid and Villareal were the most efficient.
   - `Offsides` is approximately uncorrelated with `Red.cards`.
   - $\text{PC}_3$ does not have a clear interpretation.
 
