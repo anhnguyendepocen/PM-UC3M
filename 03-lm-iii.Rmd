@@ -15,7 +15,7 @@ Under the validity of the assumptions of Section \@ref(lm-i-assumps), in Section
 \[
 \hat{\boldsymbol{\beta}}\sim\mathcal{N}_{p+1}\left(\boldsymbol{\beta},\sigma^2(\mathbf{X}'\mathbf{X})^{-1}\right).
 \]
-A particular consequence of this result is that $\hat{\boldsymbol{\beta}}$ is *unbiased* in estimating $\boldsymbol{\beta}$, this is, $\hat{\boldsymbol{\beta}}$ does not make any systematic error in the estimation. However, bias is only one dimension of the quality of an estimate: variance is also important. Indeed, the *bias-variance trade-off* (see Section \@ref(intro-what-is)) arises from the bias-variance decomposition of the Mean Squared Error (MSE) of an estimate. For example, for the estimate $\hat\beta_j$ of $\beta_j$, we have
+A particular consequence of this result is that $\hat{\boldsymbol{\beta}}$ is *unbiased* in estimating $\boldsymbol{\beta}$, that is, $\hat{\boldsymbol{\beta}}$ does not make any systematic error in the estimation. However, bias is only one dimension of the quality of an estimate: variance is also important. Indeed, the *bias-variance trade-off* (see Section \@ref(intro-what-is)) arises from the bias-variance decomposition of the Mean Squared Error (MSE) of an estimate. For example, for the estimate $\hat\beta_j$ of $\beta_j$, we have
 \begin{align}
 \mathrm{MSE}[\hat\beta_j]:=\mathbb{E}[(\hat\beta_j-\beta_j)^2]=\underbrace{(\mathbb{E}[\hat\beta_j]-\beta_j)^2}_{\mathrm{Bias}^2}+\underbrace{\mathbb{V}\mathrm{ar}[\hat\beta_j]}_{\mathrm{Variance}}.(\#eq:biasvar)
 \end{align}
@@ -24,7 +24,7 @@ A particular consequence of this result is that $\hat{\boldsymbol{\beta}}$ is *u
 
 > Add a small amount of *smart bias* to $\hat{\boldsymbol{\beta}}$ in order to reduce its variance, in such a way that we obtain *simpler interpretations* from the biased version of $\hat{\boldsymbol{\beta}}$.
 
-This is done by enforcing *sparsity*, this is, by biasing the estimates of $\boldsymbol{\beta}$ towards being non-null only in the most important relations between the response and predictors. The two methods covered in this section, **ridge regression** and **lasso** (*least absolute shrinkage and selection operator*), use this idea in a different way. Both methods considered the standard linear model, what it is different now is *the way of estimating $\boldsymbol{\beta}$*. 
+This is done by enforcing *sparsity*, that is, by biasing the estimates of $\boldsymbol{\beta}$ towards being non-null only in the most important relations between the response and predictors. The two methods covered in this section, **ridge regression** and **lasso** (*least absolute shrinkage and selection operator*), use this idea in a different way. Both methods consider the standard linear model, what is different now is *the way of estimating $\boldsymbol{\beta}$*. 
 
 The way they enforce sparsity in the estimates is by minimizing the RSS plus a penalty term that favors sparsity on the estimated coefficients:
 \begin{align}
@@ -36,13 +36,13 @@ The way they enforce sparsity in the estimates is by minimizing the RSS plus a p
 \end{align}
 which is the penalized estimation of $\boldsymbol{\beta}$. Note that the sparsity is enforced in the slopes, not in the intercept, since this depends on the scale of $Y$. $\lambda$ is a tuning parameter that will need to be chosen suitably. What it is important now is to recall that the *predictors need to be standardized*, or otherwise its scale will distort the optimization of \@ref(eq:pen1).
 
-An equivalent way of viewing \@ref(eq:pen2) that helps on visualizing the differences between the ridge and lasso regressions try to solve 
+An equivalent way of viewing \@ref(eq:pen2) that helps in visualizing the differences between the ridge and lasso regressions try to solve 
 \begin{align}
 \hat{\boldsymbol{\beta}}_\lambda:=\arg\min_{\boldsymbol{\beta}\in\mathbb{R}^{p+1}:\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\leq s_\lambda} \text{RSS}(\boldsymbol{\beta}),(\#eq:pen3)
 \end{align}
 where $s_\lambda$ is certain scalar that does not depend on $\boldsymbol{\beta}$.
 
-(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3) with $p=2$. The elliptical contours show the regions with equal $\mathrm{RSS}(\beta_1,\beta_2)$, the objective function, for $(\beta_1,\beta_2)\in\mathbb{R}^2$ ($\beta_0=0$ is assumed). The diamond ($\alpha=1$) and circular ($\alpha=0$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\leq s_\lambda$ for the optimization problem. The *sharpeness* of the diamond makes the lasso to attain solutions with many coefficients *exactly* zero, in a similar situation to the one depicted. Extracted from @James2013. 
+(ref:ridgelassotitle) Comparison of ridge and lasso solutions from the optimization problem \@ref(eq:pen3) with $p=2$. The elliptical contours show the regions with equal $\mathrm{RSS}(\beta_1,\beta_2)$, the objective function, for $(\beta_1,\beta_2)\in\mathbb{R}^2$ ($\beta_0=0$ is assumed). The diamond ($\alpha=1$) and circular ($\alpha=0$) regions show the feasibility regions determined by $\sum_{j=1}^p |\beta_j|^{(2-\alpha)}\leq s_\lambda$ for the optimization problem. The *sharpness* of the diamond makes the lasso attain solutions with many coefficients *exactly* zero, in a similar situation to the one depicted. Extracted from @James2013. 
 
 ```{r, ridgelasso, echo = FALSE, out.width = '90%', fig.pos = 'h!', fig.cap = '(ref:ridgelassotitle)', fig.show = 'hold', cache = TRUE}
 knitr::include_graphics("images/figures/ridgelasso.png")
@@ -138,7 +138,7 @@ plot(log(ridgeMod$lambda), sqrt(colSums(ridgeMod$beta^2)), type = "l",
 #### Tuning parameter selection {-}
 
 ```{r, ridge-2, echo = TRUE, collapse = TRUE, cache = TRUE, fig.asp = 1, out.width = '70%', fig.pos = 'h!', message = FALSE}
-# If we want, we can choose manualy the grid of penalty parameters to explore
+# If we want, we can choose manually the grid of penalty parameters to explore
 # The grid should be descending
 ridgeMod2 <- glmnet(x = x, y = y, alpha = 0, lambda = 100:1)
 plot(ridgeMod2, label = TRUE, xvar = "lambda") # Not a good choice!
@@ -312,13 +312,13 @@ summary(modBIC)
 # terms of adjusted R^2 and significance of the predictors. However, keep in 
 # mind that lasso is solving a constrained least squares problem, so it is 
 # expected to achieve better R^2 and adjusted R^2 via a selection procedure 
-# that employs solution s of unconstrained least squares. What it is remarkable
+# that employs solutions of unconstrained least squares. What is remarkable
 # is the speed of lasso on selecting variables, and the fact that gives quite
 # good starting points for performing further model selection
 ```
 
 ```{block, exaridlasso, type = 'rmdexercise', cache = TRUE}
-Consider [`la-liga-2015-2016.xlsx`](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx) dataset. We will predict `Points` after removing the perfectly related linear variables to it. Do:
+Consider [`la-liga-2015-2016.xlsx`](https://raw.githubusercontent.com/egarpor/PM-UC3M/master/datasets/la-liga-2015-2016.xlsx) dataset. We will predict `Points` after removing the perfectly related linear variables to it. Do the following:
 
 - Lasso regression. Select $\lambda$ by cross-validation. Obtain the estimated coefficients for the chosen lambda.
 - Use the predictors with non-null coefficients for creating a model with `lm`.
@@ -423,13 +423,13 @@ The computation of the least squares estimator
 \begin{align}
 \hat{\boldsymbol{\beta}}=(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{Y}(\#eq:bd)
 \end{align}
-involves inverting the $(p+1)\times(p+1)$ matrix $\mathbf{X}'\mathbf{X}$, where $\mathbf{X}$ is an $n\times(p+1)$ matrix. The vector to be obtained, $\hat{\boldsymbol{\beta}}$, is of size $p+1$. However, computing it directly from \@ref(eq:bd) needs from allocating $\mathcal{O}(np + p^2)$ elements in memory. When $n$ is very large, this can be prohibitive. In addition, for convenience of the statistical analysis, `R`'s `lm` returns several objects of the same size as $\mathbf{X}$ and $\mathbf{Y}$, thus increasing notably the memory usage. For these reasons, alternative approaches for computing $\hat{\boldsymbol{\beta}}$ with big data are required.
+involves inverting the $(p+1)\times(p+1)$ matrix $\mathbf{X}'\mathbf{X}$, where $\mathbf{X}$ is an $n\times(p+1)$ matrix. The vector to be obtained, $\hat{\boldsymbol{\beta}}$, is of size $p+1$. However, computing it directly from \@ref(eq:bd) requires allocating $\mathcal{O}(np + p^2)$ elements in memory. When $n$ is very large, this can be prohibitive. In addition, for convenience of the statistical analysis, `R`'s `lm` returns several objects of the same size as $\mathbf{X}$ and $\mathbf{Y}$, thus notably increasing the memory usage. For these reasons, alternative approaches for computing $\hat{\boldsymbol{\beta}}$ with big data are required.
 
 An alternative for computing \@ref(eq:bd) in a memory-friendly way is to split the computation of $(\mathbf{X}'\mathbf{X})^{-1}$ and $\mathbf{X}'\mathbf{Y}$ by *blocks* that are storable in memory. A possibility is to *update* sequentially the estimation of the vector of coefficients. This can be done with the following expression, which relates $\hat{\boldsymbol{\beta}}$ with $\hat{\boldsymbol{\beta}}_{-i}$, the vector of estimated coefficients *without* the $i$-th datum:
 \begin{align}
 \hat{\boldsymbol{\beta}}=\hat{\boldsymbol{\beta}}_{-i}+(\mathbf{X}'\mathbf{X})^{-1}\mathbf{x}_{i}\left(Y_{i}-\mathbf{x}_{i}'\hat{\boldsymbol{\beta}}_{-i}\right).(\#eq:rec)
 \end{align}
-In \@ref(eq:rec) above, $\mathbf{x}_{i}'$ is the $i$-th row of the design matrix $\mathbf{X}$ and $\mathbf{X}_{-i}$ is $\mathbf{X}$ but with the $i$-th row removed. The expression follows from the Sherman--Morrison formula for an invertible matrix $\mathbf{A}$ and a vector $\mathbf{b}$,
+In \@ref(eq:rec) above, $\mathbf{x}_{i}'$ is the $i$-th row of the design matrix $\mathbf{X}$ and $\mathbf{X}_{-i}$ is $\mathbf{X}$ but with the $i$-th row removed. The expression follows from the Sherman-Morrison formula for an invertible matrix $\mathbf{A}$ and a vector $\mathbf{b}$,
 \[
 (\mathbf{A}+\mathbf{b}\mathbf{b}')^{-1}=\mathbf{A}^{-1}-\frac{\mathbf{A}^{-1}\mathbf{b}\mathbf{b}'\mathbf{A}^{-1}}{1+\mathbf{b}'\mathbf{A}^{-1}\mathbf{b}},
 \]
@@ -520,7 +520,7 @@ update(biglmMod, moredata = bigData2)
 AIC(biglmMod, k = 2)
 AIC(biglmMod, k = log(n))
 
-# Features not inmediately available for biglm objects: stepwise selection by 
+# Features not immediately available for biglm objects: stepwise selection by 
 # stepAIC, residuals, variance of the error, model diagnostics, and vifs
 
 # Workaround for obtaining hat(sigma)^2 = SSE / (n - p - 1), SSE = SST * (1 - R^2)
@@ -528,7 +528,7 @@ AIC(biglmMod, k = log(n))
 s2$sigma^2
 ```
 
-Model selection of `biglm` models can be done, not by `stepAIC`, but with the more advanced `leaps` package. This is achieved by the `regsubsets` function, which returns the *best subset* of up to (by default) `nvmax = 8` predictors among the $p$ possible predictors to be included in the model. The function requires the *full* `biglm` model to begin the *exhaustive*^[Not really exhaustive: the method behind, due to @Furnival1974, employs an ingenious branch-and-bound algorithm to remove most of the non-interesting models.] search [@Furnival1974]. The kind of search can be changed using the `method` argument and choosing the `exhaustive` (by default), `forward`, or `backward` selection.
+Model selection of `biglm` models can be done, not by `stepAIC`, but with the more advanced `leaps` package. This is achieved by the `regsubsets` function, which returns the *best subset* of up to (by default) `nvmax = 8` predictors among the $p$ possible predictors to be included in the model. The function requires the *full* `biglm` model to begin the *exhaustive*^[Not really exhaustive: the method behind it, due to @Furnival1974, employs an ingenious branch-and-bound algorithm to remove most of the non-interesting models.] search [@Furnival1974]. The kind of search can be changed using the `method` argument and choosing the `exhaustive` (by default), `forward`, or `backward` selection.
 
 ```{r, biglm-2, echo = TRUE, out.width = '70%', fig.pos = 'h!', fig.asp = 1, collapse = TRUE, cache = TRUE}
 # Model selection adapted to big data models
@@ -568,7 +568,7 @@ print(object.size(rnorm(1e6)) * 1e2, units = "Gb")
 # Size of the predictors
 print(object.size(rnorm(1e6)) * 1e2 * 10, units = "Gb")
 ```
-In addition to this, if `lm` was called, it will return the `residuals`, `effects`, and `fitted.values` slots (all vectors of length $n$, hence $0.7 \times 3=2.1$ Gb more). It will also return the `qr` decomposition of the design matrix and the model matrix (both are $n\times (p + 1)$ matrices, so another $8.2\times 2=14.4$ Gb more). The final `lm` object will be thus at the very least of size $16.5$ Gb. Clearly, this is not a very memory-friendly way of proceeding.
+In addition to this, if `lm` was called, it will return the `residuals`, `effects`, and `fitted.values` slots (all vectors of length $n$, hence $0.7 \times 3=2.1$ Gb more). It will also return the `qr` decomposition of the design matrix and the model matrix (both are $n\times (p + 1)$ matrices, so another $8.2\times 2=14.4$ Gb more). The final `lm` object will thus be at the very least, size $16.5$ Gb. Clearly, this is not a very memory-friendly way of proceeding.
 
 A possible approach is to split the dataset and perform updates of the model in chunks of reasonable size. The next code provides a template for such approach using `biglm` and `update`.
 ```{r, biglm-4, echo = TRUE, collapse = TRUE, cache = TRUE}

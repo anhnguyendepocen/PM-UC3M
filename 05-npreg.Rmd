@@ -1,7 +1,7 @@
 
 # Nonparametric regression {#npreg}
 
-The models we saw in the previous chapters share a common root: all of them are **parametric**. This means that they *assume* a certain structure on the regression function $m$, which is controlled by *parameters*. For example, generalized linear models assume that $m$ is of the form $m(\mathbf{x})=g^{-1}(\beta_0+\beta_1x_1+\ldots+\beta_px_p)$ for some unknown coefficients $\boldsymbol{\beta}$ that have to be estimated. *If* this assumption holds (*i.e.*, if $m$ truly has the assumed form), then parametric methods are the best approach for estimating $m$. As we have seen, in practice it is rarely the case where parametric methods work out-of-the box, and several tricks are needed in order to expand their degree of flexibility in a case-by-case basis. This is the strongest point of **nonparametric** methods: they do not assume major hard-to-satisfy hypothesis on the regression function, but just minimal assumptions. Their weak points: they are more challenging to estimate and to interpret.
+The models we saw in the previous chapters share a common root: all of them are **parametric**. This means that they *assume* a certain structure on the regression function $m$, which is controlled by *parameters*. For example, generalized linear models assume that $m$ is of the form $m(\mathbf{x})=g^{-1}(\beta_0+\beta_1x_1+\ldots+\beta_px_p)$ for some unknown coefficients $\boldsymbol{\beta}$ that have to be estimated. *If* this assumption holds (*i.e.*, if $m$ truly has the assumed form), then parametric methods are the best approach for estimating $m$. As we have seen, in practice it is rarely the case where parametric methods work out-of-the-box, and several tricks are needed in order to expand their degree of flexibility in a case-by-case basis. This is the strongest point of **nonparametric** methods: they do not assume major hard-to-satisfy hypothesis on the regression function, but just minimal assumptions. Their weak points: they are more challenging to estimate and to interpret.
 
 In this chapter we will focus mainly on the situation with only **one continuous predictor** $X$ for predicting the response $Y$. The extension to more predictors is possible, but requires some extra work on notation that we do not address in full generality. In this case, the complete knowledge of $Y$ when $X=x$ is given by the conditional pdf $f_{Y| X=x}(y)=\frac{f(x,y)}{f_X(x)}$. While this pdf provides full knowledge about $Y| X=x$, it is also a challenging task to estimate it: for each $x$ we have to estimate a *curve*! A simpler approach, yet still challenging, is to estimate the conditional mean (a scalar) for each $x$ through the regression function
 $$
@@ -85,7 +85,7 @@ m(x)=&\,\mathbb{E}[Y| X=x]\nonumber\\
 =&\,\int y f_{Y| X=x}(y)\mathrm{d}y\nonumber\\
 =&\,\frac{\int y f(x,y)\mathrm{d}y}{f_X(x)}.
 \end{align*}
-This expression shows an interesting point: the regression function can be computed from the joint density $f$ and the marginal $f_X$. Therefore, given a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$, an estimate of $m$ follows by replacing the previous densities by their kernel density estimators To that aim, recall that in \@ref(eq:multkde) we defined a multivariate extension of \@ref(eq:kde) based on product kernels. For the two dimensional case, the kernel density estimator with equal bandwidths $\mathbf{h}=(h,h)$ is
+This expression shows an interesting point: the regression function can be computed from the joint density $f$ and the marginal $f_X$. Therefore, given a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$, an estimate of $m$ follows by replacing the previous densities by their kernel density estimators. To that aim, recall that in \@ref(eq:multkde) we defined a multivariate extension of \@ref(eq:kde) based on product kernels. For the two dimensional case, the kernel density estimator with equal bandwidths $\mathbf{h}=(h,h)$ is
 \begin{align}
 \hat f(x,y;h)=\frac{1}{n}\sum_{i=1}^nK_{h}(x_1-X_{i})K_{h}(y-Y_{i}).(\#eq:kdem)
 \end{align}
@@ -307,7 +307,7 @@ A more sophisticated framework for performing nonparametric estimation of the re
 
 The purpose of this section is to provide some highlights on the asymptotic bias and variance of the local linear and local constant estimators. These provide useful insights on the effect of $p$, $m$, $f$, and $\sigma^2$ in the performance of the estimators.
 
-Along this section we will make the following assumptions^[These are the only assumptions done do far in the model (in addition to $\varepsilon$ independent from $X$).]:
+Along this section we will make the following assumptions^[These are the only assumptions done so far in the model (in addition to $\varepsilon$ independent from $X$).]:
 
 - **A1**. $m$ is twice continuously differentiable.
 - **A2**. $\sigma^2$ is continuous and positive.
@@ -315,10 +315,10 @@ Along this section we will make the following assumptions^[These are the only as
 - **A4**. The kernel $K$ is a symmetric and bounded pdf with finite second moment and is square integrable.
 - **A5**. $h=h_n$ is a deterministic sequence of bandwidths such that, when $n\to\infty$, $h\to0$ and $nh\to\infty$.
 
-The bias and variance are expanded in their *conditional* versions on the predictor's sample $X_1,\ldots,X_n$. The reason of analyzing the conditional instead of the *unconditional* versions is avoiding technical difficulties that integration with respect to the predictor's density may pose. The main result is the following.
+The bias and variance are expanded in their *conditional* versions on the predictor's sample $X_1,\ldots,X_n$. The reason for analyzing the conditional instead of the *unconditional* versions is avoiding technical difficulties that integration with respect to the predictor's density may pose. The main result is the following.
 
 ```{theorem, thbvloc, label = "biasvarloc", cache = TRUE}
-Under **A1**--**A5**, the conditional bias and variance of the local constant ($p=0$) and local linear ($p=1$) estimators are^[The notation $o_\mathbb{P}(a_n)$ stands for a random variable that converges in probability to zero at a rate faster than $a_n$. It is motsly employed for denoting non-important terms in asymptotic expansions, like the ones in \@ref(eq:mbias)--\@ref(eq:mvar).]
+Under **A1**--**A5**, the conditional bias and variance of the local constant ($p=0$) and local linear ($p=1$) estimators are^[The notation $o_\mathbb{P}(a_n)$ stands for a random variable that converges in probability to zero at a rate faster than $a_n$. It is mostly employed for denoting non-important terms in asymptotic expansions, like the ones in \@ref(eq:mbias)--\@ref(eq:mvar).]
 \begin{align}
 \mathrm{Bias}[\hat m(x;p,h)| X_1,\ldots,X_n]&=B_p(x)h^2+o_\mathbb{P}(h^2),(\#eq:mbias)\\
 \mathbb{V}\mathrm{ar}[\hat m(x;p,h)| X_1,\ldots,X_n]&=\frac{R(K)}{nhf(x)}\sigma^2(x)+o_\mathbb{P}((nh)^{-1}),(\#eq:mvar)
@@ -341,7 +341,7 @@ The bias and variance expressions \@ref(eq:mbias) and \@ref(eq:mvar) yield very 
 
 - The variance depends directly on $\frac{\sigma^2(x)}{f(x)}$ for $p=0,1$. As a consequence, **the lower the density and larger the conditional variance, the more variable is $\hat m(\cdot;p,h)$.** The variance decreases at a factor of $(nh)^{-1}$ due to the *effective sample size*, which can be thought as the amount of data in the neighborhood of $x$ for performing the estimation.
 
-An extended version of Theorem \@ref(thm:biasvarloc), given in Theorem 3.1 of @Fan1996, shows that **odd order polynomial fits are preferable to even order polynomial fits**. The reason is that odd orders introduce an extra coefficient for the polynomial fit that allows to reduce the bias, while at the same time they keep the variance unchanged. In summary, the conclusions of the above analysis of $p=0$ vs. $p=1$, namely that **$p=1$ has smaller bias than $p=0$ (but of the same order) and the same variance as $p=0$**, extend to the case $p=2\nu$ vs. $p=2\nu+1$, $\nu\in\mathbb{N}$. This allows to claim that local polynomial fitting *is an odd world* (@Fan1996).
+An extended version of Theorem \@ref(thm:biasvarloc), given in Theorem 3.1 of @Fan1996, shows that **odd order polynomial fits are preferable to even order polynomial fits**. The reason is that odd orders introduce an extra coefficient for the polynomial fit that allows them to reduce the bias, while at the same time they keep the variance unchanged. In summary, the conclusions of the above analysis of $p=0$ vs. $p=1$, namely that **$p=1$ has smaller bias than $p=0$ (but of the same order) and the same variance as $p=0$**, extend to the case $p=2\nu$ vs. $p=2\nu+1$, $\nu\in\mathbb{N}$. This allows us to claim that local polynomial fitting *is an odd world* (@Fan1996).
 
 ## Bandwidth selection {#npreg-bwd}
 
@@ -447,7 +447,7 @@ was equivalent to the least squares estimate, $\hat{\boldsymbol{\beta}}=(\mathbf
 \ell(\boldsymbol{\beta})=&\,-\frac{n}{2}\log(2\pi\sigma^2)\nonumber\\
 &-\frac{1}{2\sigma^2}\sum_{i=1}^n(Y_i-\beta_0-\beta_1X_{i1}-\ldots-\beta_pX_{ip})^2.
 \end{align*}
-If there is a single predictor $X$, polynomial fitting of order $p$ of the conditional meal can be achieved by the well-known trick of identifying the $j$-th predictor $X_j$ in \@ref(eq:linmod) by $X^j$. This results in
+If there is a single predictor $X$, polynomial fitting of order $p$ of the conditional mean can be achieved by the well-known trick of identifying the $j$-th predictor $X_j$ in \@ref(eq:linmod) by $X^j$. This results in
 \begin{align}
 Y|X\sim\mathcal{N}(\beta_0+\beta_1X+\ldots+\beta_pX^p,\sigma^2).(\#eq:linmodp)
 \end{align}
@@ -497,7 +497,7 @@ Note that the dependence of $\hat\beta_0$ on $x$ and $h$ is omitted. From $\hat\
 \begin{align}
 \hat m_{\ell}(x;h,p):=g^{-1}\left(\hat\eta(x)\right)=\mathrm{logistic}(\hat\beta_0).(\#eq:glmloc)
 \end{align}
-Each evaluation of $\hat m_{\ell}(x;h,p)$ in a different $x$ requires, thus, from a fit of the underlying logistic model.
+Each evaluation of $\hat m_{\ell}(x;h,p)$ in a different $x$ requires, thus, a fit of the underlying logistic model.
 
 The code below shows three different ways of implementing the local logistic regression (of first degree) in `R`.
 

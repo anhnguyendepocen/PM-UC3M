@@ -9,7 +9,7 @@ and hence
 \[
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=\beta_0+\beta_1x_1+\ldots+\beta_px_p.
 \]
-This, in particular, implies that $Y$ is *continuous*. In this chapter we will see how *generalized linear models* can deal with other kind of distributions for $Y|(X_1=x_1,\ldots,X_p=x_p)$, particularly with *discrete* responses, by modelling the *transformed* conditional expectation. The simplest generalized linear model is *logistic regression*, which is arises when $Y$ is a *binary* response, that is, a variable encoding two categories with $0$ and $1$. This model would be useful, for example, to predict $Y$ given $X$ from a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$ like the one in Figure \@ref(fig:logrel).
+This, in particular, implies that $Y$ is *continuous*. In this chapter we will see how *generalized linear models* can deal with other kinds of distributions for $Y|(X_1=x_1,\ldots,X_p=x_p)$, particularly with *discrete* responses, by modelling the *transformed* conditional expectation. The simplest generalized linear model is *logistic regression*, which is arises when $Y$ is a *binary* response, that is, a variable encoding two categories with $0$ and $1$. This model would be useful, for example, to predict $Y$ given $X$ from a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$ like the one in Figure \@ref(fig:logrel).
 
 (ref:logreltitle) Scatterplot of a sample $(X_1,Y_1),\ldots,(X_n,Y_n)$ sampled from a logistic regression.
 
@@ -28,7 +28,7 @@ The *Challenger* disaster occurred on the 28th January of 1986, when the NASA Sp
 knitr::include_url("https://www.youtube.com/embed/fSTrmJtHLFU")
 ```
 
-The Rogers Commission elaborated a report [@Roberts1986] with all the findings. The commission determined that the disintegration began with the failure of an O-ring seal in the solid rocket motor due to the unusual cold temperature ($-0.6$ Celsius degrees) during the launch. This failure produced a breach of burning gas through the solid rocket motor that compromised the whole shuttle structure, resulting in its disintegration due to the extreme aerodynamic forces. The problematic with O-rings was something known: the night before the launch, there was a three-hour teleconference between motor engineers and NASA management, discussing the effect of low temperature forecasted for the launch on the O-ring performance. The conclusion, influenced by Figure \@ref(fig:rogerts)a, was:
+The Rogers Commission elaborated a report [@Roberts1986] with all the findings. The commission determined that the disintegration began with the failure of an O-ring seal in the solid rocket motor due to the unusually cold temperature ($-0.6$ Celsius degrees) during the launch. This failure produced a breach of burning gas through the solid rocket motor that compromised the whole shuttle structure, resulting in its disintegration due to the extreme aerodynamic forces. The problem with O-rings was something known: the night before the launch, there was a three-hour teleconference between motor engineers and NASA management, discussing the effect of low temperature forecasted for the launch on the O-ring performance. The conclusion, influenced by Figure \@ref(fig:rogerts)a, was:
 
 > "Temperature data [is] not conclusive on predicting primary O-ring blowby."
 
@@ -90,7 +90,7 @@ Albeit linear regression is not the adequate tool for this data, it is able to d
 
 ## Model formulation and estimation {#glm-model}
 
-For simplicity, we study first the logistic regression and then study the general case of a generalized linear model.
+For simplicity, we first study the logistic regression and then study the general case of a generalized linear model.
 
 ### Logistic regression {#glm-model-log}
 
@@ -121,7 +121,7 @@ Assume then that $Y$ is a Bernoulli variable and that $X_1,\ldots,X_p$ are predi
 \[
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=\mathbb{P}[Y=1|X_1=x_1,\ldots,X_p=x_p],
 \]
-this is, how the conditional expectation of $Y$ or, equivalently, the conditional probability of $Y=1$, is changing according to particular values of the predictors. At sight of \@ref(eq:eq-lm), a tempting possibility is to consider the model
+that is, how the conditional expectation of $Y$ or, equivalently, the conditional probability of $Y=1$, is changing according to particular values of the predictors. At sight of \@ref(eq:eq-lm), a tempting possibility is to consider the model
 \[
 \mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]=\beta_0+\beta_1x_1+\ldots+\beta_px_p=:\eta.
 \]
@@ -167,7 +167,7 @@ The logistic transformation is the most employed due to its tractability, interp
 \mathrm{logit}(p):=\mathrm{logistic}^{-1}(p)=\log\frac{p}{1-p}.
 \]
 
-In conclusion, with the logit link function we can map the domain of $Y$ to $\mathbb{R}$ in order to apply there a linear model. The *logistic model* can be then equivalently stated as
+In conclusion, with the logit link function we can map the domain of $Y$ to $\mathbb{R}$ in order to apply a linear model. The *logistic model* can be then equivalently stated as
 \begin{align}
 \mathrm{logit}(\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p])=\eta (\#eq:eq-log-1)
 \end{align}
@@ -205,12 +205,12 @@ Alternatively, taking logarithms, we have the *log-odds* (or logit)
 \begin{align}
 \log(\mathrm{odds}(Y|X_1=x_1,\ldots,X_p=x_p))=\beta_0+\beta_1x_1+\ldots+\beta_px_p.(\#eq:eq-odds-log2)
 \end{align}
-The conditional log-odds \@ref(eq:eq-odds-log2) plays here the role of the conditional mean for multiple linear regression. Therefore, we have an analogous interpretation for the coefficients:
+The conditional log-odds \@ref(eq:eq-odds-log2) here plays the role of the conditional mean for multiple linear regression. Therefore, we have an analogous interpretation for the coefficients:
 
 - $\beta_0$: is the log-odds when $X_1=\ldots=X_p=0$.
 - $\beta_j$, $1\leq j\leq p$: is the **additive** increment of the log-odds for an increment of one unit in $X_j=x_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ *do not change*.
 
-The log-odds is not so easy to interpret as the odds. For that reason, an equivalent way of interpreting the coefficients, this time based on \@ref(eq:eq-odds-log1), is:
+The log-odds is not as easy to interpret as the odds. For that reason, an equivalent way of interpreting the coefficients, this time based on \@ref(eq:eq-odds-log1), is:
 
 - $e^{\beta_0}$: is the odds when $X_1=\ldots=X_p=0$.
 - $e^{\beta_j}$, $1\leq j\leq p$: is the **multiplicative** increment of the odds for an increment of one unit in $X_j=x_j$, provided that the remaining variables $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$ *do not change*. If the increment in $X_j$ is of $r$ units, then the multiplicative increment in the odds is $(e^{\beta_j})^r$.
@@ -494,7 +494,7 @@ $V_i:=\mathbb{V}\mathrm{ar}[Y_i]=a(\phi)b''(\theta_i)$. Solving explicitly the s
   \boldsymbol{\beta} \partial\boldsymbol{\beta}'}\right |_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}(\boldsymbol{\beta}_\mathrm{new} -\boldsymbol{\beta}_\mathrm{old})=-\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial
   \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}.(\#eq:newrap)
 \end{align}
-A simplifying trick is to consider the *expectation* of $\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}$ in \@ref(eq:newrap) rather than its actual value. By doing so, we can arrive to a neat iterative algorithm called *Iterative Reweighted Least Squares* (IRLS). To that aim, we use the following well-known property of the *Fisher information matrix* of the MLE theory:
+A simplifying trick is to consider the *expectation* of $\left.\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} \right |_{\boldsymbol{\beta}=\boldsymbol{\beta}_\mathrm{old}}$ in \@ref(eq:newrap) rather than its actual value. By doing so, we can arrive at a neat iterative algorithm called *Iterative Reweighted Least Squares* (IRLS). To that aim, we use the following well-known property of the *Fisher information matrix* of the MLE theory:
 \[
 \mathbb{E}\left[\frac{\partial^2 \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta} \partial\boldsymbol{\beta}'}\right]=-\mathbb{E}\left[\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\left(\frac{\partial \ell(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}\right)'\right].
 \]
@@ -531,7 +531,7 @@ In general, $\mathbb{E}\left[\frac{\partial^2 l(\boldsymbol{\beta})}{\partial \b
 
 ## Inference for model parameters {#glm-inference}
 
-The assumptions on which a generalized linear model is constructed allow to specify what is the *asymptotic* distribution of the *random vector* $\hat{\boldsymbol{\beta}}$ through the theory of MLE. Again, the distribution is derived conditionally on the sample predictors $\mathbf{X}_1,\ldots,\mathbf{X}_n$. In other words, we assume that the randomness of $Y$ comes only from $Y|(X_1=x_1,\ldots,X_p=x_p)$ and not from the predictors. 
+The assumptions on which a generalized linear model is constructed allow us to specify what is the *asymptotic* distribution of the *random vector* $\hat{\boldsymbol{\beta}}$ through the theory of MLE. Again, the distribution is derived conditionally on the sample predictors $\mathbf{X}_1,\ldots,\mathbf{X}_n$. In other words, we assume that the randomness of $Y$ comes only from $Y|(X_1=x_1,\ldots,X_p=x_p)$ and not from the predictors. 
 
 For the ease of exposition, we will **focus on the logistic model** rather than in the general case. The conceptual differences are not so big, but the simplification in terms of notation and the benefits on intuition are important.
 
@@ -602,11 +602,11 @@ Of course, this CI is **not** the same as $\left(e^{\hat\beta_j}\pm e^{\hat{\mat
 
 ### Testing on the coefficients {#glm-inference-tests}
 
-The distributions in \@ref(eq:mle3) also allow to conduct a formal hypothesis test on the coefficients $\beta_j$, $j=0,\ldots,p$. For example, the test for significance:
+The distributions in \@ref(eq:mle3) also allow us to conduct a formal hypothesis test on the coefficients $\beta_j$, $j=0,\ldots,p$. For example, the test for significance:
 \begin{align*}
 H_0:\beta_j=0
 \end{align*}
-for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is especially interesting, since it allows to answer whether *the variable $X_j$ has a significant effect on $Y$*. The statistic used for testing for significance is the Wald statistic
+for $j=0,\ldots,p$. The test of $H_0:\beta_j=0$ with $1\leq j\leq p$ is especially interesting, since it allows us to answer whether *the variable $X_j$ has a significant effect on $Y$*. The statistic used for testing for significance is the Wald statistic
 \begin{align*}
 \frac{\hat\beta_j-0}{\hat{\mathrm{SE}}(\hat\beta_j)},
 \end{align*}
@@ -758,7 +758,7 @@ For the `challenger` dataset, do the following:
 
 ## Deviance {#glm-deviance}
 
-The **deviance** is a key concept in generalized linear models. Intuitively, it measures the *deviance of the fitted generalized linear model with respect to a perfect model for $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$*. This perfect model, known as the *saturated model*, is the model that fits perfectly the data, in the sense that it has as many parameters as observations and the fitted responses ($\hat Y_i$) are the same as the observed responses ($Y_i$). For example, in logistic regression this would be the model such that
+The **deviance** is a key concept in generalized linear models. Intuitively, it measures the *deviance of the fitted generalized linear model with respect to a perfect model for $\mathbb{E}[Y|X_1=x_1,\ldots,X_p=x_p]$*. This perfect model, known as the *saturated model*, is the model that perfectly fits the data, in the sense that it has as many parameters as observations and the fitted responses ($\hat Y_i$) are the same as the observed responses ($Y_i$). For example, in logistic regression this would be the model such that
 \[
 \hat{\mathbb{P}}[Y=1|X_1=X_{i1},\ldots,X_k=X_{ip}]=Y_i,\quad i=1,\ldots,n.
 \]
@@ -915,7 +915,7 @@ D^*_{p_1}-D^*_{p_2}\stackrel{H_0}{\sim}\chi^2_{p_2-p_1}.(\#eq:d12)
 \end{align}
 If $H_0$ is true, then $D_{p_1}^*-D^*_{p_2}$ is expected to be *small*, thus we will reject $H_0$ if the value of the statistic is above the *$\alpha$-upper quantile of the $\chi^2_{p_2-p_1}$*, denoted as $\chi^2_{\alpha;p_2-p_1}$.
 
-Note that $D^*$ apparently removes the effects of $\phi$, but it is still dependent on $\phi$, since this is hidden in the likelihood (see \@ref(eq:dev)). Therefore, $D^*$ cannot be computed unless $\phi$ is know, which forbids using \@ref(eq:d12). Hopefully, this dependence is removed by employing \@ref(eq:dp) and \@ref(eq:d12) and assuming that are asymptotically independent. This gives the $F$-test for $H_0$:
+Note that $D^*$ apparently removes the effects of $\phi$, but it is still dependent on $\phi$, since this is hidden in the likelihood (see \@ref(eq:dev)). Therefore, $D^*$ cannot be computed unless $\phi$ is know, which forbids using \@ref(eq:d12). Hopefully, this dependence is removed by employing \@ref(eq:dp) and \@ref(eq:d12) and assuming that they are asymptotically independent. This gives the $F$-test for $H_0$:
 \begin{align*}
 F=\frac{(D^*_{p_1}-D^*_{p_2})/(p_2-p_1)}{D^*_{p_2}/(n-p_2-1)}=\frac{(D_{p_1}-D_{p_2})/(p_2-p_1)}{D_{p_2}/(n-p_2-1)}=\stackrel{H_0}{\sim} F_{p_2-p_1,n-p_2-1}.
 \end{align*}
@@ -1001,7 +1001,7 @@ AIC(nasa2)
 # Boston dataset
 data(Boston)
 
-# Model whether a suburb has a median house value larger than 25000$
+# Model whether a suburb has a median house value larger than $25000
 mod <- glm(I(medv > 25) ~ ., data = Boston, family = "binomial")
 summary(mod)
 r2glm(mod)
@@ -1038,7 +1038,7 @@ tab
 sum(diag(tab)) / sum(tab)
 ```
 
-It is important to recall that the hit matrix will be always *biased towards unrealistic good classification rates* if it is computed in the same sample used for fitting the logistic model. An approach based on multi-splitting/cross-validation would be required to handle this problem suitably.
+It is important to recall that the hit matrix will be always *biased towards unrealistically good classification rates* if it is computed in the same sample used for fitting the logistic model. An approach based on multi-splitting/cross-validation would be required to handle this problem suitably.
 
 ```{block, exhitmat, type = 'rmdexercise', cache = TRUE}
 For the `Boston` dataset, do the following:
@@ -1071,7 +1071,7 @@ where $\theta$ is given by (check \@ref(eq:musigmaexp)--\@ref(eq:canlink2))
 \]
 and $\eta=\beta_0+\beta_1x_{1}+\ldots+\beta_px_{p}$.
 
-In the case of the logistic and Poisson regressions, both with canonical link functions, the general model takes the forms (independence is implicit)
+In the case of the logistic and Poisson regressions, both with canonical link functions, the general model takes the form (independence is implicit)
 \begin{align}
 Y|(X_1=x_1,\ldots,X_p=x_p)&\sim\mathrm{Ber}\left(\mathrm{logistic}(\eta)\right), (\#eq:condber)\\
 Y|(X_1=x_1,\ldots,X_p=x_p)&\sim\mathrm{Pois}\left(e^{\eta}\right). (\#eq:condpois)
@@ -1121,16 +1121,16 @@ The previous statement is of variable accuracy, depending on the model, sample s
 The deviance residuals are key for the diagnostics of generalized linear models. Whenever we refer to "residuals", we understand that we refer to the deviance residuals (several are possible). They are also the residuals returned in `R`, either by `glm$residuals` or by `residuals(glm)`.
 
 ```{block2, insdevres, type = 'rmdinsight', cache = TRUE}
-This generalization has interesting connexions:
+This generalization has interesting connections:
 
-- If the canonical function is employed, then $\sum_{i=1}^n \hat\varepsilon_i^D=0$, as happened in linear models.
+- If the canonical function is employed, then $\sum_{i=1}^n \hat\varepsilon_i^D=0$, as in linear models.
 - The estimate of the scale parameter can be seen as $\hat\phi_D=\frac{\sum_{i=1}^n(\hat\varepsilon_i^D)^2}{n-p-1}$, which is perfectly coherent with $\hat\sigma$ in the linear model.
 - Therefore, $\hat\phi_D$ is the sample variance of $\hat\varepsilon_1^D,\ldots,\hat\varepsilon_n^D$, which suggets that $\phi$ is the asymptotic variance of the population deviance residuals, in other words, $\mathbb{V}\mathrm{ar}[\varepsilon^D]\approx \phi$.
 
 ```
 
 ```{block, cauassumpfailglm, type = 'rmdcaution', cache = TRUE}
-When one assumption fails, it is likely that this failure will affect to other assumptions. For example, if linearity fails, then most likely the response distribution will fail also. The key point is to identify the **root cause** of the assumptions failure in order to try to find a patch.
+When one assumption fails, it is likely that this failure will affect other assumptions. For example, if linearity fails, then most likely the response distribution will fail also. The key point is to identify the **root cause** of the assumptions failure in order to try to find a patch.
 ```
 
 The script used for generating the following Figures \@ref(fig:poisdiagnostics1-good)--\@ref(fig:logdiagnostics3-bad) is available [here](https://github.com/egarpor/PM-UC3M/blob/master/images/R/hypothesisGlm.R).
@@ -1141,7 +1141,7 @@ Linearity between the *transformed expectation* of $Y$ and the predictors $X_1,\
 
 #### How to check it {-}
 
-We use the *residuals vs. fitted values plot*, which for generalized linear models is the scatterplot of $(\hat\eta_i,\hat \varepsilon_i^D)$, $i=1,\ldots,n$. Recall that it is **not** the scatterplot of $(\hat Y_i,\hat \varepsilon_i)$. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i^D$ with respect to $\hat \eta_i$. If nonlinearities are observed, it is worth to plot the regression terms of the model via `termplot`.
+We use the *residuals vs. fitted values plot*, which for generalized linear models is the scatterplot of $(\hat\eta_i,\hat \varepsilon_i^D)$, $i=1,\ldots,n$. Recall that it is **not** the scatterplot of $(\hat Y_i,\hat \varepsilon_i)$. Under linearity, we expect that there is *no trend in the residuals* $\hat\varepsilon_i^D$ with respect to $\hat \eta_i$. If nonlinearities are observed, it is worth plotting the regression terms of the model via `termplot`.
 
 (ref:poisdiagnostics1-good-title) Residuals vs. fitted values plots (first row) for datasets (second row) **respecting** the linearity assumption in **Poisson** regression.
 
@@ -1173,11 +1173,11 @@ Using an adequate nonlinear transformation for the problematic predictors or add
 
 ### Response distribution {#glm-diagnostics-2}
 
-The *approximate* normality in the deviance residuals allows to evaluate how well is satisfied the assumption of the response distribution. The good news is that we can do so **without relying in ad-hoc tools for each distribution**. The bad news is that we have to pay a price in terms of inexactitude, since we employ an **asymptotic distribution**. The speed of this asymptotic convergence largely depends on several aspects (distribution of the response, sample size, distribution od the predictors).
+The *approximate* normality in the deviance residuals allows to evaluate how well satisfied the assumption of the response distribution is. The good news is that we can do so **without relying on ad-hoc tools for each distribution**. The bad news is that we have to pay a price in terms of inexactitude, since we employ an **asymptotic distribution**. The speed of this asymptotic convergence largely depends on several aspects (distribution of the response, sample size, distribution of the predictors).
 
 #### How to check it {-}
 
-The *QQ-plot* allows to check if the standardized residuals follow a $\mathcal{N}(0,1)$. **Under the correct distribution of the response, we expect the points to align with the diagonal line**. It is usual to have departures from the diagonal in the extremes than in the center, even under normality, although these departures are more evident if the data is non normal. Unfortunately, it is also possible to have severe departures from normality *even* if the model is correct, see below.
+The *QQ-plot* allows us to check if the standardized residuals follow a $\mathcal{N}(0,1)$. **Under the correct distribution of the response, we expect the points to align with the diagonal line**. It is usual to have departures from the diagonal in the extremes other than in the center, even under normality, although these departures are more evident if the data is non normal. Unfortunately, it is also possible to have severe departures from normality *even* if the model is correct, see below.
 
 (ref:poisdiagnostics2-good-title) QQ-plots for the deviance residuals (first row) for datasets (second row) **respecting** the response distribution assumption for **Poisson** regression.
 
@@ -1207,7 +1207,7 @@ Formal normality tests are available through `shapiro.test` and `lillie.test`.
 
 #### What to do if fails {-}
 
-Patching the distribution assumption is not easy and requires from the consideration of more flexible models. One possibility is to transform $Y$ by means of a Box-Cox transformation of the form $\frac{Y^\lambda-1}{\lambda}$, $\lambda\neq0$ or $\log(Y)$, of course at the price of modelling the transformed response rather than $Y$.
+Patching the distribution assumption is not easy and requires the consideration of more flexible models. One possibility is to transform $Y$ by means of a Box-Cox transformation of the form $\frac{Y^\lambda-1}{\lambda}$, $\lambda\neq0$ or $\log(Y)$, of course at the price of modelling the transformed response rather than $Y$.
 
 ### Independence {#glm-diagnostics-3}
 
@@ -1288,7 +1288,7 @@ vif(modClean)
 ```
 
 ```{block2, inspcrglm, type = 'rmdinsight', cache = TRUE}
-Performing **PCA on the predictors**, as seen in Section \@ref(lm-ii-dimred-pcr), is a possibility to achieve **uncorrelation** and can be employed straighforwardly in generalized linear models. The story is different for PLS, since it makes use of the linear structure between the response and the predictors and thus is not inmediately adaptable to generalized linear models.
+Performing **PCA on the predictors**, as seen in Section \@ref(lm-ii-dimred-pcr), is a possibility to achieve **uncorrelation** and can be employed straighforwardly in generalized linear models. The story is different for PLS, since it makes use of the linear structure between the response and the predictors and thus is not immediately adaptable to generalized linear models.
 ```
 
 ## Shrinkage {#glm-shrink} 
@@ -1383,11 +1383,11 @@ predict(ncvLasso, type = "coefficients", s = ncvLasso$lambda.1se)
 # Inference in testing part
 summary(glm(League ~ HmRun, data = Hitters[!train, ], family = "binomial"))
 # HmRun is now not significant... 
-# We can repeat the analyis for different partitions of the data and we will
+# We can repeat the analysis for different partitions of the data and we will
 # obtain weak significances. Therefore, we can conclude that this is an spurious
 # finding and that HmRun is not significant as a single predictor
 
-# Prediction (obviously not trustabe, but for illustration)
+# Prediction (obviously not trustable, but for illustration)
 pred <- predict(ncvLasso, newx = x[!train, ], type = "response",
                 s = ncvLasso$lambda.1se)
 
@@ -1403,15 +1403,15 @@ Perform an adequate statistical analysis based on shrinkage of a generalized lin
 - What (if any) are the leading factors among the features of a player in season 1986 in order to be in the top $10\%$ of most paid players in season 1987?
 - What (if any) are the player features in season 1986 influencing the number of home runs in the same season? And during his career?
 
-*Hint*: you may use as a template the one shown in the section.
+*Hint*: you may use the one shown in the section as a template.
 ```
 
 ## Big data considerations {#glm-bigdata}
 
 As we saw in Section \@ref(glm-model-general), fitting a generalized linear model involves fitting a series of linear models. Therefore, all the memory problems that appeared in Section \@ref(lm-iii-bigdata) are inherited. Worse, computation is now more complicated because:
 
-1. *Computing the likelihood requires reading all the data at once*. Differently from the linear model, updating of the model with a new chunk implies re-fitting with all the data due to the nonlinearity of the likelihood.
-2. The IRLS algorithm *requires reading as many times the data as iterations*.
+1. *Computing the likelihood requires reading all the data at once*. Differently from the linear model, updating the model with a new chunk implies re-fitting with all the data due to the nonlinearity of the likelihood.
+2. The IRLS algorithm *requires reading the data as many times as iterations*.
 
 These two peculiarities are a game-changer for the approach followed in Section \@ref(lm-iii-bigdata): `biglm`'s fitting function for generalized linear models, `bigglm`, needs to have access to the full data while performing the fitting. This can be cumbersome. 
 
