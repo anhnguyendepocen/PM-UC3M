@@ -7,3 +7,4 @@ rsconnect
 TODO
 *.bib.bak
 *.bib.sav
+.DS_Store
