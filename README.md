@@ -36,8 +36,9 @@ Contributions, reporting of typos, and feedback on the notes are very welcome. E
 
 **List of contributors**:
 
--   [José Ángel Fernández](https://github.com/jangelfdez)
--   [Gulnur Demir](https://www.linkedin.com/in/gulnurdemir/)
+-   [Katherine Botz](https://github.com/katbot99) (performed a major proofreading of the course materials)
+-   [José Ángel Fernández](https://github.com/jangelfdez) (provided fixes for several typos)
+-   [Gulnur Demir](https://www.linkedin.com/in/gulnurdemir/) (indicated a couple of typos)
 
 License
 -------

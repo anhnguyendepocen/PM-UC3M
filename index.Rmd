@@ -1,8 +1,8 @@
 ---
 title: "Notes for Predictive Modeling"
 subtitle: "MSc in Big Data Analytics at Carlos III University of Madrid"
-author: "Eduardo García Portugués"
-date: "`r Sys.Date()`, v6.2"
+author: "Eduardo García-Portugués"
+date: "`r Sys.Date()`, v6.3"
 knit: "bookdown::render_book"
 documentclass: book
 bibliography: PM-UC3M.bib
@@ -44,7 +44,7 @@ We will employ several packages that are not contained in `R` (*note: list to be
 install.packages(c("MASS", "car", "readxl", "rgl", "nortest", "pca3d", 
                    "ISLR", "pls", "glmnet", "biglm", "leaps", "viridis",
                    "ffbase", "KernSmooth", "np", "locfit", "manipulate", 
-                   "mice", "VIM", "nnet"))
+                   "mice", "VIM", "nnet", "lubridate"))
 ```
 
 The codes in the notes may assume that the packages have been loaded, so it is better to do it now (*note: list to be updated*):
@@ -262,6 +262,12 @@ Several great reference books have been used for preparing these notes. The foll
 - @Wasserman2006 <!-- (Sections \@ref(npreg-bwd)). -->
 
 In addition, these notes are possible due to the existence of these incredible pieces of software: @R-bookdown, @R-knitr, @R-rmarkdown, and @R-base.
+
+The notes have benefited notably from contributions from the following people:
+
+- [Katherine Botz](https://github.com/katbot99) (performed a major proofreading of the course materials)
+- [José Ángel Fernández](https://github.com/jangelfdez) (provided fixes for several typos)
+- [Gulnur Demir](https://www.linkedin.com/in/gulnurdemir/) (indicated a couple of typos)
 
 The icons used in the notes were designed by [madebyoliver](http://www.flaticon.com/authors/madebyoliver), [freepik](http://www.flaticon.com/authors/freepik), and [roundicons](http://www.flaticon.com/authors/roundicons) from [Flaticon](http://www.flaticon.com/).
 
